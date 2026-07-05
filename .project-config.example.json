@@ -1,0 +1,14 @@
+{
+  "project_name": "AI QA Automation Project",
+  "application_name": "Application Under Test",
+  "base_url": "",
+  "source_type": "jira",
+  "feature": "login",
+  "provider": "codex",
+  "ollama_model": "llama3",
+  "execution_project": "chromium",
+  "use_mcp": true,
+  "skip_npm": false,
+  "test_id_attribute": "data-test",
+  "notes": "Configure from GUI Project Setup. No credentials are stored here."
+}

@@ -1,0 +1,1988 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-06T01:41:18",
+  "failed_specs": [
+    "tests/ui/login.spec.ts",
+    "tests/ui/static-pages.spec.ts"
+  ],
+  "test_case_outcomes": [
+    {
+      "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+      "line": 47,
+      "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards retries and eventually succeeds",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+      "line": 71,
+      "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards returns failure after max retries without throwing",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+      "line": 92,
+      "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards sends multiple cards and keeps result order",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+      "line": 60,
+      "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › buildRunStartPayload includes run metadata",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+      "line": 78,
+      "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › buildPayloads returns one summary card for successful run",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+      "line": 84,
+      "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › summary card includes failed status and facts",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+      "line": 106,
+      "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › failed run appends failure detail card with artifact paths",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+      "line": 122,
+      "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › large failure list is truncated and chunked",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+      "line": 139,
+      "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › parseMentions resolves TO and CC entries",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+      "line": 150,
+      "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › summary card includes mention entities when mentions are provided",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 77,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › counts a single passing test correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 92,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › counts a single failing test correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 106,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › counts a skipped test correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 117,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › classifies retry-then-pass as flaky (not failed)",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 135,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › classifies retry-then-fail as failed (not duplicated)",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 153,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › computes failure rate correctly for mixed results",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 170,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › tracks retries count on the failure detail",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 185,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › reset() clears accumulated data",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 198,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › summary reflects provided env/branch/buildUrl",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+      "line": 227,
+      "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › timedOut status is treated as failed",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/customer.spec.ts",
+      "line": 12,
+      "test": "api\\customer.spec.ts › Customer API Tests › GET customer details returns 200 and valid data",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/customer.spec.ts",
+      "line": 34,
+      "test": "api\\customer.spec.ts › Customer API Tests › GET customer with valid GUID returns customer data",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/customer.spec.ts",
+      "line": 56,
+      "test": "api\\customer.spec.ts › Customer API Tests › GET customer agreement details by section",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/customer.spec.ts",
+      "line": 75,
+      "test": "api\\customer.spec.ts › Customer API Tests › GET customer with invalid GUID returns 400 or 404",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/customer.spec.ts",
+      "line": 90,
+      "test": "api\\customer.spec.ts › Customer API Tests › GET customer without GUID returns 400",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/lease.spec.ts",
+      "line": 12,
+      "test": "api\\lease.spec.ts › Lease API Tests › GET lease details returns 200",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/lease.spec.ts",
+      "line": 35,
+      "test": "api\\lease.spec.ts › Lease API Tests › GET payment history returns 200",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/lease.spec.ts",
+      "line": 56,
+      "test": "api\\lease.spec.ts › Lease API Tests › GET Benefit+ eligibility for customer",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/lease.spec.ts",
+      "line": 79,
+      "test": "api\\lease.spec.ts › Lease API Tests › GET Benefit+ review plan details",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/lease.spec.ts",
+      "line": 97,
+      "test": "api\\lease.spec.ts › Lease API Tests › GET lease details with invalid ID returns 400 or 404",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/payment.spec.ts",
+      "line": 19,
+      "test": "api\\payment.spec.ts › Payment API Tests › GET payment methods returns 200",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/payment.spec.ts",
+      "line": 43,
+      "test": "api\\payment.spec.ts › Payment API Tests › GET payment details for lease returns 200",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/payment.spec.ts",
+      "line": 64,
+      "test": "api\\payment.spec.ts › Payment API Tests › GET new payment options returns 200",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/payment.spec.ts",
+      "line": 82,
+      "test": "api\\payment.spec.ts › Payment API Tests › GET lease dashboard returns 200",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/payment.spec.ts",
+      "line": 99,
+      "test": "api\\payment.spec.ts › Payment API Tests › POST make a payment returns 200 or 201",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/api/payment.spec.ts",
+      "line": 124,
+      "test": "api\\payment.spec.ts › Payment API Tests › GET payment methods without customer ID returns 400",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/mobile/mobile-home.spec.ts",
+      "line": 11,
+      "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Mobile home page loads with correct title",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/mobile/mobile-home.spec.ts",
+      "line": 25,
+      "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Hamburger menu opens and contains navigation items",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/mobile/mobile-home.spec.ts",
+      "line": 42,
+      "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Login button visible and functional",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\mobile\\mobile-home-page.ts",
+            "column": 28,
+            "line": 371
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\\'Log in\\'), a:has-text(\\'Log in\\'), button:has-text(\\'Login\\'), a:has-text(\\'Login\\')').first() to be visible\u001b[22m\n\u001b[2m    24 × locator resolved to hidden <a href=\"https://customer.acima.com/?davuid=1003811783280635848&dasrc=web\">Customer Login</a>\u001b[22m\n\n\n   at ..\\pages\\mobile\\mobile-home-page.ts:371\n\n  369 |   async validateLoginButtonVisible(): Promise<void> {\n  370 |     this.logStep('✔ Validating Login button is visible on mobile');\n> 371 |     await this.loginButton.waitFor({ state: 'visible', timeout: 10_000 });\n      |                            ^\n  372 |     this.logPass('Login button is visible on mobile');\n  373 |   }\n  374 |\n    at MobileHomePage.validateLoginButtonVisible (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\mobile\\mobile-home-page.ts:371:28)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\mobile\\mobile-home.spec.ts:49:26"
+        }
+      ]
+    },
+    {
+      "spec": "tests/mobile/mobile-home.spec.ts",
+      "line": 52,
+      "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Hero section and footer present",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/mobile/mobile-home.spec.ts",
+      "line": 64,
+      "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Shop and Help submenus work via hamburger",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/seed.spec.ts",
+      "line": 4,
+      "test": "seed.spec.ts › Test group › seed",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 31,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Acima.com Public Pages › Home page loads with visible main banner and header navigation",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 42,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Acima.com Public Pages › Footer links are present on the home page",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 65,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Authentication › Login with valid credentials navigates to Customer Portal",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 83,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Authentication › Logout redirects back to Acima home page",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 117,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Dashboard › Dashboard loads and displays active agreement details",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 141,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Dashboard › Sidebar navigation – Payments link is accessible",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/shop-online.spec.ts",
+      "line": 10,
+      "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Navigate directly to Shop Online page",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/shop-online.spec.ts",
+      "line": 22,
+      "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Navigate from homepage to Shop Online",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/shop-online.spec.ts",
+      "line": 30,
+      "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Validate Shop Online page comprehensive structure",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/shop-online.spec.ts",
+      "line": 50,
+      "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Validate retailer categories and search functionality",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/shop-online.spec.ts",
+      "line": 77,
+      "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Validate FAQ and Footer sections",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 20,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Home page loads and main banner is visible",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 32,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Main Banner section valid",
+      "status": "failed",
+      "plain_english_reason": "locator is missing, hidden, or not available in DOM for this page state",
+      "suggested_fix_area": "Check live DOM with Playwright MCP/codegen, then update pageObjects/locator repository or reusable page method; avoid hard waits and test skips.",
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts",
+            "column": 69,
+            "line": 80
+          },
+          "message": "Error: Link /en/shop-online should be visible before click\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('a[href=\"/en/shop-online\"]').first()\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Link /en/shop-online should be visible before click with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('a[href=\"/en/shop-online\"]').first()\u001b[22m\n\u001b[2m    13 × locator resolved to <a href=\"/en/shop-online\">Shop Online Stores</a>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n   at ..\\pages\\base-page.ts:80\n\n  78 |     await this.dismissTransientOverlays();\n  79 |     await this.scrollLocatorIntoView(locator);\n> 80 |     await expect(locator, `${name} should be visible before click`).toBeVisible({ timeout: 10_000 });\n     |                                                                     ^\n  81 |     try {\n  82 |       await locator.click({ timeout: 15_000 });\n  83 |     } catch {\n    at OverviewPage.click (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts:80:69)\n    at OverviewPage.openAndValidateLinks (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:65:7)\n    at OverviewPage.validateMainBanner (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:91:5)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\static-pages.spec.ts:36:7"
+        },
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        },
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts",
+            "column": 21,
+            "line": 87
+          },
+          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/en/find-a-store\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/en/find-a-store\">Shop Nearby Stores</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    12 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n   at ..\\pages\\base-page.ts:87\n\n  85 |       await this.dismissTransientOverlays();\n  86 |       await this.scrollLocatorIntoView(locator);\n> 87 |       await locator.click({ timeout: 10_000 });\n     |                     ^\n  88 |     }\n  89 |   }\n  90 |\n    at OverviewPage.click (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts:87:21)\n    at OverviewPage.openAndValidateLinks (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:65:7)\n    at OverviewPage.validateMainBanner (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:91:5)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\static-pages.spec.ts:36:7"
+        }
+      ]
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 40,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Ways to Shop section valid",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 48,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Shopping Experience section valid",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 56,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Mobile App section valid",
+      "status": "failed",
+      "plain_english_reason": "locator is missing, hidden, or not available in DOM for this page state",
+      "suggested_fix_area": "Check live DOM with Playwright MCP/codegen, then update pageObjects/locator repository or reusable page method; avoid hard waits and test skips.",
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts",
+            "column": 19,
+            "line": 77
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/en/shop-online\"]').first() to be visible\u001b[22m\n\u001b[2m    34 × locator resolved to hidden <a href=\"/en/shop-online\">Shop Online Stores</a>\u001b[22m\n\n\n   at ..\\pages\\base-page.ts:77\n\n  75 |     this.logStep(`🖱️ Click on '${name}'`);\n  76 |     await this.waitForStableDom();\n> 77 |     await locator.waitFor({ state: 'visible', timeout: 15_000 });\n     |                   ^\n  78 |     await this.dismissTransientOverlays();\n  79 |     await this.scrollLocatorIntoView(locator);\n  80 |     await expect(locator, `${name} should be visible before click`).toBeVisible({ timeout: 10_000 });\n    at OverviewPage.click (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts:77:19)\n    at OverviewPage.openAndValidateLinks (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:65:7)\n    at OverviewPage.validateMobileAppSection (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:115:5)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\static-pages.spec.ts:60:7"
+        },
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts",
+            "column": 19,
+            "line": 77
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/en/find-a-store\"]').first() to be visible\u001b[22m\n\u001b[2m    34 × locator resolved to hidden <a href=\"/en/find-a-store\">Shop Nearby Stores</a>\u001b[22m\n\n\n   at ..\\pages\\base-page.ts:77\n\n  75 |     this.logStep(`🖱️ Click on '${name}'`);\n  76 |     await this.waitForStableDom();\n> 77 |     await locator.waitFor({ state: 'visible', timeout: 15_000 });\n     |                   ^\n  78 |     await this.dismissTransientOverlays();\n  79 |     await this.scrollLocatorIntoView(locator);\n  80 |     await expect(locator, `${name} should be visible before click`).toBeVisible({ timeout: 10_000 });\n    at OverviewPage.click (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts:77:19)\n    at OverviewPage.openAndValidateLinks (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:65:7)\n    at OverviewPage.validateMobileAppSection (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:115:5)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\static-pages.spec.ts:60:7"
+        }
+      ]
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 66,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Shop Nearby Stores page loads correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 80,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Shop Online Stores page loads correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 93,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Shop Marketplace page loads correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 106,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Footer links are present on page",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 118,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Switch to Spanish language and back to English",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/static-pages.spec.ts",
+      "line": 133,
+      "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Spanish home page loads correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/seed.spec.ts",
+      "line": 4,
+      "test": "unit\\seed.spec.ts › Test group › seed",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+      "line": 25,
+      "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › isConfigured false for empty webhook",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+      "line": 30,
+      "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards skips gracefully when webhook missing",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+      "line": 39,
+      "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards skips when card list is empty",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 175,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Payment Methods › Payment Methods page loads after adding the bank account",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 225,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Payment Methods › Make a Payment page renders payment type options",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 261,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Profile › Profile page loads with correct header and profile section",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 293,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – Spanish Language › Spanish version of home page loads without errors",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/smoke/ui-smoke.spec.ts",
+      "line": 314,
+      "test": "smoke\\ui-smoke.spec.ts › Smoke – End-to-End Critical Path › Full journey: login → dashboard → navigate to payments → logout",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/acima-advantage.spec.ts",
+      "line": 44,
+      "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Acima Advantage button exists and page loads",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/acima-advantage.spec.ts",
+      "line": 52,
+      "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Start Earning and Enroll Now buttons @enrollment",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/acima-advantage.spec.ts",
+      "line": 80,
+      "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Refer a Friend functionality @refer-friend",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/acima-advantage.spec.ts",
+      "line": 98,
+      "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Earn More in Mobile App functionality @earn-more",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/acima-advantage.spec.ts",
+      "line": 110,
+      "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Spanish language support @spanish",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/benefit-plus.spec.ts",
+      "line": 23,
+      "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Benefit+ NOT displayed for ineligible customer",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/benefit-plus.spec.ts",
+      "line": 38,
+      "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Active Benefit+ membership displays correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/benefit-plus.spec.ts",
+      "line": 56,
+      "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Enroll in Benefit+ successfully",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/benefit-plus.spec.ts",
+      "line": 82,
+      "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Benefit+ agreement error when name does not match",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/benefit-plus.spec.ts",
+      "line": 108,
+      "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Benefit+ cancellation screen displays correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/benefit-plus.spec.ts",
+      "line": 126,
+      "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Benefit+ agreement shows in Spanish when language switched",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/dashboard.spec.ts",
+      "line": 19,
+      "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard with ACTIVE agreement",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/dashboard.spec.ts",
+      "line": 43,
+      "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard with PAST DUE agreement",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/dashboard.spec.ts",
+      "line": 63,
+      "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard with Catch Up Plan agreement",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/dashboard.spec.ts",
+      "line": 82,
+      "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › View Lease button visible on dashboard",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/dashboard.spec.ts",
+      "line": 103,
+      "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": [
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        }
+      ]
+    },
+    {
+      "spec": "tests/ui/dashboard.spec.ts",
+      "line": 124,
+      "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard content displayed in Spanish",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/dashboard.spec.ts",
+      "line": 149,
+      "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Verify left sidebar navigation in desktop view",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/login.spec.ts",
+      "line": 15,
+      "test": "ui\\login.spec.ts › Login – Customer Portal › Successful login with valid credentials",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/login.spec.ts",
+      "line": 35,
+      "test": "ui\\login.spec.ts › Login – Customer Portal › Login with past-due account",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/login.spec.ts",
+      "line": 54,
+      "test": "ui\\login.spec.ts › Login – Customer Portal › Login row 1: Customer data with ACTIVE agreement",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/login.spec.ts",
+      "line": 54,
+      "test": "ui\\login.spec.ts › Login – Customer Portal › Login row 2: Customer data with PAST DUE agreement",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/login.spec.ts",
+      "line": 71,
+      "test": "ui\\login.spec.ts › Login – Customer Portal › Logout clears session",
+      "status": "failed",
+      "plain_english_reason": "test timed out; likely slow AUT, navigation/state wait, or blocked locator/action",
+      "suggested_fix_area": "Check live DOM with Playwright MCP/codegen, then update pageObjects/locator repository or reusable page method; avoid hard waits and test skips.",
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\login-page.ts",
+            "column": 29,
+            "line": 439
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('menuitem', { name: /log\\s*out|logout|sign\\s*out/i }).or(getByRole('button', { name: /log\\s*out|logout|sign\\s*out/i })).or(getByRole('link', { name: /log\\s*out|logout|sign\\s*out/i })).or(locator('button:has-text(\\'Log out\\'), button:has-text(\\'Log Out\\'), button:has-text(\\'Logout\\'), button:has-text(\\'Sign out\\'), a:has-text(\\'Log out\\'), a:has-text(\\'Log Out\\'), a:has-text(\\'Logout\\'), a:has-text(\\'Sign out\\'), [role=\\'menuitem\\']:has-text(\\'Log out\\'), [role=\\'menuitem\\']:has-text(\\'Log Out\\'), [role=\\'menuitem\\']:has-text(\\'Logout\\'), [data-testid=\\'logout\\'], [data-testid*=\\'logout\\' i], [aria-label*=\\'logout\\' i], [aria-label*=\\'log out\\' i], [href*=\\'logout\\' i], [href*=\\'signout\\' i]')).first() to be visible\u001b[22m\n\n\n   at ..\\pages\\login-page.ts:439\n\n  437 |     this.logStep('🚪 Logging out');\n  438 |     await this.revealLogoutOption();\n> 439 |     await this.logoutOption.waitFor({ state: 'visible', timeout: 10_000 });\n      |                             ^\n  440 |     await this.click(this.logoutOption, 'Logout');\n  441 |     await this.page.waitForLoadState('domcontentloaded');\n  442 |   }\n    at LoginPage.logout (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\login-page.ts:439:29)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\login.spec.ts:83:7"
+        },
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\login-page.ts",
+            "column": 29,
+            "line": 439
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('menuitem', { name: /log\\s*out|logout|sign\\s*out/i }).or(getByRole('button', { name: /log\\s*out|logout|sign\\s*out/i })).or(getByRole('link', { name: /log\\s*out|logout|sign\\s*out/i })).or(locator('button:has-text(\\'Log out\\'), button:has-text(\\'Log Out\\'), button:has-text(\\'Logout\\'), button:has-text(\\'Sign out\\'), a:has-text(\\'Log out\\'), a:has-text(\\'Log Out\\'), a:has-text(\\'Logout\\'), a:has-text(\\'Sign out\\'), [role=\\'menuitem\\']:has-text(\\'Log out\\'), [role=\\'menuitem\\']:has-text(\\'Log Out\\'), [role=\\'menuitem\\']:has-text(\\'Logout\\'), [data-testid=\\'logout\\'], [data-testid*=\\'logout\\' i], [aria-label*=\\'logout\\' i], [aria-label*=\\'log out\\' i], [href*=\\'logout\\' i], [href*=\\'signout\\' i]')).first() to be visible\u001b[22m\n\n\n   at ..\\pages\\login-page.ts:439\n\n  437 |     this.logStep('🚪 Logging out');\n  438 |     await this.revealLogoutOption();\n> 439 |     await this.logoutOption.waitFor({ state: 'visible', timeout: 10_000 });\n      |                             ^\n  440 |     await this.click(this.logoutOption, 'Logout');\n  441 |     await this.page.waitForLoadState('domcontentloaded');\n  442 |   }\n    at LoginPage.logout (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\login-page.ts:439:29)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\login.spec.ts:83:7"
+        }
+      ]
+    },
+    {
+      "spec": "tests/ui/login.spec.ts",
+      "line": 93,
+      "test": "ui\\login.spec.ts › Login – Customer Portal › Profile dropdown options visible after login",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/payment.spec.ts",
+      "line": 16,
+      "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Make a Payment – Next Renewal flow",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/payment.spec.ts",
+      "line": 35,
+      "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Make a Payment – Payoff (Today's Purchase) flow",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/payment.spec.ts",
+      "line": 56,
+      "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Payment Methods page loads correctly",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/payment.spec.ts",
+      "line": 78,
+      "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Add Credit/Debit Card as payment method",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/payment.spec.ts",
+      "line": 113,
+      "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Add Bank Account as payment method",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/payment.spec.ts",
+      "line": 145,
+      "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Verify payment summary section in desktop view",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/profile.spec.ts",
+      "line": 19,
+      "test": "ui\\profile.spec.ts › Profile Page – Customer Portal › Profile page loads with correct data",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/profile.spec.ts",
+      "line": 36,
+      "test": "ui\\profile.spec.ts › Profile Page – Customer Portal › Profile page content shown in Spanish",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/profile.spec.ts",
+      "line": 63,
+      "test": "ui\\profile.spec.ts › Profile Page – Customer Portal › Profile page data matches API response",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/shop-marketplace.spec.ts",
+      "line": 10,
+      "test": "ui\\shop-marketplace.spec.ts › Shop Marketplace - Direct Tests › Navigate directly to Shop Marketplace page",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/shop-marketplace.spec.ts",
+      "line": 33,
+      "test": "ui\\shop-marketplace.spec.ts › Shop Marketplace - Direct Tests › Navigate from home to Shop Marketplace via dropdown menu",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    },
+    {
+      "spec": "tests/ui/shop-marketplace.spec.ts",
+      "line": 63,
+      "test": "ui\\shop-marketplace.spec.ts › Shop Marketplace - Direct Tests › Validate Shop Marketplace page comprehensive structure",
+      "status": "passed",
+      "plain_english_reason": "passed",
+      "suggested_fix_area": "No fix required",
+      "errors": []
+    }
+  ],
+  "plain_english_summary": "2 spec(s) failed. Primary RCA category: Locator Not Found Or Ambiguous. See the test-by-test outcome table for exact passed/failed tests and reasons.",
+  "what_likely_happened": [
+    "The test most likely waited for an element that was missing, unstable, hidden, or matched by an outdated locator.",
+    "A popup, modal, overlay, or dialog may have blocked the expected action.",
+    "A backend/API, auth, VPN, proxy, or environment issue may be involved. Do not patch UI code until this is checked.",
+    "The failure may be an assertion difference. Changing the expected value should require manual approval unless evidence proves it is a harmless copy update."
+  ],
+  "safe_next_action": "Apply self-healing only if the policy gate allows it; otherwise raise manual review/product/environment issue.",
+  "auto_heal_status": "blocked_or_requires_manual_review",
+  "recommended_human_steps": [
+    "Open the Playwright trace and screenshot for the failed spec.",
+    "Check whether the failed locator belongs in pageObjects rather than the spec file.",
+    "Check API status/auth/session/test data before patching UI flow.",
+    "Review Codex patch diff; reject assertion weakening, test skips, hard waits, and force clicks.",
+    "Rerun failed specs only, then merge the retry result into the original report."
+  ],
+  "evidence_links": {
+    "rca_json": "generated-playwright/reports/existing-framework/root-cause-report.json",
+    "auditable_rca_chain": "generated-playwright/reports/existing-framework/robust-rca/auditable-rca-chain.html",
+    "framework_intelligence_v2": "generated-playwright/reports/existing-framework/framework-intelligence-v2.html"
+  },
+  "source": "AstraHeal exact Playwright inventory",
+  "summary": "109 test case(s) analysed: 106 passed, 3 failed.",
+  "total_test_cases": 109,
+  "passed_test_cases": 106,
+  "failed_test_cases": 3,
+  "message": "Test-level RCA generated from the latest failed inventory. Passed tests are shown as passed; failed tests include a plain-English reason and safe fix area.",
+  "generic_summary": {
+    "ok": true,
+    "generated_at": "2026-07-06T01:41:18",
+    "failed_specs": [
+      "tests/ui/login.spec.ts",
+      "tests/ui/static-pages.spec.ts"
+    ],
+    "test_case_outcomes": [
+      {
+        "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+        "line": 47,
+        "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards retries and eventually succeeds",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+        "line": 71,
+        "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards returns failure after max retries without throwing",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+        "line": 92,
+        "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards sends multiple cards and keeps result order",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "line": 60,
+        "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › buildRunStartPayload includes run metadata",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "line": 78,
+        "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › buildPayloads returns one summary card for successful run",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "line": 84,
+        "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › summary card includes failed status and facts",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "line": 106,
+        "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › failed run appends failure detail card with artifact paths",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "line": 122,
+        "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › large failure list is truncated and chunked",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "line": 139,
+        "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › parseMentions resolves TO and CC entries",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "line": 150,
+        "test": "unit\\teams\\teamsPayloadBuilder.spec.ts › teamsPayloadBuilder › summary card includes mention entities when mentions are provided",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 77,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › counts a single passing test correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 92,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › counts a single failing test correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 106,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › counts a skipped test correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 117,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › classifies retry-then-pass as flaky (not failed)",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 135,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › classifies retry-then-fail as failed (not duplicated)",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 153,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › computes failure rate correctly for mixed results",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 170,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › tracks retries count on the failure detail",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 185,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › reset() clears accumulated data",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 198,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › summary reflects provided env/branch/buildUrl",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/testRunAggregator.spec.ts",
+        "line": 227,
+        "test": "unit\\teams\\testRunAggregator.spec.ts › TestRunAggregator › timedOut status is treated as failed",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/customer.spec.ts",
+        "line": 12,
+        "test": "api\\customer.spec.ts › Customer API Tests › GET customer details returns 200 and valid data",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/customer.spec.ts",
+        "line": 34,
+        "test": "api\\customer.spec.ts › Customer API Tests › GET customer with valid GUID returns customer data",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/customer.spec.ts",
+        "line": 56,
+        "test": "api\\customer.spec.ts › Customer API Tests › GET customer agreement details by section",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/customer.spec.ts",
+        "line": 75,
+        "test": "api\\customer.spec.ts › Customer API Tests › GET customer with invalid GUID returns 400 or 404",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/customer.spec.ts",
+        "line": 90,
+        "test": "api\\customer.spec.ts › Customer API Tests › GET customer without GUID returns 400",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/lease.spec.ts",
+        "line": 12,
+        "test": "api\\lease.spec.ts › Lease API Tests › GET lease details returns 200",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/lease.spec.ts",
+        "line": 35,
+        "test": "api\\lease.spec.ts › Lease API Tests › GET payment history returns 200",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/lease.spec.ts",
+        "line": 56,
+        "test": "api\\lease.spec.ts › Lease API Tests › GET Benefit+ eligibility for customer",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/lease.spec.ts",
+        "line": 79,
+        "test": "api\\lease.spec.ts › Lease API Tests › GET Benefit+ review plan details",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/lease.spec.ts",
+        "line": 97,
+        "test": "api\\lease.spec.ts › Lease API Tests › GET lease details with invalid ID returns 400 or 404",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/payment.spec.ts",
+        "line": 19,
+        "test": "api\\payment.spec.ts › Payment API Tests › GET payment methods returns 200",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/payment.spec.ts",
+        "line": 43,
+        "test": "api\\payment.spec.ts › Payment API Tests › GET payment details for lease returns 200",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/payment.spec.ts",
+        "line": 64,
+        "test": "api\\payment.spec.ts › Payment API Tests › GET new payment options returns 200",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/payment.spec.ts",
+        "line": 82,
+        "test": "api\\payment.spec.ts › Payment API Tests › GET lease dashboard returns 200",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/payment.spec.ts",
+        "line": 99,
+        "test": "api\\payment.spec.ts › Payment API Tests › POST make a payment returns 200 or 201",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/api/payment.spec.ts",
+        "line": 124,
+        "test": "api\\payment.spec.ts › Payment API Tests › GET payment methods without customer ID returns 400",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/mobile/mobile-home.spec.ts",
+        "line": 11,
+        "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Mobile home page loads with correct title",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/mobile/mobile-home.spec.ts",
+        "line": 25,
+        "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Hamburger menu opens and contains navigation items",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/mobile/mobile-home.spec.ts",
+        "line": 42,
+        "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Login button visible and functional",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/mobile/mobile-home.spec.ts",
+        "line": 52,
+        "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Hero section and footer present",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/mobile/mobile-home.spec.ts",
+        "line": 64,
+        "test": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Shop and Help submenus work via hamburger",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/seed.spec.ts",
+        "line": 4,
+        "test": "seed.spec.ts › Test group › seed",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 31,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Acima.com Public Pages › Home page loads with visible main banner and header navigation",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 42,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Acima.com Public Pages › Footer links are present on the home page",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 65,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Authentication › Login with valid credentials navigates to Customer Portal",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 83,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Authentication › Logout redirects back to Acima home page",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 117,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Dashboard › Dashboard loads and displays active agreement details",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 141,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Dashboard › Sidebar navigation – Payments link is accessible",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/shop-online.spec.ts",
+        "line": 10,
+        "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Navigate directly to Shop Online page",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/shop-online.spec.ts",
+        "line": 22,
+        "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Navigate from homepage to Shop Online",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/shop-online.spec.ts",
+        "line": 30,
+        "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Validate Shop Online page comprehensive structure",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/shop-online.spec.ts",
+        "line": 50,
+        "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Validate retailer categories and search functionality",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/shop-online.spec.ts",
+        "line": 77,
+        "test": "ui\\shop-online.spec.ts › Shop Online - Direct Tests › Validate FAQ and Footer sections",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 20,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Home page loads and main banner is visible",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 32,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Main Banner section valid",
+        "status": "failed",
+        "plain_english_reason": "element is blocked by overlay/modal/popup",
+        "suggested_fix_area": "handle blocker in shared popup/browser blocker helper before action"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 40,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Ways to Shop section valid",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 48,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Shopping Experience section valid",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 56,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Mobile App section valid",
+        "status": "failed",
+        "plain_english_reason": "element is blocked by overlay/modal/popup",
+        "suggested_fix_area": "handle blocker in shared popup/browser blocker helper before action"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 66,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Shop Nearby Stores page loads correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 80,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Shop Online Stores page loads correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 93,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Shop Marketplace page loads correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 106,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Footer links are present on page",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 118,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Switch to Spanish language and back to English",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/static-pages.spec.ts",
+        "line": 133,
+        "test": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Spanish home page loads correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/seed.spec.ts",
+        "line": 4,
+        "test": "unit\\seed.spec.ts › Test group › seed",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+        "line": 25,
+        "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › isConfigured false for empty webhook",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+        "line": 30,
+        "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards skips gracefully when webhook missing",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/unit/teams/teamsNotifier.spec.ts",
+        "line": 39,
+        "test": "unit\\teams\\teamsNotifier.spec.ts › TeamsNotifier › sendCards skips when card list is empty",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 175,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Payment Methods › Payment Methods page loads after adding the bank account",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 225,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Payment Methods › Make a Payment page renders payment type options",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 261,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Profile › Profile page loads with correct header and profile section",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 293,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – Spanish Language › Spanish version of home page loads without errors",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/smoke/ui-smoke.spec.ts",
+        "line": 314,
+        "test": "smoke\\ui-smoke.spec.ts › Smoke – End-to-End Critical Path › Full journey: login → dashboard → navigate to payments → logout",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/acima-advantage.spec.ts",
+        "line": 44,
+        "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Acima Advantage button exists and page loads",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/acima-advantage.spec.ts",
+        "line": 52,
+        "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Start Earning and Enroll Now buttons @enrollment",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/acima-advantage.spec.ts",
+        "line": 80,
+        "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Refer a Friend functionality @refer-friend",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/acima-advantage.spec.ts",
+        "line": 98,
+        "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Earn More in Mobile App functionality @earn-more",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/acima-advantage.spec.ts",
+        "line": 110,
+        "test": "ui\\acima-advantage.spec.ts › Acima Advantage - Direct Tests › Verify Spanish language support @spanish",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/benefit-plus.spec.ts",
+        "line": 23,
+        "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Benefit+ NOT displayed for ineligible customer",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/benefit-plus.spec.ts",
+        "line": 38,
+        "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Active Benefit+ membership displays correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/benefit-plus.spec.ts",
+        "line": 56,
+        "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Enroll in Benefit+ successfully",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/benefit-plus.spec.ts",
+        "line": 82,
+        "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Benefit+ agreement error when name does not match",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/benefit-plus.spec.ts",
+        "line": 108,
+        "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Benefit+ cancellation screen displays correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/benefit-plus.spec.ts",
+        "line": 126,
+        "test": "ui\\benefit-plus.spec.ts › Benefit Plus – Customer Portal › Benefit+ agreement shows in Spanish when language switched",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/dashboard.spec.ts",
+        "line": 19,
+        "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard with ACTIVE agreement",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/dashboard.spec.ts",
+        "line": 43,
+        "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard with PAST DUE agreement",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/dashboard.spec.ts",
+        "line": 63,
+        "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard with Catch Up Plan agreement",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/dashboard.spec.ts",
+        "line": 82,
+        "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › View Lease button visible on dashboard",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/dashboard.spec.ts",
+        "line": 103,
+        "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/dashboard.spec.ts",
+        "line": 124,
+        "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard content displayed in Spanish",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/dashboard.spec.ts",
+        "line": 149,
+        "test": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Verify left sidebar navigation in desktop view",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/login.spec.ts",
+        "line": 15,
+        "test": "ui\\login.spec.ts › Login – Customer Portal › Successful login with valid credentials",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/login.spec.ts",
+        "line": 35,
+        "test": "ui\\login.spec.ts › Login – Customer Portal › Login with past-due account",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/login.spec.ts",
+        "line": 54,
+        "test": "ui\\login.spec.ts › Login – Customer Portal › Login row 1: Customer data with ACTIVE agreement",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/login.spec.ts",
+        "line": 54,
+        "test": "ui\\login.spec.ts › Login – Customer Portal › Login row 2: Customer data with PAST DUE agreement",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/login.spec.ts",
+        "line": 71,
+        "test": "ui\\login.spec.ts › Login – Customer Portal › Logout clears session",
+        "status": "failed",
+        "plain_english_reason": "test timed out while waiting for page, action, locator, API, or data",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/login.spec.ts",
+        "line": 93,
+        "test": "ui\\login.spec.ts › Login – Customer Portal › Profile dropdown options visible after login",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/payment.spec.ts",
+        "line": 16,
+        "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Make a Payment – Next Renewal flow",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/payment.spec.ts",
+        "line": 35,
+        "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Make a Payment – Payoff (Today's Purchase) flow",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/payment.spec.ts",
+        "line": 56,
+        "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Payment Methods page loads correctly",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/payment.spec.ts",
+        "line": 78,
+        "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Add Credit/Debit Card as payment method",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/payment.spec.ts",
+        "line": 113,
+        "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Add Bank Account as payment method",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/payment.spec.ts",
+        "line": 145,
+        "test": "ui\\payment.spec.ts › Payment Flows – Customer Portal › Verify payment summary section in desktop view",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/profile.spec.ts",
+        "line": 19,
+        "test": "ui\\profile.spec.ts › Profile Page – Customer Portal › Profile page loads with correct data",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/profile.spec.ts",
+        "line": 36,
+        "test": "ui\\profile.spec.ts › Profile Page – Customer Portal › Profile page content shown in Spanish",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/profile.spec.ts",
+        "line": 63,
+        "test": "ui\\profile.spec.ts › Profile Page – Customer Portal › Profile page data matches API response",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/shop-marketplace.spec.ts",
+        "line": 10,
+        "test": "ui\\shop-marketplace.spec.ts › Shop Marketplace - Direct Tests › Navigate directly to Shop Marketplace page",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/shop-marketplace.spec.ts",
+        "line": 33,
+        "test": "ui\\shop-marketplace.spec.ts › Shop Marketplace - Direct Tests › Navigate from home to Shop Marketplace via dropdown menu",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      },
+      {
+        "spec": "tests/ui/shop-marketplace.spec.ts",
+        "line": 63,
+        "test": "ui\\shop-marketplace.spec.ts › Shop Marketplace - Direct Tests › Validate Shop Marketplace page comprehensive structure",
+        "status": "passed",
+        "plain_english_reason": "passed",
+        "suggested_fix_area": "review trace/screenshot and patch only reusable framework layer"
+      }
+    ],
+    "plain_english_summary": "2 spec(s) failed. Primary RCA category: Locator Not Found Or Ambiguous. See the test-by-test outcome table for exact passed/failed tests and reasons.",
+    "what_likely_happened": [
+      "The test most likely waited for an element that was missing, unstable, hidden, or matched by an outdated locator.",
+      "A popup, modal, overlay, or dialog may have blocked the expected action.",
+      "A backend/API, auth, VPN, proxy, or environment issue may be involved. Do not patch UI code until this is checked.",
+      "The failure may be an assertion difference. Changing the expected value should require manual approval unless evidence proves it is a harmless copy update."
+    ],
+    "safe_next_action": "Apply self-healing only if the policy gate allows it; otherwise raise manual review/product/environment issue.",
+    "auto_heal_status": "blocked_or_requires_manual_review",
+    "recommended_human_steps": [
+      "Open the Playwright trace and screenshot for the failed spec.",
+      "Check whether the failed locator belongs in pageObjects rather than the spec file.",
+      "Check API status/auth/session/test data before patching UI flow.",
+      "Review Codex patch diff; reject assertion weakening, test skips, hard waits, and force clicks.",
+      "Rerun failed specs only, then merge the retry result into the original report."
+    ],
+    "evidence_links": {
+      "rca_json": "generated-playwright/reports/existing-framework/root-cause-report.json",
+      "auditable_rca_chain": "generated-playwright/reports/existing-framework/robust-rca/auditable-rca-chain.html",
+      "framework_intelligence_v2": "generated-playwright/reports/existing-framework/framework-intelligence-v2.html"
+    }
+  }
+}

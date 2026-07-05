@@ -1,0 +1,19 @@
+{
+  "id": null,
+  "uid": "aiqa-runtime-progress",
+  "title": "AI QA Pipeline Runtime Progress",
+  "tags": ["aiqa", "runtime", "playwright", "jira", "enterprise"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 2,
+  "refresh": "5s",
+  "panels": [
+    {"type":"stat","title":"Current pipeline progress %","gridPos":{"x":0,"y":0,"w":6,"h":6},"targets":[{"expr":"aiqa_runtime_current_progress"}],"fieldConfig":{"defaults":{"unit":"percent","min":0,"max":100}}},
+    {"type":"stat","title":"Runtime events recorded","gridPos":{"x":6,"y":0,"w":6,"h":6},"targets":[{"expr":"aiqa_runtime_events_total"}]},
+    {"type":"stat","title":"Recent errors","gridPos":{"x":12,"y":0,"w":6,"h":6},"targets":[{"expr":"aiqa_runtime_recent_errors"}]},
+    {"type":"stat","title":"Current stage/status","gridPos":{"x":18,"y":0,"w":6,"h":6},"targets":[{"expr":"aiqa_runtime_current_stage_info"}],"options":{"reduceOptions":{"calcs":["lastNotNull"]}}},
+    {"type":"timeseries","title":"Events by stage","gridPos":{"x":0,"y":6,"w":12,"h":10},"targets":[{"expr":"aiqa_runtime_stage_events_total"}]},
+    {"type":"timeseries","title":"Events by status","gridPos":{"x":12,"y":6,"w":12,"h":10},"targets":[{"expr":"aiqa_runtime_status_events_total"}]},
+    {"type":"text","title":"How to use this dashboard","gridPos":{"x":0,"y":16,"w":24,"h":5},"options":{"mode":"markdown","content":"### Live monitoring flow\n1. Start the GUI at `http://127.0.0.1:8080`.\n2. Open the GUI **Runtime Logs** tab or `/runtime-console` for plain-English live logs.\n3. Keep this Grafana dashboard open for enterprise progress metrics.\n4. If this dashboard is empty, open Prometheus targets at `http://localhost:9090/targets` and confirm `aiqa-gui-runtime` is UP.\n\nGrafana shows metrics. The GUI Runtime Logs tab shows exact plain-English messages and shard-level updates."}}
+  ]
+}

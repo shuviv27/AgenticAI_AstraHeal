@@ -1,0 +1,25 @@
+AstraHeal AI clean build
+
+Use only these root scripts:
+
+LOCAL PC:
+  START_GUI_LOCAL_WINDOWS.cmd
+  ./START_GUI_LOCAL_MAC.sh
+
+CENTRAL VM ONLY:
+  START_GUI_CENTRAL_VM_WINDOWS.cmd
+  ./START_GUI_CENTRAL_VM_MAC.sh
+
+CENTRAL VM + WORKERS:
+  On VM177: START_GUI_VM_WITH_WORKERS_WINDOWS.cmd
+  On VM45/VM135: START_WORKER_AGENT_WINDOWS.cmd
+
+Before starting on VM177:
+  python scripts\validate_vm_startup.py
+
+GUI URL:
+  http://127.0.0.1:8080/astraheal-ai
+
+Docs:
+  docs/00_README_CLEAN_STARTUP.md
+  docs/03_VM177_WITH_VM45_VM135_WORKERS.md

@@ -1,0 +1,11 @@
+{
+  "vdi_type": "horizon",
+  "client_environment": "client-hosted VDI / Horizon VM",
+  "docker_mode": "local",
+  "docker_host": "",
+  "app_base_url": "https://client-app-qa.internal",
+  "api_base_url": "https://client-api-qa.internal",
+  "proxy_url": "",
+  "no_proxy": "localhost,127.0.0.1,host.docker.internal,.internal",
+  "notes": "Document VPN, desktop pool, internal registry, certificates, and application availability here. Do not store secrets."
+}

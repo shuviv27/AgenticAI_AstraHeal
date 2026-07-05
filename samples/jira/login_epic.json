@@ -1,0 +1,26 @@
+{
+  "source_ref": "JIRA-EPIC-LOGIN-001",
+  "feature": "login",
+  "page": "Login",
+  "priority": "high",
+  "tags": ["login", "authentication", "smoke"],
+  "scenarios": [
+    {
+      "id": "AUTH-001",
+      "title": "valid login shows home page",
+      "page": "Login",
+      "priority": "critical",
+      "tags": ["login", "positive", "regression"],
+      "preconditions": ["User has valid credentials"],
+      "start_url": "https://your-application-url",
+      "steps": [
+        { "action": "goto", "target": "application", "value": "https://your-application-url", "page": "Login" },
+        { "action": "fill", "target": "username", "value": "your_user", "page": "Login" },
+        { "action": "fill", "target": "password", "value": "your_password", "page": "Login" },
+        { "action": "click", "target": "Login button", "page": "Login" },
+        { "action": "verify", "target": "home page", "page": "Login", "expected": "Home page is displayed" }
+      ],
+      "expected_result": "User lands on the expected home page"
+    }
+  ]
+}

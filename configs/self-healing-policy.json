@@ -1,0 +1,82 @@
+{
+  "version": "2026.06.enterprise-rca-v1",
+  "maxHealingAttempts": 2,
+  "minPatchProposalConfidence": 0.7,
+  "minAutoApplyConfidence": 0.8,
+  "semanticAssertionThreshold": 0.3,
+  "allowedPaths": [
+    "pageObjects/",
+    "pages/",
+    "utils/",
+    "fixtures/",
+    "testData/",
+    "generated-playwright/pageObjects/",
+    "generated-playwright/pages/",
+    "generated-playwright/utils/",
+    "generated-playwright/fixtures/",
+    "generated-playwright/testData/",
+    "qa-ai-support/"
+  ],
+  "manualApprovalPaths": [
+    "tests/",
+    "generated-playwright/tests/",
+    "playwright.config.ts",
+    "package.json"
+  ],
+  "blockedPatterns": [
+    "test\\.skip\\s*\\(",
+    "test\\.fixme\\s*\\(",
+    "\\.only\\s*\\(",
+    "waitForTimeout\\s*\\(",
+    "expect\\.soft\\s*\\(",
+    "force\\s*:\\s*true",
+    "toBeTruthy\\s*\\(\\s*\\)",
+    "//\\s*TODO\\s*:?\\s*self-heal",
+    "throw\\s+new\\s+Error\\s*\\(\\s*['\\\"]not implemented",
+    "delete\\s+expect",
+    "expect\\([^\\n]+\\)\\.not\\.to"
+  ],
+  "allowForceClick": false,
+  "allowAssertionChange": false,
+  "allowSpecLocatorAddition": false,
+  "requireTypecheck": true,
+  "requireLintIfAvailable": true,
+  "requireFailedTestOnlyRerun": true,
+  "allowedHealingTypes": [
+    "LOCATOR_REPAIR",
+    "STRICT_LOCATOR_REFINEMENT",
+    "SAFE_ACTION_WAIT_REPAIR",
+    "POPUP_HANDLER_UPDATE",
+    "DIALOG_HANDLER_UPDATE",
+    "PERMISSION_FIXTURE_UPDATE",
+    "NETWORK_WAIT_REPAIR",
+    "TEST_DATA_MAPPING_REPAIR",
+    "IFRAME_SHADOW_LOCATOR_REPAIR",
+    "SELECTOR_VAULT_UPDATE"
+  ],
+  "blockedHealingTypes": [
+    "ASSERTION_WEAKENING",
+    "TEST_SKIP",
+    "BROAD_TIMEOUT_INCREASE",
+    "FORCE_CLICK_DEFAULT",
+    "BUSINESS_EXPECTED_RESULT_CHANGE",
+    "PASSED_SCRIPT_CHANGE",
+    "FULL_FRAMEWORK_REWRITE"
+  ],
+  "locatorPriority": [
+    "getByTestId",
+    "getByRole",
+    "getByLabel",
+    "getByPlaceholder",
+    "getByText",
+    "stable-css-attribute",
+    "xpath-last-resort"
+  ],
+  "reporting": [
+    "structured_rca_json",
+    "auditable_rca_summary_md",
+    "patch_confidence_review_json",
+    "healed_retry_merged_report",
+    "selector_health_report"
+  ]
+}

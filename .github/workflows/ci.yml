@@ -1,0 +1,27 @@
+name: enterprise-reuse-aware-ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Python deps
+        run: python -m pip install -r requirements.txt
+      - name: Install Playwright deps
+        run: npm --prefix generated-playwright install
+      - name: Doctor
+        run: python -m qa_pipeline.cli doctor
+      - name: Demo ingest and generation
+        run: python -m qa_pipeline.cli run-e2e --source samples/jira/login_epic.json --source-type jira --feature login --skip-npm
+      - name: TypeScript build
+        run: npm --prefix generated-playwright run build

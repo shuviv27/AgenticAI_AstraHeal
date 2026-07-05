@@ -1,0 +1,55 @@
+{
+  "source_ref": "JIRA-EPIC-LOGIN-001",
+  "feature": "login",
+  "page": "Login",
+  "priority": "high",
+  "tags": [
+    "login",
+    "authentication",
+    "smoke"
+  ],
+  "scenarios": [
+    {
+      "id": "AUTH-001",
+      "title": "valid login shows dashboard",
+      "page": "Login",
+      "priority": "critical",
+      "tags": [
+        "login",
+        "positive",
+        "regression"
+      ],
+      "preconditions": [
+        "User has valid credentials"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "username",
+          "value": "env:TEST_USERNAME",
+          "page": "Login"
+        },
+        {
+          "action": "fill",
+          "target": "password",
+          "value": "env:TEST_PASSWORD",
+          "page": "Login"
+        },
+        {
+          "action": "click",
+          "target": "login",
+          "page": "Login"
+        },
+        {
+          "action": "verify",
+          "target": "dashboard heading",
+          "page": "Login",
+          "expected": "Dashboard is visible"
+        }
+      ],
+      "expected_result": "User lands on dashboard page",
+      "source_ref": "login_epic.json"
+    }
+  ],
+  "source_type": "jira"
+}

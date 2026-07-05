@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--headless", "--snapshot-mode", "full"],
+      "env": { "BASE_URL": "${BASE_URL}" }
+    },
+    "jira": {
+      "url": "http://localhost:8812",
+      "description": "Jira/Confluence MCP bridge from Docker Compose"
+    },
+    "github": {
+      "url": "http://localhost:8811",
+      "description": "GitHub MCP bridge from Docker Compose"
+    }
+  }
+}

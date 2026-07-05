@@ -1,0 +1,110 @@
+<!doctype html>
+<html><head><meta charset='utf-8'/><title>AI Full-Control Framework Fix</title>
+<style>body{font-family:Segoe UI,Arial,sans-serif;background:#f8fafc;color:#111827;margin:24px}.card{background:white;border:1px solid #dbe3ef;border-radius:14px;padding:18px;margin:14px 0}table{border-collapse:collapse;width:100%}td,th{border:1px solid #dbe3ef;padding:8px;vertical-align:top}th{background:#e2e8f0}pre{white-space:pre-wrap;background:#0f172a;color:#d1fae5;border-radius:10px;padding:14px;max-height:620px;overflow:auto}.ok{background:#dcfce7;color:#166534;padding:4px 8px;border-radius:999px;font-weight:700}.bad{background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:999px;font-weight:700}</style>
+</head><body><h1>AI Full-Control Framework Fix</h1>
+<div class='card'><h2>Status: <span class='ok'>PASS</span></h2><p>Framework build readiness is already clean. No AI full-control fix was required.</p></div>
+<div class='card'><h2>Changed files</h2><pre>[]</pre></div>
+<div class='card'><h2>Backup</h2><pre>{}</pre></div>
+<div class='card'><h2>Rounds</h2><table><tr><th>Round</th><th>Provider</th><th>Changed files</th><th>Message</th></tr></table></div>
+<div class='card'><h2>Raw JSON</h2><pre>{
+  &quot;ok&quot;: true,
+  &quot;stage&quot;: &quot;ai_full_control_framework_fix&quot;,
+  &quot;provider&quot;: &quot;codex&quot;,
+  &quot;framework_path&quot;: &quot;C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed&quot;,
+  &quot;full_control_scope&quot;: &quot;impacted_files_only&quot;,
+  &quot;rounds&quot;: [],
+  &quot;changed_files&quot;: [],
+  &quot;guardrails&quot;: [
+    &quot;backup before patch&quot;,
+    &quot;scope-limited file writes&quot;,
+    &quot;skip/only/fixme blocked&quot;,
+    &quot;build/list rerun after patch&quot;,
+    &quot;rollback possible from .aiqa-history/backups&quot;
+  ],
+  &quot;preflight_before&quot;: {
+    &quot;ok&quot;: true,
+    &quot;stage&quot;: &quot;mcp_readiness_preflight_passed&quot;,
+    &quot;framework_path&quot;: &quot;C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed&quot;,
+    &quot;checks&quot;: {
+      &quot;framework_path&quot;: {
+        &quot;ok&quot;: true,
+        &quot;message&quot;: &quot;Framework path exists.&quot;
+      },
+      &quot;package_json&quot;: {
+        &quot;ok&quot;: true,
+        &quot;message&quot;: &quot;package.json found and parsed.&quot;
+      },
+      &quot;npm&quot;: {
+        &quot;ok&quot;: true,
+        &quot;message&quot;: &quot;npm found.&quot;
+      },
+      &quot;npx&quot;: {
+        &quot;ok&quot;: true,
+        &quot;message&quot;: &quot;npx found.&quot;
+      },
+      &quot;npm_run_build&quot;: {
+        &quot;ok&quot;: true,
+        &quot;message&quot;: &quot;npm run build passed.&quot;,
+        &quot;command&quot;: &quot;npm run build&quot;,
+        &quot;returncode&quot;: 0,
+        &quot;stdout_tail&quot;: &quot;\n&gt; acima-playwright-automation@1.0.0 build\n&gt; tsc -p tsconfig.json --noEmit\n\n&quot;,
+        &quot;stderr_tail&quot;: &quot;&quot;
+      }
+    },
+    &quot;typescript_errors&quot;: [],
+    &quot;next_actions&quot;: [
+      &quot;Continue with Playwright MCP assist.&quot;,
+      &quot;Run failed element RCA if a test has failed.&quot;
+    ],
+    &quot;scripts&quot;: {
+      &quot;build&quot;: &quot;tsc -p tsconfig.json --noEmit&quot;,
+      &quot;typecheck&quot;: &quot;tsc -p tsconfig.json --noEmit&quot;,
+      &quot;test&quot;: &quot;playwright test --project=chromium --project=api --project=unit&quot;,
+      &quot;test:ui&quot;: &quot;playwright test tests/ui --project=chromium&quot;,
+      &quot;test:api&quot;: &quot;playwright test tests/api --project=api&quot;,
+      &quot;test:smoke&quot;: &quot;playwright test tests/smoke --project=chromium --project=api&quot;,
+      &quot;test:smoke:ui&quot;: &quot;playwright test tests/smoke/ui-smoke.spec.ts --project=chromium&quot;,
+      &quot;test:smoke:api&quot;: &quot;playwright test tests/smoke/api-smoke.spec.ts --project=api&quot;,
+      &quot;test:smoke:all&quot;: &quot;playwright test --grep @smoke --project=chromium --project=api&quot;,
+      &quot;test:regression&quot;: &quot;playwright test --grep @regression --project=chromium --project=api&quot;,
+      &quot;test:headed&quot;: &quot;playwright test --project=chromium --headed&quot;,
+      &quot;test:debug&quot;: &quot;playwright test --project=chromium --debug&quot;,
+      &quot;test:report&quot;: &quot;playwright show-report&quot;,
+      &quot;test:qa&quot;: &quot;cross-env ENV=qa playwright test --project=chromium --project=api --project=unit&quot;,
+      &quot;test:stage&quot;: &quot;cross-env ENV=stage playwright test --project=chromium --project=api --project=unit&quot;,
+      &quot;test:prod&quot;: &quot;cross-env ENV=prod playwright test --project=chromium --project=api --project=unit&quot;,
+      &quot;bdd:gen&quot;: &quot;bddgen&quot;,
+      &quot;bdd:gen:ui&quot;: &quot;bddgen --project bdd-ui-chromium&quot;,
+      &quot;bdd:gen:api&quot;: &quot;bddgen --project bdd-api&quot;,
+      &quot;test:bdd&quot;: &quot;bddgen &amp;&amp; playwright test --project=bdd-ui-chromium --project=bdd-api&quot;,
+      &quot;test:bdd:ui&quot;: &quot;bddgen &amp;&amp; playwright test --project bdd-ui-chromium&quot;,
+      &quot;test:bdd:api&quot;: &quot;bddgen &amp;&amp; playwright test --project bdd-api&quot;,
+      &quot;test:bdd:smoke&quot;: &quot;bddgen &amp;&amp; playwright test --project=bdd-ui-chromium --project=bdd-api --grep @smoke&quot;,
+      &quot;test:bdd:regression&quot;: &quot;bddgen &amp;&amp; playwright test --project=bdd-ui-chromium --project=bdd-api --grep @regression&quot;,
+      &quot;codegen&quot;: &quot;playwright codegen&quot;,
+      &quot;install:browsers&quot;: &quot;playwright install&quot;,
+      &quot;agent:analyze&quot;: &quot;playwright test&quot;,
+      &quot;agent:fix&quot;: &quot;ts-node agents/test-fixer/cli.ts&quot;,
+      &quot;agent:fix:dry&quot;: &quot;ts-node agents/test-fixer/cli.ts --dry-run&quot;,
+      &quot;agent:fix:all&quot;: &quot;ts-node agents/test-fixer/cli.ts --all&quot;,
+      &quot;agent:flakiness&quot;: &quot;ts-node agents/failure-analyzer/cli/run-flakiness.ts&quot;,
+      &quot;agent:rca&quot;: &quot;ts-node agents/failure-analyzer/cli/run-rca.ts&quot;,
+      &quot;agent:heal&quot;: &quot;ts-node agents/failure-analyzer/cli/run-self-heal.ts&quot;,
+      &quot;agent:predict&quot;: &quot;ts-node agents/failure-analyzer/cli/run-predictive.ts&quot;,
+      &quot;test:unit&quot;: &quot;playwright test --project unit --reporter list&quot;,
+      &quot;test:unit:teams&quot;: &quot;playwright test tests/unit/teams/ --project unit --reporter list&quot;,
+      &quot;notify:teams&quot;: &quot;ts-node -e \&quot;require(&#x27;./utils/teams/teamsNotifier&#x27;)\&quot;&quot;
+    },
+    &quot;action_required&quot;: false,
+    &quot;message&quot;: &quot;MCP readiness preflight passed. package.json, build/list/browser checks are ready enough for MCP assist.&quot;,
+    &quot;recommended_user_message&quot;: &quot;MCP assist can proceed. Playwright Test remains the deterministic runner; MCP provides browser/accessibility evidence for RCA/self-healing.&quot;,
+    &quot;report_files&quot;: {
+      &quot;framework_html&quot;: &quot;C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\.aiqa-history\\reports\\mcp-readiness-preflight.html&quot;,
+      &quot;framework_json&quot;: &quot;C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\.aiqa-history\\reports\\mcp-readiness-preflight.json&quot;,
+      &quot;solution_html&quot;: &quot;C:\\ASTRAHEALAI\\ASTRA_Latest\\AdvancedAIAutomation_v3_AstraHealAI_GUI\\generated-playwright\\reports\\existing-framework\\mcp-readiness-preflight.html&quot;,
+      &quot;solution_json&quot;: &quot;C:\\ASTRAHEALAI\\ASTRA_Latest\\AdvancedAIAutomation_v3_AstraHealAI_GUI\\generated-playwright\\reports\\existing-framework\\mcp-readiness-preflight.json&quot;
+    }
+  },
+  &quot;message&quot;: &quot;Framework build readiness is already clean. No AI full-control fix was required.&quot;
+}</pre></div>
+</body></html>

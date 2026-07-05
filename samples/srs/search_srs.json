@@ -1,0 +1,20 @@
+{
+  "source_ref": "SRS-SEARCH-001",
+  "feature": "search",
+  "page": "Search",
+  "priority": "medium",
+  "tags": ["search"],
+  "scenarios": [
+    {
+      "id": "SRS-SEARCH-001",
+      "title": "search by keyword shows results",
+      "page": "Search",
+      "steps": [
+        { "action": "fill", "target": "search keyword", "value": "laptop", "page": "Search" },
+        { "action": "click", "target": "search", "page": "Search" },
+        { "action": "verify", "target": "search results", "page": "Search" }
+      ],
+      "expected_result": "Search results are visible"
+    }
+  ]
+}

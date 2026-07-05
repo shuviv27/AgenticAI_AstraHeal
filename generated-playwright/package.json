@@ -1,0 +1,34 @@
+{
+  "name": "generated-playwright",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "playwright test",
+    "smoke": "playwright test tests/e2e/framework-smoke.spec.ts --project=chromium",
+    "report": "playwright show-report",
+    "mcp:server": "npx @playwright/mcp@latest --headless",
+    "mcp:help": "npx @playwright/mcp@latest --help",
+    "test:generated": "playwright test tests/generated --project=chromium",
+    "test:generated:headed": "playwright test tests/generated --project=chromium --headed --workers=1",
+    "test:generated:headless": "playwright test tests/generated --project=chromium --workers=1",
+    "mcp:server:headed": "npx @playwright/mcp@latest",
+    "mcp:server:headless": "npx @playwright/mcp@latest --headless",
+    "report:enterprise": "echo Open generated-playwright/reports/enterprise/enterprise-report.html from the GUI or browser",
+    "crawl:dynamic": "tsx scripts/crawlDynamicPage.ts",
+    "test:distributed:4": "playwright test tests/generated --project=chromium --shard=1/4",
+    "test:parallel": "playwright test tests/generated --project=chromium --workers=4",
+    "mcp:server:docker-equivalent": "npx @playwright/mcp@latest --headless --snapshot-mode full",
+    "test:distributed:5": "playwright test tests/generated --project=chromium --shard=1/5 --reporter=blob",
+    "merge:reports": "playwright merge-reports --reporter html reports/blob-merge-input",
+    "health:selectors": "tsx scripts/selectorHealthReport.ts",
+    "test:telemetry": "playwright test --project=chromium --workers=1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "typescript": "^5.5.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}

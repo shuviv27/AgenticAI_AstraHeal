@@ -1,0 +1,42 @@
+{
+  "description": "Example worker execution modes for AstraHeal AI / Module-2.",
+  "central_vm": {
+    "worker_id": "Central-VM-Worker",
+    "host": "127.0.0.1",
+    "role": "central_control_plane_and_optional_worker",
+    "framework_path": "D:\\AI_QA_WORKSPACE\\client-playwright-framework"
+  },
+  "execution_modes": {
+    "central_only": {
+      "meaning": "Run all selected tests on Central VM only.",
+      "execution_target_mode": "central_only",
+      "example_allocation": "Central-VM-Worker=100"
+    },
+    "central_and_workers": {
+      "meaning": "Run tests on Central VM and worker VMs together.",
+      "execution_target_mode": "central_and_workers",
+      "example_allocation": "Central-VM-Worker=25\n10.20.5.31=25\n10.20.5.32=25\n10.20.5.33=25"
+    },
+    "workers_only": {
+      "meaning": "Central VM coordinates only; online worker agents execute tests.",
+      "execution_target_mode": "workers_only",
+      "example_allocation": "10.20.5.31=34\n10.20.5.32=33\n10.20.5.33=33"
+    }
+  },
+  "worker_vms": [
+    {
+      "worker_id": "qa-worker-10-20-5-31",
+      "ip_address": "10.20.5.31",
+      "agent_mode": "polling_agent",
+      "central_url": "http://10.20.5.10:8080",
+      "worker_visible_framework_path": "\\\\10.20.5.10\\AIQA_Frameworks\\client-playwright-framework"
+    },
+    {
+      "worker_id": "qa-worker-10-20-5-32",
+      "ip_address": "10.20.5.32",
+      "agent_mode": "polling_agent",
+      "central_url": "http://10.20.5.10:8080",
+      "worker_visible_framework_path": "\\\\10.20.5.10\\AIQA_Frameworks\\client-playwright-framework"
+    }
+  ]
+}

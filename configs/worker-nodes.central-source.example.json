@@ -1,0 +1,35 @@
+{
+  "architecture": "central_source_worker_execution",
+  "central_vm": {
+    "id": "central-vm-10-20-5-10",
+    "ip": "10.20.5.10",
+    "gui_url": "http://10.20.5.10:8080",
+    "source_of_truth_framework_path": "D:\\AI_QA_WORKSPACE\\client-playwright-framework",
+    "shared_framework_path_visible_to_workers": "\\\\10.20.5.10\\AIQA_Frameworks\\client-playwright-framework",
+    "stores_ai_memory": true,
+    "stores_rca_self_healing_reports": true,
+    "also_runs_as_worker": true,
+    "worker_alias": "master-local"
+  },
+  "worker_workspace_mode": "central_shared_workspace",
+  "workers": [
+    {
+      "worker_id": "qa-worker-10-20-5-31",
+      "ip": "10.20.5.31",
+      "agent_mode": "outbound_polling",
+      "permanent_framework_copy_required": false,
+      "runs_from_shared_framework_path": "\\\\10.20.5.10\\AIQA_Frameworks\\client-playwright-framework",
+      "capacity_tests": 20,
+      "browser_project": "chromium"
+    },
+    {
+      "worker_id": "qa-worker-10-20-5-32",
+      "ip": "10.20.5.32",
+      "agent_mode": "outbound_polling",
+      "permanent_framework_copy_required": false,
+      "runs_from_shared_framework_path": "\\\\10.20.5.10\\AIQA_Frameworks\\client-playwright-framework",
+      "capacity_tests": 20,
+      "browser_project": "firefox"
+    }
+  ]
+}

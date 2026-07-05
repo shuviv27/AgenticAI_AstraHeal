@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "provider": "codex",
+  "confidence": 0.93,
+  "auto_apply_threshold": 0.8,
+  "human_approval_required": false,
+  "approve_auto_apply": true,
+  "changed_files": [
+    "pages/base-page.ts",
+    "pages/login-page.ts",
+    "pages/overview-page.ts"
+  ],
+  "message": "{\"confidence\":0.93,\"approve_auto_apply\":false,\"reasons\":[\"Assertion drift classifier explicitly blocked auto-healing: auto_heal_assertion_allowed=false and human_review_required=true.\",\"Diff modifies assertion behavior in pages/base-page.ts assertVisible by adding scroll fallback and a 10000ms visibility timeout, which is an assertion-related update and must be rejected under the gate.\",\"Patch is not minimal: it changes shared base click/assertion behavior, overlay dismissal, logout flow, and link validation/navigation behavior across three page objects.\",\"The logout fallback navigates directly to /logout, which is a behavioral workaround rather than a narrow selector or timing repair.\",\"The overview-page change falls back to direct navigation when a visible link cannot be clicked, which may bypass the user interaction being tested.\"],\"risks\":[\"Could mask a real product regression where /en/shop-online is hidden or unavailable.\",\"Could convert failing click/link behavior into passing navigation behavior without validating the UI path.\",\"Shared base-page changes may affect many unrelated specs beyond the failed case.\",\"Direct logout-route navigation may hide menu visibility, session, or routing defects.\",\"Added catch-and-continue fallbacks reduce failure signal quality and may make future failures harder to diagnose.\"]}\n",
+  "ai_raw": "{\"confidence\":0.93,\"approve_auto_apply\":false,\"reasons\":[\"Assertion drift classifier explicitly blocked auto-healing: auto_heal_assertion_allowed=false and human_review_required=true.\",\"Diff modifies assertion behavior in pages/base-page.ts assertVisible by adding scroll fallback and a 10000ms visibility timeout, which is an assertion-related update and must be rejected under the gate.\",\"Patch is not minimal: it changes shared base click/assertion behavior, overlay dismissal, logout flow, and link validation/navigation behavior across three page objects.\",\"The logout fallback navigates directly to /logout, which is a behavioral workaround rather than a narrow selector or timing repair.\",\"The overview-page change falls back to direct navigation when a visible link cannot be clicked, which may bypass the user interaction being tested.\"],\"risks\":[\"Could mask a real product regression where /en/shop-online is hidden or unavailable.\",\"Could convert failing click/link behavior into passing navigation behavior without validating the UI path.\",\"Shared base-page changes may affect many unrelated specs beyond the failed case.\",\"Direct logout-route navigation may hide menu visibility, session, or routing defects.\",\"Added catch-and-continue fallbacks reduce failure signal quality and may make future failures harder to diagnose.\"]}\n"
+}

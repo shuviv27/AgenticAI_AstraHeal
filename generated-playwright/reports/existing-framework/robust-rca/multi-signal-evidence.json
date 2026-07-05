@@ -1,0 +1,133 @@
+{
+  "generated_at": "2026-07-06T01:41:13",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "failed_specs": [
+    "tests/ui/login.spec.ts",
+    "tests/ui/static-pages.spec.ts"
+  ],
+  "artifact_index": {
+    "failure_run_dirs": [],
+    "trace_files": [
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/html/data/7a7e0223a556539af298cd3d9b79275143cc6382.zip",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/html/data/52927aa80a6cda87328bccec3f91cadff688646c.zip",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/test-results/ui-login-Login-–-Customer-Portal-Logout-clears-session-chromium-retry1/trace.zip",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/html/data/006608cb8e60b2c73255cf0ca4ebbdc28e5873af.zip",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/html/data/388a0f889fd61f69da3ba658a3b8cd813b13b636.zip",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/test-results/ui-static-pages-Static-Pag-84877--–-Mobile-App-section-valid-chromium-retry1/trace.zip",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/test-results/ui-static-pages-Static-Pag-21a2b-–-Main-Banner-section-valid-chromium-retry1/trace.zip",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/trace.zip",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-01/html/data/ad134e1699e55a344de6b4214ce294d5dd115db3.zip",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-01/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium-retry1/trace.zip"
+    ],
+    "har_files": [],
+    "dom_snapshot_files": [],
+    "screenshots": [
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/html/data/b319b08498687dd5c2798ee993922b1d1bc726ae.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/html/data/794d017e4da8031bb5fe10053facf33efdb8a79d.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/test-results/ui-login-Login-–-Customer-Portal-Logout-clears-session-chromium-retry1/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/test-results/ui-login-Login-–-Customer-Portal-Logout-clears-session-chromium/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/html/data/0eee792b1fd55f500a6b9dc34f5b13382b244148.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/html/data/d8c73244dfe4e998c422ae2f9d1703b57647e3f6.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/html/data/83432cd94df6300b3136b074e4182e369e35c767.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/html/data/674f45a11908d7e72e376ec84263278725fc6e13.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/test-results/ui-static-pages-Static-Pag-84877--–-Mobile-App-section-valid-chromium-retry1/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/test-results/ui-static-pages-Static-Pag-84877--–-Mobile-App-section-valid-chromium/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/test-results/ui-static-pages-Static-Pag-21a2b-–-Main-Banner-section-valid-chromium-retry1/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/test-results/ui-static-pages-Static-Pag-21a2b-–-Main-Banner-section-valid-chromium/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-01/html/data/7785fa0a79ddde3e34057c858dcff544e760e76d.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260706-011339/shard-01/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium/test-failed-1.png"
+    ]
+  },
+  "signals": {
+    "dom_snapshot_diff": {
+      "available": false,
+      "signal": "dom_snapshot_diff",
+      "changed": false,
+      "confidence": 0.0,
+      "note": "Need at least two snapshots to compute diff.",
+      "files_seen": []
+    },
+    "playwright_trace_replay": {
+      "available": true,
+      "signal": "playwright_trace_replay",
+      "changed": true,
+      "confidence": 0.89,
+      "trace_files": [
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/html/data/7a7e0223a556539af298cd3d9b79275143cc6382.zip",
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/html/data/52927aa80a6cda87328bccec3f91cadff688646c.zip",
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/test-results/ui-login-Login-–-Customer-Portal-Logout-clears-session-chromium-retry1/trace.zip",
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/html/data/006608cb8e60b2c73255cf0ca4ebbdc28e5873af.zip",
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/html/data/388a0f889fd61f69da3ba658a3b8cd813b13b636.zip",
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/test-results/ui-static-pages-Static-Pag-84877--–-Mobile-App-section-valid-chromium-retry1/trace.zip",
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-05/test-results/ui-static-pages-Static-Pag-21a2b-–-Main-Banner-section-valid-chromium-retry1/trace.zip",
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/trace.zip",
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-01/html/data/ad134e1699e55a344de6b4214ce294d5dd115db3.zip",
+        "reports/existing-framework/distributed-runs/run-20260706-011339/shard-01/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium-retry1/trace.zip"
+      ],
+      "action_timing_indicators": 6,
+      "trace_action_markers_seen": true,
+      "note": "Trace artifacts are indexed for RCA; open the trace from the report for visual replay when confidence is low."
+    },
+    "network_har_diff": {
+      "available": false,
+      "signal": "network_har_diff",
+      "changed": false,
+      "confidence": 0.0,
+      "note": "Need current and previous HAR. TestTelemetry can capture this automatically."
+    },
+    "fixture_seed_diff": {
+      "available": true,
+      "signal": "fixture_seed_diff",
+      "changed": false,
+      "confidence": 0.2,
+      "note": "No passed-run fixture baseline yet. It will be created after a passing run.",
+      "fixture_count": 11
+    },
+    "cross_run_flakiness_frequency": {
+      "available": false,
+      "signal": "cross_run_flakiness_frequency",
+      "changed": false,
+      "confidence": 0.0,
+      "history_runs_seen": 0,
+      "failed_spec_stats": [
+        {
+          "spec": "tests/ui/login.spec.ts",
+          "runs": 0,
+          "failures": 0,
+          "passes": 0,
+          "failure_rate": 0.0
+        },
+        {
+          "spec": "tests/ui/static-pages.spec.ts",
+          "runs": 0,
+          "failures": 0,
+          "passes": 0,
+          "failure_rate": 0.0
+        }
+      ],
+      "intermittent_flake_candidates": [],
+      "consistent_regression_candidates": []
+    },
+    "assertion_drift_classifier": {
+      "available": true,
+      "signal": "assertion_drift_classifier",
+      "changed": true,
+      "confidence": 0.9,
+      "threshold": 0.3,
+      "auto_heal_assertion_allowed": false,
+      "human_review_required": true,
+      "minimum_similarity": 0.087,
+      "decisions": [
+        {
+          "expected": "visible\\n",
+          "received": "hidden\\nTimeout: 10000ms\\n\\nCall log:\\n\\u001b[2m - Link /en/shop-online should be visible before click with timeout 10000ms\\u001b[22m\\n\\u001b[2m - waiting for locator(",
+          "semantic_similarity": 0.087,
+          "behavioral_marker_seen": true,
+          "auto_heal_allowed": false
+        }
+      ],
+      "note": "Assertion patching is blocked when semantic similarity is below threshold or the change looks behavioral/business-critical."
+    }
+  }
+}

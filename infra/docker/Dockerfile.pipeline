@@ -1,0 +1,24 @@
+# Cross-platform local pipeline image. Useful when laptops have dependency restrictions.
+# It contains Python, Node/npm, and the Python GUI. Codex CLI login is still best performed on host.
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates git gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt /app/requirements.txt
+RUN python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+COPY . /app
+RUN cd generated-playwright && npm install || true
+
+EXPOSE 8080
+CMD ["python", "-m", "qa_pipeline.cli", "serve-gui", "--host", "0.0.0.0", "--port", "8080"]

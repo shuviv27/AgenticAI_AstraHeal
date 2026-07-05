@@ -1,0 +1,16 @@
+# Core Python agentic pipeline
+pydantic>=2.7,<3
+python-dotenv>=1.0,<2
+requests>=2.32,<3
+
+# GUI/API for business-user input upload
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+python-multipart>=0.0.9,<1
+
+# Source parsers for PDF/SRS/DOCX inputs
+pypdf>=4.2,<6
+python-docx>=1.1,<2
+
+# Enterprise required dependencies
+-r requirements-enterprise.txt

@@ -1,0 +1,37 @@
+{
+  "feature": "demo2",
+  "scenarios": [
+    {
+      "id": "D2",
+      "title": "Login",
+      "page": "Login",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://example.com",
+          "page": "Login"
+        },
+        {
+          "action": "fill",
+          "target": "Email",
+          "value": "a@b.com",
+          "page": "Login"
+        },
+        {
+          "action": "click",
+          "target": "Login button",
+          "page": "Login"
+        },
+        {
+          "action": "verify",
+          "target": "Dashboard",
+          "expected": "visible",
+          "page": "Dashboard"
+        }
+      ],
+      "expected_result": "dashboard visible"
+    }
+  ],
+  "source_type": "module2_uploaded"
+}

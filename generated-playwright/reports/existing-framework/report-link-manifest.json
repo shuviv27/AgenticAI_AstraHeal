@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "updated_at": "2026-07-06T01:54:37",
+  "reports": {
+    "combined_report_url": "/artifacts/reports/existing-framework/consolidated-report.html",
+    "combined_summary": {
+      "report_granularity": "test_case",
+      "first_run_total": 109,
+      "first_run_passed": 106,
+      "first_run_failed": 3,
+      "rerun_iteration_count": 1,
+      "recovered_after_all_reruns": 3,
+      "still_failing_after_latest_rerun": 0,
+      "unexpected_extra_rerun_tests": 0,
+      "message": "Baseline first run is preserved separately from every failed-only rerun iteration."
+    },
+    "latest_playwright_report_url": "/artifacts/reports/existing-framework/latest-playwright-report.html",
+    "latest_playwright_title": "Latest Playwright report: failed-only rerun iteration 1",
+    "latest_playwright_links": [
+      {
+        "label": "Open failed-only iteration report",
+        "url": "/artifacts/reports/existing-framework/failed-only-rerun-iteration-1-playwright-report.html"
+      },
+      {
+        "label": "Open native Playwright HTML snapshot for this rerun",
+        "url": "/artifacts/reports/existing-framework/failed-only-rerun-iteration-1-html/index.html"
+      },
+      {
+        "label": "Open combined first-run + all reruns report",
+        "url": "/artifacts/reports/existing-framework/consolidated-report.html"
+      }
+    ],
+    "latest_failed_only_report_url": "/artifacts/reports/existing-framework/failed-only-rerun-iteration-1-playwright-report.html",
+    "latest_failed_only_native_html_url": "/artifacts/reports/existing-framework/failed-only-rerun-iteration-1-html/index.html",
+    "latest_failed_only_iteration": 1,
+    "latest_failed_only_summary": {
+      "submitted": 3,
+      "reported": 3,
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "message": "AstraHeal Logs & Reports links are stage-aware. Open Playwright Report uses latest-playwright-report.html; Open combined report uses consolidated-report.html only."
+}

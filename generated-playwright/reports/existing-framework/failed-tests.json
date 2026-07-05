@@ -1,0 +1,123 @@
+{
+  "ok": true,
+  "source": "existing_framework_execution",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "generated_at": "2026-07-06T01:54:35",
+  "target_args": [
+    "tests/ui/static-pages.spec.ts",
+    "tests/ui/static-pages.spec.ts",
+    "tests/ui/login.spec.ts"
+  ],
+  "all_specs": [
+    "tests/ui/login.spec.ts",
+    "tests/ui/static-pages.spec.ts"
+  ],
+  "passed_specs": [
+    "tests/ui/login.spec.ts",
+    "tests/ui/static-pages.spec.ts"
+  ],
+  "failed_specs": [],
+  "failed_count": 0,
+  "failed_tests": [],
+  "all_test_cases": [
+    {
+      "id": "ui/login.spec.ts::chromium::ui\\login.spec.ts › login – customer portal › logout clears session",
+      "spec": "tests/ui/login.spec.ts",
+      "title": "ui\\login.spec.ts › Login – Customer Portal › Logout clears session",
+      "projectName": "chromium",
+      "status": "passed",
+      "errors": [],
+      "line": 71,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 1
+    },
+    {
+      "id": "ui/static-pages.spec.ts::chromium::ui\\static-pages.spec.ts › static pages – acima.com › overview page – main banner section valid",
+      "spec": "tests/ui/static-pages.spec.ts",
+      "title": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Main Banner section valid",
+      "projectName": "chromium",
+      "status": "passed",
+      "errors": [],
+      "line": 32,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 1
+    },
+    {
+      "id": "ui/static-pages.spec.ts::chromium::ui\\static-pages.spec.ts › static pages – acima.com › overview page – mobile app section valid",
+      "spec": "tests/ui/static-pages.spec.ts",
+      "title": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Mobile App section valid",
+      "projectName": "chromium",
+      "status": "passed",
+      "errors": [],
+      "line": 56,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 1
+    }
+  ],
+  "passed_test_cases": [
+    {
+      "id": "ui/login.spec.ts::chromium::ui\\login.spec.ts › login – customer portal › logout clears session",
+      "spec": "tests/ui/login.spec.ts",
+      "title": "ui\\login.spec.ts › Login – Customer Portal › Logout clears session",
+      "projectName": "chromium",
+      "status": "passed",
+      "errors": [],
+      "line": 71,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 1
+    },
+    {
+      "id": "ui/static-pages.spec.ts::chromium::ui\\static-pages.spec.ts › static pages – acima.com › overview page – main banner section valid",
+      "spec": "tests/ui/static-pages.spec.ts",
+      "title": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Main Banner section valid",
+      "projectName": "chromium",
+      "status": "passed",
+      "errors": [],
+      "line": 32,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 1
+    },
+    {
+      "id": "ui/static-pages.spec.ts::chromium::ui\\static-pages.spec.ts › static pages – acima.com › overview page – mobile app section valid",
+      "spec": "tests/ui/static-pages.spec.ts",
+      "title": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Mobile App section valid",
+      "projectName": "chromium",
+      "status": "passed",
+      "errors": [],
+      "line": 56,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 1
+    }
+  ],
+  "failed_test_cases": [],
+  "test_case_count": 3,
+  "passed_test_case_count": 3,
+  "failed_test_case_count": 0,
+  "inventory_granularity": "test_case",
+  "spec_statuses": {
+    "tests/ui/login.spec.ts": "passed",
+    "tests/ui/static-pages.spec.ts": "passed"
+  },
+  "test_statuses": {
+    "ui/login.spec.ts::chromium::ui\\login.spec.ts › login – customer portal › logout clears session": "passed",
+    "ui/static-pages.spec.ts::chromium::ui\\static-pages.spec.ts › static pages – acima.com › overview page – main banner section valid": "passed",
+    "ui/static-pages.spec.ts::chromium::ui\\static-pages.spec.ts › static pages – acima.com › overview page – mobile app section valid": "passed"
+  },
+  "results_json": "generated-playwright/reports/existing-framework/results.json",
+  "native_html_report": "generated-playwright/reports/existing-framework/html/index.html",
+  "execution_console_log": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\reports\\existing-framework\\execution-console.log",
+  "extraction_note": "",
+  "note": "Existing-framework RCA/self-healing uses failed_specs only. Reports use test-case level counts when Playwright JSON is available; otherwise they clearly fall back to spec-file granularity."
+}

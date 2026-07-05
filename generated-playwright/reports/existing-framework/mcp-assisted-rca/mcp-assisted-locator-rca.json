@@ -1,0 +1,828 @@
+{
+  "ok": true,
+  "stage": "mcp_assisted_locator_rca_ready",
+  "generated_at": "2026-07-06T01:41:18",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "base_url": "",
+  "category": "locator_or_actionability_failure",
+  "confidence": 0.86,
+  "significance": {
+    "button_name": "Check failed element with Playwright MCP",
+    "purpose": "Diagnose the exact failed element/action using observable browser/accessibility/DOM evidence before any code patch.",
+    "what_it_identifies": [
+      "the failed locator/action candidate from Playwright error text",
+      "whether the intended text/role/testId is visible in the current GUI evidence",
+      "whether the element is missing, detached from DOM, hidden, disabled, duplicated, inside iframe/shadow DOM, or blocked by overlay/permission popup",
+      "which pageObject/page/helper file should own the smallest safe fix"
+    ],
+    "what_it_does_not_do": "It does not silently change files. It creates RCA evidence and a safe patch direction for Create safe fix plan / Fix failed tests safely."
+  },
+  "element_level_failure_identification": {
+    "failure_type": "locator_ambiguous_multiple_matches",
+    "plain_english": "The locator matches more than one element. It needs a more specific role/name/testId or parent-child scope in the pageObject repository.",
+    "locator_candidates": [
+      "'a[href=\\\"/en/shop-online\\\"]'",
+      "'a[href=\\\"/en/find-a-store\\\"]'",
+      "'button:has-text(\\\\'Log out\\\\'",
+      "'menuitem', { name: /log\\\\s*out|logout|sign\\\\s*out/i }",
+      "'button', { name: /log\\\\s*out|logout|sign\\\\s*out/i }",
+      "'link', { name: /log\\\\s*out|logout|sign\\\\s*out/i }",
+      "\"message\": \"Error: Link /en/shop-online should be visible before click\\n\\n\\u001b[2mexpect(\\u001b[22m\\u001b[31mlocator\\u001b[39m\\u001b[2m).\\u001b[22mtoBeVisible\\u001b[2m(\\u001b[22m\\u001b[2m)\\u001b[22m failed\\n\\nLocator:  locator('a[href=\\\"/en/shop-online\\\"]').f",
+      "\"message\": \"Error: locator.click: Test timeout of 30000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for locator('a[href=\\\"/en/find-a-store\\\"]').first()\\u001b[22m\\n\\u001b[2m    - locator resolved to <a href=\\\"/en/find-a-store\\\">Shop Nearby Stores</a>\\u001b[22m"
+    ],
+    "visible_text_candidates": [
+      "log\\\\s*out|logout|sign\\\\s*out",
+      "a[href=\\",
+      "button:has-text(\\\\",
+      "menuitem",
+      "message",
+      ".f",
+      ".first()\\u001b[22m\\n\\u001b[2m - locator resolved to <a href=\\",
+      ">Shop Nearby Stores</a>\\u001b[22m"
+    ],
+    "recommended_next_fix": "Use accessibility snapshot to choose the exact role/name and replace the broad locator in the shared locator/pageObject file."
+  },
+  "failed_specs": [
+    "tests/ui/login.spec.ts",
+    "tests/ui/static-pages.spec.ts"
+  ],
+  "failed_tests": [
+    {
+      "id": "ui/static-pages.spec.ts::chromium::ui\\static-pages.spec.ts › static pages – acima.com › overview page – main banner section valid",
+      "spec": "tests/ui/static-pages.spec.ts",
+      "title": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Main Banner section valid",
+      "projectName": "chromium",
+      "status": "timedout",
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts",
+            "column": 69,
+            "line": 80
+          },
+          "message": "Error: Link /en/shop-online should be visible before click\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('a[href=\"/en/shop-online\"]').first()\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Link /en/shop-online should be visible before click with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('a[href=\"/en/shop-online\"]').first()\u001b[22m\n\u001b[2m    13 × locator resolved to <a href=\"/en/shop-online\">Shop Online Stores</a>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n   at ..\\pages\\base-page.ts:80\n\n  78 |     await this.dismissTransientOverlays();\n  79 |     await this.scrollLocatorIntoView(locator);\n> 80 |     await expect(locator, `${name} should be visible before click`).toBeVisible({ timeout: 10_000 });\n     |                                                                     ^\n  81 |     try {\n  82 |       await locator.click({ timeout: 15_000 });\n  83 |     } catch {\n    at OverviewPage.click (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts:80:69)\n    at OverviewPage.openAndValidateLinks (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:65:7)\n    at OverviewPage.validateMainBanner (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:91:5)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\static-pages.spec.ts:36:7"
+        },
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        },
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts",
+            "column": 21,
+            "line": 87
+          },
+          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/en/find-a-store\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/en/find-a-store\">Shop Nearby Stores</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    12 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n   at ..\\pages\\base-page.ts:87\n\n  85 |       await this.dismissTransientOverlays();\n  86 |       await this.scrollLocatorIntoView(locator);\n> 87 |       await locator.click({ timeout: 10_000 });\n     |                     ^\n  88 |     }\n  89 |   }\n  90 |\n    at OverviewPage.click (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts:87:21)\n    at OverviewPage.openAndValidateLinks (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:65:7)\n    at OverviewPage.validateMainBanner (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:91:5)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\static-pages.spec.ts:36:7"
+        }
+      ],
+      "line": 32,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 2
+    },
+    {
+      "id": "ui/static-pages.spec.ts::chromium::ui\\static-pages.spec.ts › static pages – acima.com › overview page – mobile app section valid",
+      "spec": "tests/ui/static-pages.spec.ts",
+      "title": "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Mobile App section valid",
+      "projectName": "chromium",
+      "status": "failed",
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts",
+            "column": 19,
+            "line": 77
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/en/shop-online\"]').first() to be visible\u001b[22m\n\u001b[2m    34 × locator resolved to hidden <a href=\"/en/shop-online\">Shop Online Stores</a>\u001b[22m\n\n\n   at ..\\pages\\base-page.ts:77\n\n  75 |     this.logStep(`🖱️ Click on '${name}'`);\n  76 |     await this.waitForStableDom();\n> 77 |     await locator.waitFor({ state: 'visible', timeout: 15_000 });\n     |                   ^\n  78 |     await this.dismissTransientOverlays();\n  79 |     await this.scrollLocatorIntoView(locator);\n  80 |     await expect(locator, `${name} should be visible before click`).toBeVisible({ timeout: 10_000 });\n    at OverviewPage.click (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts:77:19)\n    at OverviewPage.openAndValidateLinks (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:65:7)\n    at OverviewPage.validateMobileAppSection (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:115:5)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\static-pages.spec.ts:60:7"
+        },
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts",
+            "column": 19,
+            "line": 77
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href=\"/en/find-a-store\"]').first() to be visible\u001b[22m\n\u001b[2m    34 × locator resolved to hidden <a href=\"/en/find-a-store\">Shop Nearby Stores</a>\u001b[22m\n\n\n   at ..\\pages\\base-page.ts:77\n\n  75 |     this.logStep(`🖱️ Click on '${name}'`);\n  76 |     await this.waitForStableDom();\n> 77 |     await locator.waitFor({ state: 'visible', timeout: 15_000 });\n     |                   ^\n  78 |     await this.dismissTransientOverlays();\n  79 |     await this.scrollLocatorIntoView(locator);\n  80 |     await expect(locator, `${name} should be visible before click`).toBeVisible({ timeout: 10_000 });\n    at OverviewPage.click (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\base-page.ts:77:19)\n    at OverviewPage.openAndValidateLinks (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:65:7)\n    at OverviewPage.validateMobileAppSection (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\overview-page.ts:115:5)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\static-pages.spec.ts:60:7"
+        }
+      ],
+      "line": 56,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 2
+    },
+    {
+      "id": "ui/login.spec.ts::chromium::ui\\login.spec.ts › login – customer portal › logout clears session",
+      "spec": "tests/ui/login.spec.ts",
+      "title": "ui\\login.spec.ts › Login – Customer Portal › Logout clears session",
+      "projectName": "chromium",
+      "status": "failed",
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\login-page.ts",
+            "column": 29,
+            "line": 439
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('menuitem', { name: /log\\s*out|logout|sign\\s*out/i }).or(getByRole('button', { name: /log\\s*out|logout|sign\\s*out/i })).or(getByRole('link', { name: /log\\s*out|logout|sign\\s*out/i })).or(locator('button:has-text(\\'Log out\\'), button:has-text(\\'Log Out\\'), button:has-text(\\'Logout\\'), button:has-text(\\'Sign out\\'), a:has-text(\\'Log out\\'), a:has-text(\\'Log Out\\'), a:has-text(\\'Logout\\'), a:has-text(\\'Sign out\\'), [role=\\'menuitem\\']:has-text(\\'Log out\\'), [role=\\'menuitem\\']:has-text(\\'Log Out\\'), [role=\\'menuitem\\']:has-text(\\'Logout\\'), [data-testid=\\'logout\\'], [data-testid*=\\'logout\\' i], [aria-label*=\\'logout\\' i], [aria-label*=\\'log out\\' i], [href*=\\'logout\\' i], [href*=\\'signout\\' i]')).first() to be visible\u001b[22m\n\n\n   at ..\\pages\\login-page.ts:439\n\n  437 |     this.logStep('🚪 Logging out');\n  438 |     await this.revealLogoutOption();\n> 439 |     await this.logoutOption.waitFor({ state: 'visible', timeout: 10_000 });\n      |                             ^\n  440 |     await this.click(this.logoutOption, 'Logout');\n  441 |     await this.page.waitForLoadState('domcontentloaded');\n  442 |   }\n    at LoginPage.logout (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\login-page.ts:439:29)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\login.spec.ts:83:7"
+        },
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\login-page.ts",
+            "column": 29,
+            "line": 439
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('menuitem', { name: /log\\s*out|logout|sign\\s*out/i }).or(getByRole('button', { name: /log\\s*out|logout|sign\\s*out/i })).or(getByRole('link', { name: /log\\s*out|logout|sign\\s*out/i })).or(locator('button:has-text(\\'Log out\\'), button:has-text(\\'Log Out\\'), button:has-text(\\'Logout\\'), button:has-text(\\'Sign out\\'), a:has-text(\\'Log out\\'), a:has-text(\\'Log Out\\'), a:has-text(\\'Logout\\'), a:has-text(\\'Sign out\\'), [role=\\'menuitem\\']:has-text(\\'Log out\\'), [role=\\'menuitem\\']:has-text(\\'Log Out\\'), [role=\\'menuitem\\']:has-text(\\'Logout\\'), [data-testid=\\'logout\\'], [data-testid*=\\'logout\\' i], [aria-label*=\\'logout\\' i], [aria-label*=\\'log out\\' i], [href*=\\'logout\\' i], [href*=\\'signout\\' i]')).first() to be visible\u001b[22m\n\n\n   at ..\\pages\\login-page.ts:439\n\n  437 |     this.logStep('🚪 Logging out');\n  438 |     await this.revealLogoutOption();\n> 439 |     await this.logoutOption.waitFor({ state: 'visible', timeout: 10_000 });\n      |                             ^\n  440 |     await this.click(this.logoutOption, 'Logout');\n  441 |     await this.page.waitForLoadState('domcontentloaded');\n  442 |   }\n    at LoginPage.logout (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\login-page.ts:439:29)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\ui\\login.spec.ts:83:7"
+        }
+      ],
+      "line": 71,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 2
+    }
+  ],
+  "failed_locator_or_action_candidates": [
+    "'a[href=\\\"/en/shop-online\\\"]'",
+    "'a[href=\\\"/en/find-a-store\\\"]'",
+    "'button:has-text(\\\\'Log out\\\\'",
+    "'menuitem', { name: /log\\\\s*out|logout|sign\\\\s*out/i }",
+    "'button', { name: /log\\\\s*out|logout|sign\\\\s*out/i }",
+    "'link', { name: /log\\\\s*out|logout|sign\\\\s*out/i }",
+    "\"message\": \"Error: Link /en/shop-online should be visible before click\\n\\n\\u001b[2mexpect(\\u001b[22m\\u001b[31mlocator\\u001b[39m\\u001b[2m).\\u001b[22mtoBeVisible\\u001b[2m(\\u001b[22m\\u001b[2m)\\u001b[22m failed\\n\\nLocator:  locator('a[href=\\\"/en/shop-online\\\"]').f",
+    "\"message\": \"Error: locator.click: Test timeout of 30000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for locator('a[href=\\\"/en/find-a-store\\\"]').first()\\u001b[22m\\n\\u001b[2m    - locator resolved to <a href=\\\"/en/find-a-store\\\">Shop Nearby Stores</a>\\u001b[22m",
+    "\"message\": \"TimeoutError: locator.waitFor: Timeout 15000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for locator('a[href=\\\"/en/shop-online\\\"]').first() to be visible\\u001b[22m\\n\\u001b[2m    34 × locator resolved to hidden <a href=\\\"/en/shop-online\\\">Shop Onli",
+    "\"message\": \"TimeoutError: locator.waitFor: Timeout 15000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for locator('a[href=\\\"/en/find-a-store\\\"]').first() to be visible\\u001b[22m\\n\\u001b[2m    34 × locator resolved to hidden <a href=\\\"/en/find-a-store\\\">Shop Ne",
+    "\"message\": \"TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for getByRole('menuitem', { name: /log\\\\s*out|logout|sign\\\\s*out/i }).or(getByRole('button', { name: /log\\\\s*out|logout|sign\\\\s*out/i })).or(getByRole('link',"
+  ],
+  "visible_text_candidates": [
+    "log\\\\s*out|logout|sign\\\\s*out",
+    "a[href=\\",
+    "button:has-text(\\\\",
+    "menuitem",
+    "message",
+    ".f",
+    ".first()\\u001b[22m\\n\\u001b[2m - locator resolved to <a href=\\",
+    ">Shop Nearby Stores</a>\\u001b[22m",
+    "en/shop-online\\",
+    "en/find-a-store\\",
+    "Login Button",
+    "Customer Login Menu Item",
+    "Sign in with Username Instead",
+    "Profile sidebar link",
+    "Shop Marketplace link",
+    "Marketplace"
+  ],
+  "dom_or_artifact_text_hits": {
+    "log\\\\s*out|logout|sign\\\\s*out": [],
+    "a[href=\\": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-214455/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json"
+    ],
+    "button:has-text(\\\\": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json"
+    ],
+    "menuitem": [
+      ".aiqa-history/common-cause-memory.json",
+      ".qa-cache/existing-framework/agentic-memory/framework-understanding-memory.json",
+      ".aiqa-history/distributed-runs/run-20260702-134131/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260703-230135/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json"
+    ],
+    "message": [
+      "package-lock.json",
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      "specs/acima-mexico-test.plan.md",
+      "specs/shop-online.plan.md",
+      "utils/teams/README.md",
+      "agents/failure-analyzer/output/run-history.json",
+      ".github/agents/healer.agent.md",
+      ".github/agents/playwright-test-healer.agent.md",
+      ".github/agents/playwright-test-planner.agent.md",
+      ".claude/skills/playwright-cli/references/tracing.md",
+      ".aiqa-history/distributed-runs/run-20260702-134131/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260703-230135/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-002533/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-162437/run-state.json"
+    ],
+    ".f": [
+      "README.md",
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      "agents/README.md",
+      "specs/acima-broken-links-test.plan.md",
+      "specs/acima-mexico-test.plan.md",
+      ".qa-cache/existing-framework/agentic-memory/framework-understanding-memory.json",
+      ".github/agents/healer.agent.md",
+      ".github/agents/playwright-test-healer.agent.md",
+      ".claude/skills/playwright-cli/references/request-mocking.md",
+      ".claude/skills/playwright-cli/references/running-code.md",
+      ".claude/skills/playwright-cli/references/test-generation.md",
+      ".aiqa-history/distributed-runs/run-20260702-134131/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-162437/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json"
+    ],
+    ".first()\\u001b[22m\\n\\u001b[2m - locator resolved to <a href=\\": [],
+    ">Shop Nearby Stores</a>\\u001b[22m": [
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json"
+    ],
+    "en/shop-online\\": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-214455/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json"
+    ],
+    "en/find-a-store\\": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260702-134131/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-214455/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json"
+    ],
+    "Login Button": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      "agents/failure-analyzer/output/run-history.json",
+      ".qa-cache/existing-framework/agentic-memory/framework-understanding-memory.json",
+      ".aiqa-history/distributed-runs/run-20260702-134131/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260703-230135/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-002533/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-162437/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-214455/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json"
+    ],
+    "Customer Login Menu Item": [
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260703-230135/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-002533/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-162437/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json"
+    ],
+    "Sign in with Username Instead": [
+      ".aiqa-history/latest-execution.json",
+      "specs/acima-mexico-test.plan.md",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260703-230135/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-002533/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-162437/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json"
+    ],
+    "Profile sidebar link": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-002533/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json"
+    ],
+    "Shop Marketplace link": [],
+    "Marketplace": [
+      ".aiqa-history/latest-execution.json",
+      "specs/acima-broken-links-test.plan.md",
+      "specs/shop-marketplace.plan.md",
+      "specs/shop-online.plan.md",
+      "agents/failure-analyzer/output/run-history.json",
+      ".qa-cache/existing-framework/agentic-memory/framework-understanding-memory.json",
+      ".aiqa-history/distributed-runs/run-20260702-134131/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-162437/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-214455/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json"
+    ]
+  },
+  "pom_locator_mapping": {
+    "page_or_page_object_hits": [
+      {
+        "file": "pages/acima-advantage-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/acima-home-page.ts",
+        "matched": [
+          "menuitem",
+          ".f",
+          "Marketplace"
+        ]
+      },
+      {
+        "file": "pages/base-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/benefit-plus-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/home-page.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/login-page.ts",
+        "matched": [
+          "menuitem",
+          "message",
+          ".f",
+          "Login Button",
+          "Customer Login Menu Item",
+          "Sign in with Username Instead",
+          "Profile sidebar link"
+        ]
+      },
+      {
+        "file": "pages/mexico-customer-portal-page.ts",
+        "matched": [
+          "menuitem",
+          "message",
+          ".f",
+          "Sign in with Username Instead"
+        ]
+      },
+      {
+        "file": "pages/mexico-page.ts",
+        "matched": [
+          "menuitem",
+          ".f",
+          "Login Button"
+        ]
+      },
+      {
+        "file": "pages/my-profile-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/overview-page.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/payment-methods-page.ts",
+        "matched": [
+          "menuitem",
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/payments-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/shop-marketplace-page.ts",
+        "matched": [
+          "menuitem",
+          ".f",
+          "Login Button",
+          "Shop Marketplace link",
+          "Marketplace"
+        ]
+      },
+      {
+        "file": "pages/shop-online-page.ts",
+        "matched": [
+          ".f",
+          "Login Button",
+          "Marketplace"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-base-page.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-dashboard-page.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-home-page.ts",
+        "matched": [
+          "menuitem",
+          ".f",
+          "Login Button",
+          "Marketplace"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-login-page.ts",
+        "matched": [
+          "menuitem",
+          "message",
+          ".f",
+          "Login Button",
+          "Sign in with Username Instead"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-payment-methods-page.ts",
+        "matched": [
+          "menuitem",
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-payments-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-profile-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-224747/pages/benefit-plus-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-224747/pages/login-page.ts",
+        "matched": [
+          "menuitem",
+          "message",
+          ".f",
+          "Login Button",
+          "Customer Login Menu Item",
+          "Sign in with Username Instead",
+          "Profile sidebar link"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-192833/pages/acima-home-page.ts",
+        "matched": [
+          "menuitem",
+          ".f",
+          "Marketplace"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-192833/pages/base-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-192833/pages/login-page.ts",
+        "matched": [
+          "menuitem",
+          "message",
+          ".f",
+          "Login Button",
+          "Customer Login Menu Item",
+          "Sign in with Username Instead",
+          "Profile sidebar link"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-192833/pages/my-profile-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-192833/pages/payments-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260704-181442/pages/base-page.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260704-181442/pages/login-page.ts",
+        "matched": [
+          "menuitem",
+          "message",
+          ".f",
+          "Login Button",
+          "Customer Login Menu Item",
+          "Sign in with Username Instead",
+          "Profile sidebar link"
+        ]
+      }
+    ],
+    "spec_inline_hits": [
+      {
+        "file": "tests/api/customer.spec.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/api/lease.spec.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/api/payment.spec.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/mobile/mobile-home.spec.ts",
+        "matched": [
+          "menuitem",
+          "Login Button"
+        ]
+      },
+      {
+        "file": "tests/smoke/api-smoke.spec.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/smoke/ui-smoke.spec.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/ui/acima-advantage.spec.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/ui/benefit-plus.spec.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/ui/dashboard.spec.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/ui/login.spec.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/ui/payment.spec.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/ui/profile.spec.ts",
+        "matched": [
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/ui/shop-marketplace.spec.ts",
+        "matched": [
+          "Marketplace"
+        ]
+      },
+      {
+        "file": "tests/ui/static-pages.spec.ts",
+        "matched": [
+          ".f",
+          "Marketplace"
+        ]
+      },
+      {
+        "file": "tests/unit/teams/teamsNotifier.spec.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": "tests/unit/teams/testRunAggregator.spec.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-224747/tests/ui/benefit-plus.spec.ts",
+        "matched": [
+          "message",
+          ".f"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260702-105726/tests/mobile/mobile-home.spec.ts",
+        "matched": [
+          ".f",
+          "Login Button",
+          "Marketplace"
+        ]
+      }
+    ],
+    "pom_strategy_observation": "Prefer fixing locator in pageObjects/locator module or reusable page method. Inline spec locator changes require human review unless no POM layer exists."
+  },
+  "mcp_auditable_rca_steps": [
+    {
+      "step": 1,
+      "name": "Identify failed locator/action",
+      "question": "Which locator or Playwright action failed?",
+      "evidence": [
+        "'a[href=\\\"/en/shop-online\\\"]'",
+        "'a[href=\\\"/en/find-a-store\\\"]'",
+        "'button:has-text(\\\\'Log out\\\\'",
+        "'menuitem', { name: /log\\\\s*out|logout|sign\\\\s*out/i }",
+        "'button', { name: /log\\\\s*out|logout|sign\\\\s*out/i }",
+        "'link', { name: /log\\\\s*out|logout|sign\\\\s*out/i }",
+        "\"message\": \"Error: Link /en/shop-online should be visible before click\\n\\n\\u001b[2mexpect(\\u001b[22m\\u001b[31mlocator\\u001b[39m\\u001b[2m).\\u001b[22mtoBeVisible\\u001b[2m(\\u001b[22m\\u001b[2m)\\u001b[22m failed\\n\\nLocator:  locator('a[href=\\\"/en/shop-online\\\"]').f",
+        "\"message\": \"Error: locator.click: Test timeout of 30000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for locator('a[href=\\\"/en/find-a-store\\\"]').first()\\u001b[22m\\n\\u001b[2m    - locator resolved to <a href=\\\"/en/find-a-store\\\">Shop Nearby Stores</a>\\u001b[22m",
+        "\"message\": \"TimeoutError: locator.waitFor: Timeout 15000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for locator('a[href=\\\"/en/shop-online\\\"]').first() to be visible\\u001b[22m\\n\\u001b[2m    34 × locator resolved to hidden <a href=\\\"/en/shop-online\\\">Shop Onli",
+        "\"message\": \"TimeoutError: locator.waitFor: Timeout 15000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for locator('a[href=\\\"/en/find-a-store\\\"]').first() to be visible\\u001b[22m\\n\\u001b[2m    34 × locator resolved to hidden <a href=\\\"/en/find-a-store\\\">Shop Ne",
+        "\"message\": \"TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for getByRole('menuitem', { name: /log\\\\s*out|logout|sign\\\\s*out/i }).or(getByRole('button', { name: /log\\\\s*out|logout|sign\\\\s*out/i })).or(getByRole('link',"
+      ],
+      "mcp_usage": "Use Playwright MCP accessibility snapshot around the current page or failed state to compare the target role/name/text with the failed locator."
+    },
+    {
+      "step": 2,
+      "name": "Check locator text on visible GUI",
+      "question": "Is the intended button/link/input text visible to the user?",
+      "evidence": [
+        "log\\\\s*out|logout|sign\\\\s*out",
+        "a[href=\\",
+        "button:has-text(\\\\",
+        "menuitem",
+        "message",
+        ".f",
+        ".first()\\u001b[22m\\n\\u001b[2m - locator resolved to <a href=\\",
+        ">Shop Nearby Stores</a>\\u001b[22m",
+        "en/shop-online\\",
+        "en/find-a-store\\",
+        "Login Button",
+        "Customer Login Menu Item",
+        "Sign in with Username Instead",
+        "Profile sidebar link",
+        "Shop Marketplace link",
+        "Marketplace"
+      ],
+      "mcp_usage": "Use MCP browser snapshot / accessibility tree to list visible roles and names. Prefer role+accessible-name over screenshot guessing."
+    },
+    {
+      "step": 3,
+      "name": "Check DOM/accessibility presence",
+      "question": "Does the element exist in DOM/accessibility tree?",
+      "mcp_usage": "Use MCP snapshot and locator probe to confirm whether the target exists, is hidden, duplicated, or inside iframe/shadow DOM."
+    },
+    {
+      "step": 4,
+      "name": "Check actionability/interactability",
+      "question": "If element exists, can it receive click/fill/select action?",
+      "mcp_usage": "Use MCP click/hover/fill probes only in diagnostic mode. Detect overlays, disabled state, offscreen location, detached DOM, and permission popups."
+    },
+    {
+      "step": 5,
+      "name": "Map fix to POM/reuse layer",
+      "question": "Is the correct locator strategy implemented in pageObjects/pages/util layer?",
+      "mcp_usage": "Use observed role/name/testId from MCP plus RAG-indexed framework context. Patch pageObjects first, then page methods/helpers, not raw spec locators."
+    }
+  ],
+  "safe_fix_rule": "Use MCP/accessibility snapshot evidence to repair the smallest POM-layer locator/action fix. Do not weaken assertions, skip tests, force click by default, or patch passed scripts.",
+  "memory_note": "This MCP-assisted diagnosis is saved so future Codex/Ollama prompts can reuse observed locator, UI text, DOM, and POM mapping evidence."
+}

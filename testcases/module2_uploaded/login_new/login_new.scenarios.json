@@ -1,0 +1,57 @@
+{
+  "feature": "login_new",
+  "source_type": "module2_uploaded",
+  "scenarios": [
+    {
+      "id": "LOGIN_NEW-UPLOADED-001",
+      "title": "login_new uploaded functional flow",
+      "feature": "login_new",
+      "page": "Home",
+      "priority": "medium",
+      "preconditions": [],
+      "steps": [
+        {
+          "action": "perform",
+          "target": "JIRA STORY/TASK/BUG:",
+          "page": "Home"
+        },
+        {
+          "action": "verify",
+          "target": "As a user I login and verify dashboard",
+          "page": "Home"
+        },
+        {
+          "action": "perform",
+          "target": "PASTED TESTCASE/STEPS:",
+          "page": "Home"
+        },
+        {
+          "action": "perform",
+          "target": "Open app",
+          "page": "Home"
+        },
+        {
+          "action": "fill",
+          "target": "Enter username",
+          "page": "Home"
+        },
+        {
+          "action": "fill",
+          "target": "Enter password",
+          "page": "Home"
+        },
+        {
+          "action": "click",
+          "target": "Click Sign in",
+          "page": "Home"
+        },
+        {
+          "action": "verify",
+          "target": "Verify dashboard",
+          "page": "Home"
+        }
+      ],
+      "expected_result": "Expected business result should be verified."
+    }
+  ]
+}

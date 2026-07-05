@@ -1,0 +1,42 @@
+<!doctype html><html><head><meta charset='utf-8'/><title>External MCP Fix Research Context</title>
+<style>body{font-family:Segoe UI,Arial,sans-serif;background:#f8fafc;color:#0f172a;margin:24px}.card{background:white;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:14px 0}code{background:#0f172a;color:#dbeafe;padding:3px 6px;border-radius:6px}pre{white-space:pre-wrap;background:#0f172a;color:#dbeafe;padding:12px;border-radius:10px}</style></head><body>
+<h1>External MCP Fix Research Context</h1>
+<div class='card'><p><b>Status:</b> disabled by default</p><p>External MCP research is available but disabled by default. Enable after enterprise security approval using .astraheal-external-research.json or ASTRAHEAL_EXTERNAL_RESEARCH_ENABLED=true.</p><p>External GitHub/StackOverflow patterns are advisory only; final patch must follow local framework conventions, allowed_files scope, backup, validation, and failed-only rerun.</p></div>
+<div class='card'><h2>Generated research queries</h2><ul><li><code>Playwright locator click intercepted pointer events overlay scrollIntoViewIfNeeded login.spec.ts locator_not_found_or_ambiguous</code></li><li><code>Playwright locator not found stable selector Page Object Model getByRole getByTestId login.spec.ts locator_not_found_or_ambiguous</code></li><li><code>Playwright timeout navigation wait strategy dynamic website login.spec.ts locator_not_found_or_ambiguous</code></li><li><code>Playwright locator click intercepted pointer events overlay scrollIntoViewIfNeeded static-pages.spec.ts locator_not_found_or_ambiguous</code></li><li><code>Playwright locator not found stable selector Page Object Model getByRole getByTestId static-pages.spec.ts locator_not_found_or_ambiguous</code></li><li><code>Playwright timeout navigation wait strategy dynamic website static-pages.spec.ts locator_not_found_or_ambiguous</code></li></ul></div>
+<div class='card'><h2>Decision rules</h2><ol><li>Never copy public code directly into the enterprise framework.</li><li>Use external research only to compare patterns and safety tradeoffs.</li><li>Prefer official Playwright guidance and the existing framework's own POM conventions.</li><li>Any external-inspired change must pass local failed-only rerun and remain inside allowed_files scope.</li></ol></div>
+<div class='card'><h2>Raw context</h2><pre>{
+  "ok": true,
+  "generated_at": "2026-07-06T01:41:18",
+  "enabled": false,
+  "mode": "proposal_only",
+  "config_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\.astraheal-external-research.json",
+  "failed_specs": [
+    "tests/ui/login.spec.ts",
+    "tests/ui/static-pages.spec.ts"
+  ],
+  "classification": "locator_not_found_or_ambiguous",
+  "queries": [
+    "Playwright locator click intercepted pointer events overlay scrollIntoViewIfNeeded login.spec.ts locator_not_found_or_ambiguous",
+    "Playwright locator not found stable selector Page Object Model getByRole getByTestId login.spec.ts locator_not_found_or_ambiguous",
+    "Playwright timeout navigation wait strategy dynamic website login.spec.ts locator_not_found_or_ambiguous",
+    "Playwright locator click intercepted pointer events overlay scrollIntoViewIfNeeded static-pages.spec.ts locator_not_found_or_ambiguous",
+    "Playwright locator not found stable selector Page Object Model getByRole getByTestId static-pages.spec.ts locator_not_found_or_ambiguous",
+    "Playwright timeout navigation wait strategy dynamic website static-pages.spec.ts locator_not_found_or_ambiguous"
+  ],
+  "mcp_ready_sources": [
+    "github_mcp",
+    "stackoverflow_search_mcp",
+    "internal_repos_mcp"
+  ],
+  "github_mcp_enabled": false,
+  "stackoverflow_search_mcp_enabled": false,
+  "decision_rules": [
+    "Never copy public code directly into the enterprise framework.",
+    "Use external research only to compare patterns and safety tradeoffs.",
+    "Prefer official Playwright guidance and the existing framework's own POM conventions.",
+    "Any external-inspired change must pass local failed-only rerun and remain inside allowed_files scope."
+  ],
+  "message": "External MCP research is available but disabled by default. Enable after enterprise security approval using .astraheal-external-research.json or ASTRAHEAL_EXTERNAL_RESEARCH_ENABLED=true.",
+  "advisory_note": "External GitHub/StackOverflow patterns are advisory only; final patch must follow local framework conventions, allowed_files scope, backup, validation, and failed-only rerun."
+}</pre></div>
+</body></html>

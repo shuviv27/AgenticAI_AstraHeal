@@ -1,0 +1,113 @@
+. Home page smoke tests
+Verify home page loads successfully with HTTP 200 status when opening https://www.acima.com/en.
+
+Verify the Acima logo is displayed in the header and is visually clear.
+
+Verify clicking the Acima logo from any inner page navigates back to the home page.
+
+Verify the main hero section shows the heading “Shop with Acima Leasing” and the description about lease‑to‑own solutions.
+
+Verify “Shop In-store” and “Shop Online” buttons are visible in the hero section.
+
+Verify “Shop In-store” button navigates to the Find a Store page (/find-a-store).
+
+Verify “Shop Online” button navigates to the Shop Online page (/shop-online).
+
+Verify the page shows the “Shopping is easy” three‑step section (Select a retailer / Apply for a lease / Shop & checkout) with correct text.
+
+Verify “Shop now” button in the “Shopping is easy” section navigates to the Marketplace (/marketplace).
+
+2. Navigation menu tests
+Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout).
+
+Verify clicking “How It Works” navigates to /how-it-works and page content loads without errors.
+
+Verify clicking “Ways to Shop” navigates to /ways-to-shop.
+
+Verify clicking “For Retailers” navigates to /partner.
+
+Verify clicking “For eCommerce Retailers” navigates to /ecommerce.
+
+Verify clicking “About Us” navigates to /about-us.
+
+Verify clicking “News” navigates to /news.
+
+Verify clicking “Support/FAQ” opens the support/FAQ page (/aboutleasing).
+
+Verify clicking “Careers” opens acimacareers.com in same or new tab as per requirement.
+
+Verify clicking “Invest” opens investor.upbound.com successfully.
+
+Verify clicking “Blog” navigates to /blog.
+
+Verify “Accessibility” link navigates to /accessibility.
+
+Verify “Acima Locations” navigates to locations.acima.com.
+
+Verify “Partner Locations” navigates to /find-a-store.
+
+Verify “Upbound” link navigates to upbound.com.
+
+3. Marketplace and product‑discovery tests
+Verify the “Acima Marketplace” section is visible on the home page with a description about getting the things you love without perfect credit.
+
+Verify the “Start Shopping” button in the Marketplace section navigates to /marketplace.
+
+Verify https://www.acima.com/en/marketplace page loads successfully and shows a list of partner retailers or a search/filter UI for stores.
+
+Verify the “Select a retailer” step on marketplace allows searching or selecting from multiple retailers (e.g., list > click any retailer navigates to detail or external link).
+
+4. Mobile app links tests
+Verify the section “Do more in the Acima mobile app” is displayed on the home page.
+
+Verify the text mentions shopping big names like Amazon, Best Buy, and Walmart only in the app.
+
+Verify “Download app from app store” link opens the Apple App Store URL for Acima Leasing.
+
+Verify “Download app from google play store” link opens the correct Google Play Store page for Acima Leasing.
+
+5. Social media and external links
+Verify “Facebook” icon/link opens Acima’s Facebook page.
+
+Verify “Instagram” icon/link opens Acima’s Instagram page.
+
+Verify “LinkedIn” icon/link opens Acima’s LinkedIn page.
+
+6. Footer and legal information
+Verify the footer displays copyright text “© 2026 Acima, All Rights Reserved”.
+
+Verify “Terms of Use” link opens /termsofuse.
+
+Verify “Privacy Policy” opens /privacypolicy.
+
+Verify “Your California Privacy Rights” opens /californiaprivacypolicy.
+
+Verify “Employee Privacy Policy” opens /employee-privacy-policy.
+
+Verify “Your Privacy Choices / Do Not Sell My Data or Share My Personal Information” links open the privacy‑central page in a new tab if specified.
+
+7. Basic usability and UI tests
+Verify page content is properly aligned and readable at common desktop resolutions (e.g., 1366x768, 1920x1080).
+
+Verify responsive behavior on mobile view: hero section, buttons (“Shop Nearby”, “Shop Online”), and cards stack vertically and remain readable.
+
+Verify font size and contrast meet basic readability expectations on primary text and buttons.
+
+Verify “Skip to main content” link works and moves focus to the main content section.
+
+Verify buttons have hover states and focus outlines for keyboard users.
+
+8. Negative and error‑handling tests
+Verify accessing a non‑existent page under the domain shows a user‑friendly 404 page (e.g., https://www.acima.com/en/abcxyz).
+
+Verify the site handles network interruption gracefully and displays standard browser or custom error message.
+
+Verify restricted paths (if any known from your app) are not accessible without proper authentication.
+
+9. Basic accessibility checks
+Verify all primary buttons and links on the home page are reachable and actionable using keyboard only (Tab, Enter, Space).
+
+Verify images with important information (e.g., banners, app image) have appropriate alt text or labels.
+
+Verify headings follow a logical hierarchy (H1 for main title “Shop with Acima Leasing”, etc.).
+

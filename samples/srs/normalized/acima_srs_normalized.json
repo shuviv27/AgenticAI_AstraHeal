@@ -1,0 +1,1801 @@
+{
+  "source_ref": "acima_requirements_user.txt",
+  "source_type": "srs",
+  "feature": "acima",
+  "page": "Acima",
+  "priority": "medium",
+  "tags": [
+    "acima",
+    "srs",
+    "modern-web",
+    "dynamic-components"
+  ],
+  "start_url": "https://www.acima.com/en",
+  "scenarios": [
+    {
+      "id": "ACIMA-001",
+      "title": "Verify home page loads successfully with HTTP 200 status when opening https://www.acima.com/en",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify_page_loaded",
+          "target": "page loaded successfully",
+          "expected": "Verify home page loads successfully with HTTP 200 status when opening https://www.acima.com/en",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify home page loads successfully with HTTP 200 status when opening https://www.acima.com/en",
+      "source_section": "General",
+      "tags": [
+        "acima",
+        "functional"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-002",
+      "title": "Verify the Acima logo is displayed in the header and is visually clear",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Acima logo",
+          "expected": "Verify the Acima logo is displayed in the header and is visually clear",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the Acima logo is displayed in the header and is visually clear",
+      "source_section": "General",
+      "tags": [
+        "acima",
+        "functional"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-003",
+      "title": "Verify clicking the Acima logo from any inner page navigates back to the home page",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Acima logo",
+          "value": "https://www.acima.com/en",
+          "expected": "Verify clicking the Acima logo from any inner page navigates back to the home page",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking the Acima logo from any inner page navigates back to the home page",
+      "source_section": "General",
+      "tags": [
+        "acima",
+        "functional"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-004",
+      "title": "Verify the main hero section shows the heading “Shop with Acima Leasing” and the description about lease‑to‑own solutions",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Shop with Acima Leasing",
+          "expected": "Verify the main hero section shows the heading “Shop with Acima Leasing” and the description about lease‑to‑own solutions",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "lease-to-own solutions",
+          "expected": "Verify the main hero section shows the heading “Shop with Acima Leasing” and the description about lease‑to‑own solutions",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the main hero section shows the heading “Shop with Acima Leasing” and the description about lease‑to‑own solutions",
+      "source_section": "General",
+      "tags": [
+        "acima",
+        "functional"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-005",
+      "title": "Verify “Shop In-store” and “Shop Online” buttons are visible in the hero section",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Shop In-store",
+          "expected": "Verify “Shop In-store” and “Shop Online” buttons are visible in the hero section",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Shop Online",
+          "expected": "Verify “Shop In-store” and “Shop Online” buttons are visible in the hero section",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Shop In-store” and “Shop Online” buttons are visible in the hero section",
+      "source_section": "General",
+      "tags": [
+        "acima",
+        "functional"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-006",
+      "title": "Verify “Shop In-store” button navigates to the Find a Store page (/find-a-store)",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Shop In-store",
+          "value": "/find-a-store",
+          "expected": "Verify “Shop In-store” button navigates to the Find a Store page (/find-a-store)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Shop In-store” button navigates to the Find a Store page (/find-a-store)",
+      "source_section": "General",
+      "tags": [
+        "acima",
+        "functional"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-007",
+      "title": "Verify “Shop Online” button navigates to the Shop Online page (/shop-online)",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Shop Online",
+          "value": "/shop-online",
+          "expected": "Verify “Shop Online” button navigates to the Shop Online page (/shop-online)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Shop Online” button navigates to the Shop Online page (/shop-online)",
+      "source_section": "General",
+      "tags": [
+        "acima",
+        "functional"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-008",
+      "title": "Verify the page shows the “Shopping is easy” three‑step section (Select a retailer / Apply for a lease / Shop & checkout) with correct text",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Shopping is easy",
+          "expected": "Verify the page shows the “Shopping is easy” three‑step section (Select a retailer / Apply for a lease / Shop & checkout) with correct text",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Select a retailer",
+          "expected": "Verify the page shows the “Shopping is easy” three‑step section (Select a retailer / Apply for a lease / Shop & checkout) with correct text",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Apply for a lease",
+          "expected": "Verify the page shows the “Shopping is easy” three‑step section (Select a retailer / Apply for a lease / Shop & checkout) with correct text",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Shop & checkout",
+          "expected": "Verify the page shows the “Shopping is easy” three‑step section (Select a retailer / Apply for a lease / Shop & checkout) with correct text",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the page shows the “Shopping is easy” three‑step section (Select a retailer / Apply for a lease / Shop & checkout) with correct text",
+      "source_section": "General",
+      "tags": [
+        "acima",
+        "functional"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-009",
+      "title": "Verify “Shop now” button in the “Shopping is easy” section navigates to the Marketplace (/marketplace)",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Shop now",
+          "value": "/marketplace",
+          "expected": "Verify “Shop now” button in the “Shopping is easy” section navigates to the Marketplace (/marketplace)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Shop now” button in the “Shopping is easy” section navigates to the Marketplace (/marketplace)",
+      "source_section": "General",
+      "tags": [
+        "acima",
+        "functional"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-010",
+      "title": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FA",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "How It Works",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Ways to Shop",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "For Retailers",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "For eCommerce Retailers",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "About Us",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "News",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Support",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "FAQ",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Careers",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Invest",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Blog",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Accessibility",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Solutions",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Digital",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Acima Benefits Plus",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Acima Locations",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Partner Locations",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Upbound",
+          "expected": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout)",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-011",
+      "title": "Verify clicking “How It Works” navigates to /how-it-works and page content loads without errors",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "How It Works",
+          "value": "/how-it-works",
+          "expected": "Verify clicking “How It Works” navigates to /how-it-works and page content loads without errors",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “How It Works” navigates to /how-it-works and page content loads without errors",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-012",
+      "title": "Verify clicking “Ways to Shop” navigates to /ways-to-shop",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Ways to Shop",
+          "value": "/ways-to-shop",
+          "expected": "Verify clicking “Ways to Shop” navigates to /ways-to-shop",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “Ways to Shop” navigates to /ways-to-shop",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-013",
+      "title": "Verify clicking “For Retailers” navigates to /partner",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "For Retailers",
+          "value": "/partner",
+          "expected": "Verify clicking “For Retailers” navigates to /partner",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “For Retailers” navigates to /partner",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-014",
+      "title": "Verify clicking “For eCommerce Retailers” navigates to /ecommerce",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "For eCommerce Retailers",
+          "value": "/ecommerce",
+          "expected": "Verify clicking “For eCommerce Retailers” navigates to /ecommerce",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “For eCommerce Retailers” navigates to /ecommerce",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-015",
+      "title": "Verify clicking “About Us” navigates to /about-us",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "About Us",
+          "value": "/about-us",
+          "expected": "Verify clicking “About Us” navigates to /about-us",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “About Us” navigates to /about-us",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-016",
+      "title": "Verify clicking “News” navigates to /news",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "News",
+          "value": "/news",
+          "expected": "Verify clicking “News” navigates to /news",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “News” navigates to /news",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-017",
+      "title": "Verify clicking “Support/FAQ” opens the support/FAQ page (/aboutleasing)",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Support/FAQ",
+          "value": "/aboutleasing",
+          "expected": "Verify clicking “Support/FAQ” opens the support/FAQ page (/aboutleasing)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “Support/FAQ” opens the support/FAQ page (/aboutleasing)",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-018",
+      "title": "Verify clicking “Careers” opens acimacareers.com in same or new tab as per requirement",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_external",
+          "target": "Careers",
+          "value": "",
+          "expected": "Verify clicking “Careers” opens acimacareers.com in same or new tab as per requirement",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “Careers” opens acimacareers.com in same or new tab as per requirement",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-019",
+      "title": "Verify clicking “Invest” opens investor.upbound.com successfully",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Invest",
+          "value": "",
+          "expected": "Verify clicking “Invest” opens investor.upbound.com successfully",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “Invest” opens investor.upbound.com successfully",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-020",
+      "title": "Verify clicking “Blog” navigates to /blog",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Blog",
+          "value": "/blog",
+          "expected": "Verify clicking “Blog” navigates to /blog",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify clicking “Blog” navigates to /blog",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-021",
+      "title": "Verify “Accessibility” link navigates to /accessibility",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Accessibility",
+          "value": "/accessibility",
+          "expected": "Verify “Accessibility” link navigates to /accessibility",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Accessibility” link navigates to /accessibility",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-022",
+      "title": "Verify “Acima Locations” navigates to locations.acima.com",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Acima Locations",
+          "expected": "Verify “Acima Locations” navigates to locations.acima.com",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Acima Locations” navigates to locations.acima.com",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-023",
+      "title": "Verify “Partner Locations” navigates to /find-a-store",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Partner Locations",
+          "expected": "Verify “Partner Locations” navigates to /find-a-store",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Partner Locations” navigates to /find-a-store",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-024",
+      "title": "Verify “Upbound” link navigates to upbound.com",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Upbound",
+          "value": "",
+          "expected": "Verify “Upbound” link navigates to upbound.com",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Upbound” link navigates to upbound.com",
+      "source_section": "Navigation menu tests",
+      "tags": [
+        "acima",
+        "navigation"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-025",
+      "title": "Verify the “Acima Marketplace” section is visible on the home page with a description about getting the things you love without perfect credit",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Acima Marketplace",
+          "expected": "Verify the “Acima Marketplace” section is visible on the home page with a description about getting the things you love without perfect credit",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the “Acima Marketplace” section is visible on the home page with a description about getting the things you love without perfect credit",
+      "source_section": "Marketplace and product‑discovery tests",
+      "tags": [
+        "acima",
+        "marketplace"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-026",
+      "title": "Verify the “Start Shopping” button in the Marketplace section navigates to /marketplace",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Start Shopping",
+          "value": "/marketplace",
+          "expected": "Verify the “Start Shopping” button in the Marketplace section navigates to /marketplace",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the “Start Shopping” button in the Marketplace section navigates to /marketplace",
+      "source_section": "Marketplace and product‑discovery tests",
+      "tags": [
+        "acima",
+        "marketplace"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-027",
+      "title": "Verify https://www.acima.com/en/marketplace page loads successfully and shows a list of partner retailers or a search/filter UI for stores",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en/marketplace",
+          "page": "Acima"
+        },
+        {
+          "action": "verify_page_loaded",
+          "target": "page loaded successfully",
+          "expected": "Verify https://www.acima.com/en/marketplace page loads successfully and shows a list of partner retailers or a search/filter UI for stores",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify https://www.acima.com/en/marketplace page loads successfully and shows a list of partner retailers or a search/filter UI for stores",
+      "source_section": "Marketplace and product‑discovery tests",
+      "tags": [
+        "acima",
+        "marketplace"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-028",
+      "title": "Verify the “Select a retailer” step on marketplace allows searching or selecting from multiple retailers (e.g., list > click any retailer navigates to",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_external",
+          "target": "Select a retailer",
+          "value": "",
+          "expected": "Verify the “Select a retailer” step on marketplace allows searching or selecting from multiple retailers (e.g., list > click any retailer navigates to detail or external link)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the “Select a retailer” step on marketplace allows searching or selecting from multiple retailers (e.g., list > click any retailer navigates to detail or external link)",
+      "source_section": "Marketplace and product‑discovery tests",
+      "tags": [
+        "acima",
+        "marketplace"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-029",
+      "title": "Verify the section “Do more in the Acima mobile app” is displayed on the home page",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Do more in the Acima mobile app",
+          "expected": "Verify the section “Do more in the Acima mobile app” is displayed on the home page",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the section “Do more in the Acima mobile app” is displayed on the home page",
+      "source_section": "Mobile app links tests",
+      "tags": [
+        "acima",
+        "mobile-app"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-030",
+      "title": "Verify the text mentions shopping big names like Amazon, Best Buy, and Walmart only in the app",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Amazon",
+          "expected": "Verify the text mentions shopping big names like Amazon, Best Buy, and Walmart only in the app",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Best Buy",
+          "expected": "Verify the text mentions shopping big names like Amazon, Best Buy, and Walmart only in the app",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Walmart",
+          "expected": "Verify the text mentions shopping big names like Amazon, Best Buy, and Walmart only in the app",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the text mentions shopping big names like Amazon, Best Buy, and Walmart only in the app",
+      "source_section": "Mobile app links tests",
+      "tags": [
+        "acima",
+        "mobile-app"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-031",
+      "title": "Verify “Download app from app store” link opens the Apple App Store URL for Acima Leasing",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Download app from app store",
+          "value": "",
+          "expected": "Verify “Download app from app store” link opens the Apple App Store URL for Acima Leasing",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Download app from app store” link opens the Apple App Store URL for Acima Leasing",
+      "source_section": "Mobile app links tests",
+      "tags": [
+        "acima",
+        "mobile-app"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-032",
+      "title": "Verify “Download app from google play store” link opens the correct Google Play Store page for Acima Leasing",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Download app from google play store",
+          "value": "",
+          "expected": "Verify “Download app from google play store” link opens the correct Google Play Store page for Acima Leasing",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Download app from google play store” link opens the correct Google Play Store page for Acima Leasing",
+      "source_section": "Mobile app links tests",
+      "tags": [
+        "acima",
+        "mobile-app"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-033",
+      "title": "Verify “Facebook” icon/link opens Acima’s Facebook page",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Facebook",
+          "value": "",
+          "expected": "Verify “Facebook” icon/link opens Acima’s Facebook page",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Facebook” icon/link opens Acima’s Facebook page",
+      "source_section": "Social media and external links",
+      "tags": [
+        "acima",
+        "social-links"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-034",
+      "title": "Verify “Instagram” icon/link opens Acima’s Instagram page",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Instagram",
+          "value": "",
+          "expected": "Verify “Instagram” icon/link opens Acima’s Instagram page",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Instagram” icon/link opens Acima’s Instagram page",
+      "source_section": "Social media and external links",
+      "tags": [
+        "acima",
+        "social-links"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-035",
+      "title": "Verify “LinkedIn” icon/link opens Acima’s LinkedIn page",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "LinkedIn",
+          "value": "",
+          "expected": "Verify “LinkedIn” icon/link opens Acima’s LinkedIn page",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “LinkedIn” icon/link opens Acima’s LinkedIn page",
+      "source_section": "Social media and external links",
+      "tags": [
+        "acima",
+        "social-links"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-036",
+      "title": "Verify the footer displays copyright text “© 2026 Acima, All Rights Reserved”",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "footer",
+          "expected": "Verify the footer displays copyright text “© 2026 Acima, All Rights Reserved”",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the footer displays copyright text “© 2026 Acima, All Rights Reserved”",
+      "source_section": "Footer and legal information",
+      "tags": [
+        "acima",
+        "footer-legal"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-037",
+      "title": "Verify “Terms of Use” link opens /termsofuse",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_navigate",
+          "target": "Terms of Use",
+          "value": "/termsofuse",
+          "expected": "Verify “Terms of Use” link opens /termsofuse",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Terms of Use” link opens /termsofuse",
+      "source_section": "Footer and legal information",
+      "tags": [
+        "acima",
+        "footer-legal"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-038",
+      "title": "Verify “Privacy Policy” opens /privacypolicy",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Privacy Policy",
+          "expected": "Verify “Privacy Policy” opens /privacypolicy",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Privacy Policy” opens /privacypolicy",
+      "source_section": "Footer and legal information",
+      "tags": [
+        "acima",
+        "footer-legal"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-039",
+      "title": "Verify “Your California Privacy Rights” opens /californiaprivacypolicy",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Your California Privacy Rights",
+          "expected": "Verify “Your California Privacy Rights” opens /californiaprivacypolicy",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Your California Privacy Rights” opens /californiaprivacypolicy",
+      "source_section": "Footer and legal information",
+      "tags": [
+        "acima",
+        "footer-legal"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-040",
+      "title": "Verify “Employee Privacy Policy” opens /employee-privacy-policy",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Employee Privacy Policy",
+          "expected": "Verify “Employee Privacy Policy” opens /employee-privacy-policy",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Employee Privacy Policy” opens /employee-privacy-policy",
+      "source_section": "Footer and legal information",
+      "tags": [
+        "acima",
+        "footer-legal"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-041",
+      "title": "Verify “Your Privacy Choices / Do Not Sell My Data or Share My Personal Information” links open the privacy‑central page in a new tab if specified",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "click_external",
+          "target": "Your Privacy Choices / Do Not Sell My Data or Share My Personal Information",
+          "value": "",
+          "expected": "Verify “Your Privacy Choices / Do Not Sell My Data or Share My Personal Information” links open the privacy‑central page in a new tab if specified",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Your Privacy Choices / Do Not Sell My Data or Share My Personal Information” links open the privacy‑central page in a new tab if specified",
+      "source_section": "Footer and legal information",
+      "tags": [
+        "acima",
+        "footer-legal"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-042",
+      "title": "Verify page content is properly aligned and readable at common desktop resolutions (e.g., 1366x768, 1920x1080)",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Verify page content is properly aligned and readable at common desktop resolutions (e.g., 1366x768, 1920x1080)",
+          "expected": "Verify page content is properly aligned and readable at common desktop resolutions (e.g., 1366x768, 1920x1080)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify page content is properly aligned and readable at common desktop resolutions (e.g., 1366x768, 1920x1080)",
+      "source_section": "Basic usability and UI tests",
+      "tags": [
+        "acima",
+        "usability"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-043",
+      "title": "Verify responsive behavior on mobile view: hero section, buttons (“Shop Nearby”, “Shop Online”), and cards stack vertically and remain readable",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify_responsive",
+          "target": "responsive mobile layout",
+          "expected": "Verify responsive behavior on mobile view: hero section, buttons (“Shop Nearby”, “Shop Online”), and cards stack vertically and remain readable",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify responsive behavior on mobile view: hero section, buttons (“Shop Nearby”, “Shop Online”), and cards stack vertically and remain readable",
+      "source_section": "Basic usability and UI tests",
+      "tags": [
+        "acima",
+        "usability"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-044",
+      "title": "Verify font size and contrast meet basic readability expectations on primary text and buttons",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Verify font size and contrast meet basic readability expectations on primary text and buttons",
+          "expected": "Verify font size and contrast meet basic readability expectations on primary text and buttons",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify font size and contrast meet basic readability expectations on primary text and buttons",
+      "source_section": "Basic usability and UI tests",
+      "tags": [
+        "acima",
+        "usability"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-045",
+      "title": "Verify “Skip to main content” link works and moves focus to the main content section",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify_keyboard_accessible",
+          "target": "keyboard accessible controls",
+          "expected": "Verify “Skip to main content” link works and moves focus to the main content section",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify “Skip to main content” link works and moves focus to the main content section",
+      "source_section": "Basic usability and UI tests",
+      "tags": [
+        "acima",
+        "usability"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-046",
+      "title": "Verify buttons have hover states and focus outlines for keyboard users",
+      "page": "Acima",
+      "priority": "medium",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify_keyboard_accessible",
+          "target": "keyboard accessible controls",
+          "expected": "Verify buttons have hover states and focus outlines for keyboard users",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify buttons have hover states and focus outlines for keyboard users",
+      "source_section": "Basic usability and UI tests",
+      "tags": [
+        "acima",
+        "usability"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-047",
+      "title": "Verify accessing a non‑existent page under the domain shows a user‑friendly 404 page (e.g., https://www.acima.com/en/abcxyz)",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "non existent page",
+          "value": "https://www.acima.com/en/abcxyz",
+          "page": "Acima"
+        },
+        {
+          "action": "verify_text_or_status",
+          "target": "404 or not found page",
+          "expected": "Verify accessing a non‑existent page under the domain shows a user‑friendly 404 page (e.g., https://www.acima.com/en/abcxyz)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify accessing a non‑existent page under the domain shows a user‑friendly 404 page (e.g., https://www.acima.com/en/abcxyz)",
+      "source_section": "Negative and error‑handling tests",
+      "tags": [
+        "acima",
+        "negative",
+        "error-handling"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-048",
+      "title": "Verify the site handles network interruption gracefully and displays standard browser or custom error message",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Verify the site handles network interruption gracefully and displays standard browser or custom error message",
+          "expected": "Verify the site handles network interruption gracefully and displays standard browser or custom error message",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify the site handles network interruption gracefully and displays standard browser or custom error message",
+      "source_section": "Negative and error‑handling tests",
+      "tags": [
+        "acima",
+        "negative",
+        "error-handling"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-049",
+      "title": "Verify restricted paths (if any known from your app) are not accessible without proper authentication",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Verify restricted paths (if any known from your app) are not accessible without proper authentication",
+          "expected": "Verify restricted paths (if any known from your app) are not accessible without proper authentication",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify restricted paths (if any known from your app) are not accessible without proper authentication",
+      "source_section": "Negative and error‑handling tests",
+      "tags": [
+        "acima",
+        "negative",
+        "error-handling"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-050",
+      "title": "Verify all primary buttons and links on the home page are reachable and actionable using keyboard only (Tab, Enter, Space)",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify_keyboard_accessible",
+          "target": "primary buttons and links",
+          "expected": "Verify all primary buttons and links on the home page are reachable and actionable using keyboard only (Tab, Enter, Space)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify all primary buttons and links on the home page are reachable and actionable using keyboard only (Tab, Enter, Space)",
+      "source_section": "Basic accessibility checks",
+      "tags": [
+        "acima",
+        "accessibility"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-051",
+      "title": "Verify images with important information (e.g., banners, app image) have appropriate alt text or labels",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Verify images with important information (e.g., banners, app image) have appropriate alt text or labels",
+          "expected": "Verify images with important information (e.g., banners, app image) have appropriate alt text or labels",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify images with important information (e.g., banners, app image) have appropriate alt text or labels",
+      "source_section": "Basic accessibility checks",
+      "tags": [
+        "acima",
+        "accessibility"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    },
+    {
+      "id": "ACIMA-052",
+      "title": "Verify headings follow a logical hierarchy (H1 for main title “Shop with Acima Leasing”, etc.)",
+      "page": "Acima",
+      "priority": "high",
+      "preconditions": [
+        "Docker stack and selected AI provider should be running before pipeline execution."
+      ],
+      "start_url": "https://www.acima.com/en",
+      "steps": [
+        {
+          "action": "goto",
+          "target": "application",
+          "value": "https://www.acima.com/en",
+          "page": "Acima"
+        },
+        {
+          "action": "verify",
+          "target": "Shop with Acima Leasing",
+          "expected": "Verify headings follow a logical hierarchy (H1 for main title “Shop with Acima Leasing”, etc.)",
+          "page": "Acima"
+        }
+      ],
+      "expected_result": "Verify headings follow a logical hierarchy (H1 for main title “Shop with Acima Leasing”, etc.)",
+      "source_section": "Basic accessibility checks",
+      "tags": [
+        "acima",
+        "accessibility"
+      ],
+      "source_ref": "acima_requirements_user.txt"
+    }
+  ],
+  "raw_text_preview": ". Home page smoke tests\nVerify home page loads successfully with HTTP 200 status when opening https://www.acima.com/en.\n\nVerify the Acima logo is displayed in the header and is visually clear.\n\nVerify clicking the Acima logo from any inner page navigates back to the home page.\n\nVerify the main hero section shows the heading “Shop with Acima Leasing” and the description about lease‑to‑own solutions.\n\nVerify “Shop In-store” and “Shop Online” buttons are visible in the hero section.\n\nVerify “Shop In-store” button navigates to the Find a Store page (/find-a-store).\n\nVerify “Shop Online” button navigates to the Shop Online page (/shop-online).\n\nVerify the page shows the “Shopping is easy” three‑step section (Select a retailer / Apply for a lease / Shop & checkout) with correct text.\n\nVerify “Shop now” button in the “Shopping is easy” section navigates to the Marketplace (/marketplace).\n\n2. Navigation menu tests\nVerify the top navigation/menu is displayed with items: How It Works, Ways to Shop, For Retailers, For eCommerce Retailers, About Us, News, Support/FAQ, Careers, Invest, Blog, Accessibility, Solutions, Digital, Acima Benefits Plus, Acima Locations, Partner Locations, Upbound (or equivalent menu entry points depending on final layout).\n\nVerify clicking “How It Works” navigates to /how-it-works and page content loads without errors.\n\nVerify clicking “Ways to Shop” navigates to /ways-to-shop.\n\nVerify clicking “For Retailers” navigates to /partner.\n\nVerify clicking “For eCommerce Retailers” navigates to /ecommerce.\n\nVerify clicking “About Us” navigates to /about-us.\n\nVerify clicking “News” navigates to /news.\n\nVerify clicking “Support/FAQ” opens the support/FAQ page (/aboutleasing).\n\nVerify clicking “Careers” opens acimacareers.com in same or new tab as per requirement.\n\nVerify clicking “Invest” opens investor.upbound.com successfully.\n\nVerify clicking “Blog” navigates to /blog.\n\nVerify “Accessibility” link navigates to /accessibility.\n\nVerify “Acima Locations” navigates to locations.acima.com.\n\nVerify “Partner Locations” navigates to /find-a-store.\n\nVerify “Upbound” link navigates to upbound.com.\n\n3. Marketplace and product‑discovery tests\nVerify the “Acima Marketplace” section is visible on the home page with a description about getting the things you love without perfect credit.\n\nVerify the “Start Shopping” button in the Marketplace section navigates to /marketplace.\n\nVerify https://www.acima.com/en/marketplace page loads successfully and shows a list of partner retailers or a search/filter UI for stores.\n\nVerify the “Select a retailer” step on marketplace allows searching or selecting from multiple retailers (e.g., list > click any retailer navigates to detail or external link).\n\n4. Mobile app links tests\nVerify the section “Do more in the Acima mobile app” is displayed on the home page.\n\nVerify the text mentions shopping big names like Amazon, Best Buy, and Walmart only in the app.\n\nVerify “Download app from app store” link opens the Apple App Store URL for Acima Leasing.\n\nVerify “Download app from google play store” link opens the correct Google Play Store page for Acima Leasing.\n\n5. Social media and external links\nVerify “Facebook” icon/link opens Acima’s Facebook page.\n\nVerify “Instagram” icon/link opens Acima’s Instagram page.\n\nVerify “LinkedIn” icon/link opens Acima’s LinkedIn page.\n\n6. Footer and legal information\nVerify the footer displays copyright text “© 2026 Acima, All Rights Reserved”.\n\nVerify “Terms of Use” link opens /termsofuse.\n\nVerify “Privacy Policy” opens /privacypolicy.\n\nVerify “Your California Privacy Rights” opens /californiaprivacypolicy.\n\nVerify “Employee Privacy Policy” opens /employee-privacy-policy.\n\nVerify “Your Privacy Choices / Do Not Sell My Data or Share My Personal Information” links open the privacy‑central page in a new tab if specified.\n\n7. Basic usability and UI tests\nVerify page content is properly aligned and readable at common desktop resolutions (e.g., 1366x768, 1920x1080).\n\nVerify r"
+}

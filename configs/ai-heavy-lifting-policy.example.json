@@ -1,0 +1,19 @@
+{
+  "ai_heavy_lifting_mode": "central_brain_worker_evidence",
+  "primary_code_provider": "codex",
+  "reasoning_provider": "openai",
+  "fallback_reasoning_provider": "deepseek",
+  "worker_ai_role": "browser_mcp_evidence_only",
+  "dom_crawl_mode": "worker_mcp_when_aut_access_requires_worker",
+  "mcp_evidence_mode": "collect_on_execution_worker_send_to_central",
+  "codex_patch_location": "central_only",
+  "source_of_truth": "central_vm_framework",
+  "rules": {
+    "workers_patch_source": false,
+    "central_vm_applies_fixes": true,
+    "backup_before_patch": true,
+    "rollback_supported": true,
+    "forbid_test_skip_only_fixme": true,
+    "prefer_existing_locators_and_methods": true
+  }
+}

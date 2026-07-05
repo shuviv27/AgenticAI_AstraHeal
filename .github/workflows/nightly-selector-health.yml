@@ -1,0 +1,29 @@
+name: Nightly Selector Health
+
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  selector-health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python package
+        run: python -m pip install -e .
+      - name: Generate selector health report
+        run: python -m qa_pipeline.cli existing-framework-selector-health --framework-path generated-playwright
+      - name: Upload selector health artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: selector-health-report
+          path: |
+            generated-playwright/reports/existing-framework/selector-health-report.html
+            generated-playwright/reports/existing-framework/selector-health-report.json

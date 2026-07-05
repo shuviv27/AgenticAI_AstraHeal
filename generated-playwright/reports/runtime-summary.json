@@ -1,0 +1,549 @@
+{
+  "ok": true,
+  "current": {
+    "id": 617,
+    "ts": "2026-07-05T20:24:37.782095+00:00",
+    "epoch_ms": 1783283077782,
+    "stage": "existing_framework_failed_only",
+    "status": "done",
+    "progress": 100,
+    "feature": "",
+    "source_type": "",
+    "message": "Failed-only rerun executed the previously failed specs using the same real Playwright runner.",
+    "details": {
+      "ok": true,
+      "failed_specs": [
+        "tests/ui/login.spec.ts",
+        "tests/ui/static-pages.spec.ts"
+      ]
+    }
+  },
+  "event_count": 617,
+  "by_stage": {
+    "existing_framework_mcp": 22,
+    "existing_framework": 36,
+    "existing_framework_self_healing": 40,
+    "existing_framework_rca": 2,
+    "human_intervention": 7,
+    "existing_framework_report": 2,
+    "runtime_mode": 1,
+    "host_runtime": 5,
+    "ai_provider": 3,
+    "module2_existing_framework": 10,
+    "existing_framework_deep_agents": 3,
+    "existing_framework_full_control_fix": 2,
+    "distributed_execution": 478,
+    "framework_history": 1,
+    "human_approval": 1,
+    "existing_framework_failed_only": 4
+  },
+  "by_status": {
+    "done": 53,
+    "running": 543,
+    "warning": 9,
+    "ok": 12
+  },
+  "recent_errors": [
+    {
+      "id": 242,
+      "ts": "2026-07-05T19:44:37.186051+00:00",
+      "epoch_ms": 1783280677186,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K[4/20] [chromium] › tests\\smoke\\ui-smoke.spec.ts:293:7 › Smoke – Spanish Language › Spanish version of home page loads without errors @smoke",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 244,
+      "ts": "2026-07-05T19:44:39.904315+00:00",
+      "epoch_ms": 1783280679904,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K[chromium] › tests\\smoke\\ui-smoke.spec.ts:293:7 › Smoke – Spanish Language › Spanish version of home page loads without errors @smoke",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 422,
+      "ts": "2026-07-05T19:47:28.155536+00:00",
+      "epoch_ms": 1783280848155,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K[14/20] [chromium] › tests\\ui\\benefit-plus.spec.ts:82:7 › Benefit Plus – Customer Portal › Benefit+ agreement error when name does not match @regression",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    }
+  ],
+  "slow_or_waiting_events": [
+    {
+      "id": 411,
+      "ts": "2026-07-05T19:47:05.077975+00:00",
+      "epoch_ms": 1783280825078,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 415,
+      "ts": "2026-07-05T19:47:13.021834+00:00",
+      "epoch_ms": 1783280833021,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 426,
+      "ts": "2026-07-05T19:47:33.740927+00:00",
+      "epoch_ms": 1783280853740,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 428,
+      "ts": "2026-07-05T19:47:37.427914+00:00",
+      "epoch_ms": 1783280857427,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 437,
+      "ts": "2026-07-05T19:47:49.002110+00:00",
+      "epoch_ms": 1783280869002,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 441,
+      "ts": "2026-07-05T19:47:55.625197+00:00",
+      "epoch_ms": 1783280875625,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 455,
+      "ts": "2026-07-05T19:48:14.948748+00:00",
+      "epoch_ms": 1783280894948,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 456,
+      "ts": "2026-07-05T19:48:16.009188+00:00",
+      "epoch_ms": 1783280896009,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 471,
+      "ts": "2026-07-05T19:48:39.805272+00:00",
+      "epoch_ms": 1783280919805,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 472,
+      "ts": "2026-07-05T19:48:42.095555+00:00",
+      "epoch_ms": 1783280922095,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 486,
+      "ts": "2026-07-05T19:49:05.479977+00:00",
+      "epoch_ms": 1783280945480,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 487,
+      "ts": "2026-07-05T19:49:06.809597+00:00",
+      "epoch_ms": 1783280946809,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 503,
+      "ts": "2026-07-05T19:49:26.189564+00:00",
+      "epoch_ms": 1783280966189,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 506,
+      "ts": "2026-07-05T19:49:31.470447+00:00",
+      "epoch_ms": 1783280971470,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 519,
+      "ts": "2026-07-05T19:49:46.517089+00:00",
+      "epoch_ms": 1783280986517,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 526,
+      "ts": "2026-07-05T19:49:56.845880+00:00",
+      "epoch_ms": 1783280996845,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 532,
+      "ts": "2026-07-05T19:50:12.935244+00:00",
+      "epoch_ms": 1783281012935,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 540,
+      "ts": "2026-07-05T19:50:35.385642+00:00",
+      "epoch_ms": 1783281035385,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 549,
+      "ts": "2026-07-05T19:50:59.285174+00:00",
+      "epoch_ms": 1783281059285,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 567,
+      "ts": "2026-07-05T20:06:16.379488+00:00",
+      "epoch_ms": 1783281976379,
+      "stage": "existing_framework_self_healing",
+      "status": "running",
+      "progress": 10,
+      "feature": "",
+      "source_type": "",
+      "message": "Creating safe fix plan in background thread so GUI remains responsive on slow VM/VDI.",
+      "details": {
+        "provider": "codex",
+        "policy_mode": "approved_with_backup"
+      }
+    },
+    {
+      "id": 572,
+      "ts": "2026-07-05T20:08:10.731792+00:00",
+      "epoch_ms": 1783282090731,
+      "stage": "existing_framework_self_healing",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "Codex patch execution started with optimized common-cause prompt scope.",
+      "details": {
+        "timeout_seconds": 180,
+        "total_allowed_files": 32,
+        "prompt_allowed_files": 32,
+        "common_cause": {
+          "signature": "locator_or_dom_change::locator-a-href-en-shop-online",
+          "memory_key": "locator_or_dom_change::locator-a-href-en-shop-online",
+          "failure_kind": "locator_or_dom_change",
+          "component": "a[href=\\\"/en/shop-online\\\"]",
+          "component_kind": "locator",
+          "action": "click",
+          "impacted_specs": [
+            "tests/ui/static-pages.spec.ts"
+          ],
+          "impacted_titles": [
+            "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Main Banner section valid",
+            "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Mobile App section valid"
+          ],
+          "evidence_excerpt": "n  81 |     try {\\n  82 |       await locator.click({ timeout: 15_000 });\\n  83 |     } catch {\\n    at OverviewPage.click (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\base-page.ts:80:69)\\n    at OverviewPage.openAndValidateLinks (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\overview-page.ts:65:7)\\n    at OverviewPage.validateMainBanner (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\overview-page.ts:91:5)\\n    at C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\tests\\\\ui\\\\static-pages.spec.ts:36:7\"}, {\"message\": \"\\u001b[31mTest timeout of 30000ms exceeded.\\u001b[39m\"}, {\"location\": {\"file\": \"C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\base-page.ts\", \"column\": 21, \"line\": 87}, \"message\": \"Error: locator.click: Test timeout of 30000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for locator('a[href=\\\"/en/find-a-store\\\"]').first()\\u001b[22m\\n\\u001b[2m    - locator resolved to <a href=\\\"/en/find-a-store\\\">Shop Nearby Stores</a>\\u001b[22m\\n\\u001b[2m  - attempting click action\\u001b[22m\\n\\u001b[2m    2 × waiting for element to be visible, enabled and stable\\u001b[22m\\n\\u001b[2m      - element is not visible\\u001b[22m\\n\\u001b[2m    - retrying click action\\u001b[22m\\n\\u001b[2m    - waiting 20ms\\u001b[22m\\n\\u001b[2m    2 × waiting for element to be visible, enabled and stable\\u001b[22m\\n\\u001b[2m      - element is not visible\\u001b[22m\\n\\u001b[2m    - retrying click action\\u001b[22m\\n\\u001b[2m      - waiting 100ms\\u001b[22m\\n\\u001b[2m    12 × waiting for element to be visible, enabled and stable\\u001b[22m\\n\\u001b[2m       - element is not visible\\u001b[22m\\n\\u001b[2m     - retrying click action\\u001b[22m\\n\\u001b[2m       - waiting 500ms\\u001b[22m\\n\\n\\n   at ..\\\\pages\\\\base-page.ts:87\\n\\n  85 |       await this.dismissTransientOverlays();\\n  86 |       await this.scrollLocatorIntoView(locator);\\n> 87 |       await locator.click({ timeout: 10_000 });\\n     |                     ^\\n  88 |     }\\n  89 |   }\\n  90 |\\n    at OverviewPage.click (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\base-page.ts:87:21)\\n    at OverviewPage.openAndValidateLinks (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\overview-page.ts:65:7)\\n    at OverviewPage.validateMainBanner (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\overview-page.ts:91:5)",
+          "impacted_count": 1,
+          "recommended_fix_priority": "fix_single_workflow_after_shared_components",
+          "why": "Single failed workflow/signature. Still patch reusable page/pageObject/helper layer first."
+        }
+      }
+    },
+    {
+      "id": 573,
+      "ts": "2026-07-05T20:09:55.445587+00:00",
+      "epoch_ms": 1783282195445,
+      "stage": "existing_framework_self_healing",
+      "status": "done",
+      "progress": 100,
+      "feature": "",
+      "source_type": "",
+      "message": "Safe fix plan created. No files were changed. Review the plan, then use Fix failed tests safely with Codex connected or apply manually.",
+      "details": {
+        "applied": false,
+        "changed_files": [],
+        "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed"
+      }
+    },
+    {
+      "id": 585,
+      "ts": "2026-07-05T20:11:20.691699+00:00",
+      "epoch_ms": 1783282280691,
+      "stage": "existing_framework_self_healing",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "Codex patch execution started with optimized common-cause prompt scope.",
+      "details": {
+        "timeout_seconds": 180,
+        "total_allowed_files": 61,
+        "prompt_allowed_files": 60,
+        "common_cause": {
+          "signature": "locator_or_dom_change::locator-a-href-en-shop-online",
+          "memory_key": "locator_or_dom_change::locator-a-href-en-shop-online",
+          "failure_kind": "locator_or_dom_change",
+          "component": "a[href=\\\"/en/shop-online\\\"]",
+          "component_kind": "locator",
+          "action": "click",
+          "impacted_specs": [
+            "tests/ui/static-pages.spec.ts"
+          ],
+          "impacted_titles": [
+            "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Main Banner section valid",
+            "ui\\static-pages.spec.ts › Static Pages – Acima.com › Overview page – Mobile App section valid"
+          ],
+          "evidence_excerpt": "n  81 |     try {\\n  82 |       await locator.click({ timeout: 15_000 });\\n  83 |     } catch {\\n    at OverviewPage.click (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\base-page.ts:80:69)\\n    at OverviewPage.openAndValidateLinks (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\overview-page.ts:65:7)\\n    at OverviewPage.validateMainBanner (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\overview-page.ts:91:5)\\n    at C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\tests\\\\ui\\\\static-pages.spec.ts:36:7\"}, {\"message\": \"\\u001b[31mTest timeout of 30000ms exceeded.\\u001b[39m\"}, {\"location\": {\"file\": \"C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\base-page.ts\", \"column\": 21, \"line\": 87}, \"message\": \"Error: locator.click: Test timeout of 30000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for locator('a[href=\\\"/en/find-a-store\\\"]').first()\\u001b[22m\\n\\u001b[2m    - locator resolved to <a href=\\\"/en/find-a-store\\\">Shop Nearby Stores</a>\\u001b[22m\\n\\u001b[2m  - attempting click action\\u001b[22m\\n\\u001b[2m    2 × waiting for element to be visible, enabled and stable\\u001b[22m\\n\\u001b[2m      - element is not visible\\u001b[22m\\n\\u001b[2m    - retrying click action\\u001b[22m\\n\\u001b[2m    - waiting 20ms\\u001b[22m\\n\\u001b[2m    2 × waiting for element to be visible, enabled and stable\\u001b[22m\\n\\u001b[2m      - element is not visible\\u001b[22m\\n\\u001b[2m    - retrying click action\\u001b[22m\\n\\u001b[2m      - waiting 100ms\\u001b[22m\\n\\u001b[2m    12 × waiting for element to be visible, enabled and stable\\u001b[22m\\n\\u001b[2m       - element is not visible\\u001b[22m\\n\\u001b[2m     - retrying click action\\u001b[22m\\n\\u001b[2m       - waiting 500ms\\u001b[22m\\n\\n\\n   at ..\\\\pages\\\\base-page.ts:87\\n\\n  85 |       await this.dismissTransientOverlays();\\n  86 |       await this.scrollLocatorIntoView(locator);\\n> 87 |       await locator.click({ timeout: 10_000 });\\n     |                     ^\\n  88 |     }\\n  89 |   }\\n  90 |\\n    at OverviewPage.click (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\base-page.ts:87:21)\\n    at OverviewPage.openAndValidateLinks (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\overview-page.ts:65:7)\\n    at OverviewPage.validateMainBanner (C:\\\\PROJECTS\\\\qa_acima_testautomation_execution_fixed\\\\qa_acima_fixed\\\\pages\\\\overview-page.ts:91:5)",
+          "impacted_count": 1,
+          "recommended_fix_priority": "fix_single_workflow_after_shared_components",
+          "why": "Single failed workflow/signature. Still patch reusable page/pageObject/helper layer first."
+        }
+      }
+    },
+    {
+      "id": 586,
+      "ts": "2026-07-05T20:18:54.203092+00:00",
+      "epoch_ms": 1783282734203,
+      "stage": "existing_framework_self_healing",
+      "status": "running",
+      "progress": 68,
+      "feature": "",
+      "source_type": "",
+      "message": "Codex patch attempt timed out; running bounded deterministic locator/actionability fallback instead of requesting another human approval.",
+      "details": {
+        "codex_attempts": [
+          {
+            "attempt": "primary",
+            "ok": false,
+            "exit_code": 124,
+            "stdout_tail": "Applied a minimal POM/helper patch with backup.\n\nChanged files:\n- `pages/base-page.ts`: expanded cookie consent overlay detection.\n- `pages/login-page.ts`: made logout resilient when the menu item is not exposed, with a real `/logout` route fallback that must return to a public login entry point.\n- `pages/overview-page.ts`: de-dupes section links and avoids timing out on hidden responsive duplicate anchors by trying visible links first, then navigating directly to the collected href.\n\nBackup created:\n- `.codex-backups/RTA-20260706-014040-codex/`\n\nValidation:\n- `npm run typecheck` passed.\n- Failed-spec rerun attempted with `npx playwright test tests/ui/login.spec.ts tests/ui/static-pages.spec.ts --project=chromium`, but the environment blocked access to `https://qa.www.rac.acima.com/en` with `net::ERR_NETWORK_ACCESS_DENIED`, so runtime validation could not reach the patched flows.\n",
+            "stderr_tail": "Codex CLI timed out after 180s"
+          }
+        ],
+        "failure_kind": "locator_not_found_or_ambiguous"
+      }
+    },
+    {
+      "id": 605,
+      "ts": "2026-07-05T20:24:17.330818+00:00",
+      "epoch_ms": 1783283057330,
+      "stage": "existing_framework",
+      "status": "running",
+      "progress": 48,
+      "feature": "",
+      "source_type": "",
+      "message": "Existing framework execution: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "command": "npx --no-install playwright test tests/ui/static-pages.spec.ts:32 tests/ui/static-pages.spec.ts:56 tests/ui/login.spec.ts:71 --workers=1 --reporter=line,json,html --timeout=30000 --retries=1 --headed",
+        "launcher_script": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\reports\\existing-framework\\RUN_EXISTING_PLAYWRIGHT_HEADED.cmd"
+      }
+    }
+  ],
+  "self_learning_suggestions": [
+    "Review the latest failed stage first; do not continue to Playwright generation/execution until the active source context is correct."
+  ],
+  "log_file": "C:\\ASTRAHEALAI\\ASTRA_Latest\\AdvancedAIAutomation_v3_AstraHealAI_GUI\\.qa-cache\\runtime\\runtime-events.jsonl",
+  "live_console_file": "C:\\ASTRAHEALAI\\ASTRA_Latest\\AdvancedAIAutomation_v3_AstraHealAI_GUI\\generated-playwright\\reports\\runtime-live-console.html",
+  "grafana_url": "http://localhost:3001",
+  "prometheus_targets_url": "http://localhost:9090/targets",
+  "local_metrics_url": "http://127.0.0.1:8080/metrics"
+}

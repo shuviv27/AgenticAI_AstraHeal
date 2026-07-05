@@ -1,0 +1,5 @@
+# Mandatory enterprise/observability additions for full enterprise mode.
+# START_GUI_WINDOWS.cmd installs this through requirements.txt.
+prometheus-client>=0.20,<1
+langfuse>=2.0,<3
+langsmith>=0.1,<1

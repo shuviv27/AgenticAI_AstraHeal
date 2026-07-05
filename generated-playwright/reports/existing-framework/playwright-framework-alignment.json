@@ -1,0 +1,71 @@
+{
+  "ok": true,
+  "stage": "playwright_framework_alignment_checked",
+  "generated_at": "2026-07-06T01:53:41",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "aligned": true,
+  "issue_count": 3,
+  "issues": [
+    {
+      "severity": "medium",
+      "title": "PageObject/locator folder not detected",
+      "detail": "Locator definitions may be mixed with page methods or specs.",
+      "safe_fix": "Create/use pageObjects/<PageName>.objects.ts and keep locators separate from test specs."
+    },
+    {
+      "severity": "medium",
+      "title": "Inline locators inside specs",
+      "detail": "Detected inline page.locator/getBy* calls in 8 spec file(s).",
+      "safe_fix": "RCA/self-healing should prefer pageObjects/pages/helper files; edit specs only when unavoidable."
+    },
+    {
+      "severity": "low",
+      "title": "Trace collection not visible in Playwright config",
+      "detail": "RCA is stronger with trace/video/screenshot evidence.",
+      "safe_fix": "Enable trace: 'on-first-retry', screenshot/video on failure through approved config update."
+    }
+  ],
+  "recommended_actions": [
+    {
+      "priority": 1,
+      "area": "playwright_alignment",
+      "action": "Create/use pageObjects/<PageName>.objects.ts and keep locators separate from test specs.",
+      "why": "Locator definitions may be mixed with page methods or specs.",
+      "severity": "medium",
+      "how_to_apply": "Use Fix failed tests safely / AI full-control framework fix so backup, approval, validation and rollback remain active."
+    },
+    {
+      "priority": 2,
+      "area": "playwright_alignment",
+      "action": "RCA/self-healing should prefer pageObjects/pages/helper files; edit specs only when unavoidable.",
+      "why": "Detected inline page.locator/getBy* calls in 8 spec file(s).",
+      "severity": "medium",
+      "how_to_apply": "Use Fix failed tests safely / AI full-control framework fix so backup, approval, validation and rollback remain active."
+    },
+    {
+      "priority": 3,
+      "area": "playwright_alignment",
+      "action": "Enable trace: 'on-first-retry', screenshot/video on failure through approved config update.",
+      "why": "RCA is stronger with trace/video/screenshot evidence.",
+      "severity": "low",
+      "how_to_apply": "Use Fix failed tests safely / AI full-control framework fix so backup, approval, validation and rollback remain active."
+    }
+  ],
+  "human_understandable_strategy": {
+    "for_humans": [
+      "Understand mode detects Playwright alignment gaps and writes this report; it does not silently rewrite your enterprise framework.",
+      "Fix mode uses this alignment memory plus failed-test evidence to patch only approved files with backup and rollback.",
+      "RCA remains failed-only: passed scripts and unrelated files are not patched."
+    ],
+    "rca_self_healing_order": [
+      "1. Confirm exact failed test and retry history.",
+      "2. Read Playwright console, JSON/html report, trace/video/screenshot paths and worker evidence.",
+      "3. Map failed spec -> imported page -> pageObject/locator/helper/test data using the framework memory.",
+      "4. Classify root cause: locator/DOM, not-interactable, timing, popup/permission, network/cert, data/fixture, assertion/product drift, or framework config.",
+      "5. Patch smallest approved file first: pageObjects -> page methods/BasePage/helpers -> fixture/test data -> spec only if unavoidable.",
+      "6. Rerun failed-only; rollback automatically if validation fails under strict policy."
+    ],
+    "central_vm_rule": "In VM/VDI mode, RCA, source patching, AI memory and consolidated reports stay on the Central VM. Workers execute browsers and return evidence only."
+  },
+  "report_url": "/artifacts/reports/existing-framework/playwright-framework-alignment.html"
+}

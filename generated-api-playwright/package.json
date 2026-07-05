@@ -1,0 +1,16 @@
+{
+  "name": "generated-api-playwright-enterprise",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:api": "playwright test -c playwright.api.config.ts",
+    "test:api:headed": "playwright test -c playwright.api.config.ts --headed",
+    "typecheck": "tsc --noEmit",
+    "report": "playwright show-report reports/html"
+  },
+  "devDependencies": {
+    "@playwright/test": "latest",
+    "typescript": "latest",
+    "ts-node": "latest"
+  }
+}

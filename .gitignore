@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+playwright-report/
+test-results/
+.qa-cache/
+.env
+.DS_Store

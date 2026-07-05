@@ -1,0 +1,70 @@
+{
+  "ok": true,
+  "stage": "mcp_readiness_preflight_passed",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "checks": {
+    "framework_path": {
+      "ok": true,
+      "message": "Framework path exists."
+    },
+    "package_json": {
+      "ok": true,
+      "message": "package.json found and parsed."
+    },
+    "npm": {
+      "ok": true,
+      "message": "npm found."
+    },
+    "npx": {
+      "ok": true,
+      "message": "npx found."
+    }
+  },
+  "typescript_errors": [],
+  "next_actions": [
+    "Continue with Playwright MCP assist.",
+    "Run failed element RCA if a test has failed."
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "playwright test --project=chromium --project=api --project=unit",
+    "test:ui": "playwright test tests/ui --project=chromium",
+    "test:api": "playwright test tests/api --project=api",
+    "test:smoke": "playwright test tests/smoke --project=chromium --project=api",
+    "test:smoke:ui": "playwright test tests/smoke/ui-smoke.spec.ts --project=chromium",
+    "test:smoke:api": "playwright test tests/smoke/api-smoke.spec.ts --project=api",
+    "test:smoke:all": "playwright test --grep @smoke --project=chromium --project=api",
+    "test:regression": "playwright test --grep @regression --project=chromium --project=api",
+    "test:headed": "playwright test --project=chromium --headed",
+    "test:debug": "playwright test --project=chromium --debug",
+    "test:report": "playwright show-report",
+    "test:qa": "cross-env ENV=qa playwright test --project=chromium --project=api --project=unit",
+    "test:stage": "cross-env ENV=stage playwright test --project=chromium --project=api --project=unit",
+    "test:prod": "cross-env ENV=prod playwright test --project=chromium --project=api --project=unit",
+    "bdd:gen": "bddgen",
+    "bdd:gen:ui": "bddgen --project bdd-ui-chromium",
+    "bdd:gen:api": "bddgen --project bdd-api",
+    "test:bdd": "bddgen && playwright test --project=bdd-ui-chromium --project=bdd-api",
+    "test:bdd:ui": "bddgen && playwright test --project bdd-ui-chromium",
+    "test:bdd:api": "bddgen && playwright test --project bdd-api",
+    "test:bdd:smoke": "bddgen && playwright test --project=bdd-ui-chromium --project=bdd-api --grep @smoke",
+    "test:bdd:regression": "bddgen && playwright test --project=bdd-ui-chromium --project=bdd-api --grep @regression",
+    "codegen": "playwright codegen",
+    "install:browsers": "playwright install",
+    "agent:analyze": "playwright test",
+    "agent:fix": "ts-node agents/test-fixer/cli.ts",
+    "agent:fix:dry": "ts-node agents/test-fixer/cli.ts --dry-run",
+    "agent:fix:all": "ts-node agents/test-fixer/cli.ts --all",
+    "agent:flakiness": "ts-node agents/failure-analyzer/cli/run-flakiness.ts",
+    "agent:rca": "ts-node agents/failure-analyzer/cli/run-rca.ts",
+    "agent:heal": "ts-node agents/failure-analyzer/cli/run-self-heal.ts",
+    "agent:predict": "ts-node agents/failure-analyzer/cli/run-predictive.ts",
+    "test:unit": "playwright test --project unit --reporter list",
+    "test:unit:teams": "playwright test tests/unit/teams/ --project unit --reporter list",
+    "notify:teams": "ts-node -e \"require('./utils/teams/teamsNotifier')\""
+  },
+  "action_required": false,
+  "message": "MCP readiness preflight passed. package.json, build/list/browser checks are ready enough for MCP assist.",
+  "recommended_user_message": "MCP assist can proceed. Playwright Test remains the deterministic runner; MCP provides browser/accessibility evidence for RCA/self-healing."
+}

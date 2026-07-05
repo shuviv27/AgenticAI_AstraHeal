@@ -1,0 +1,337 @@
+name: agentic-ai-qa-pipeline-enterprise
+
+# Enterprise mode: all core platform services are mandatory by default.
+# Start everything: docker compose -f infra/docker/docker-compose.yml up -d
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:15-alpine
+    ports: ["5432:5432"]
+    environment:
+      POSTGRES_DB: qa_pipeline
+      POSTGRES_USER: qa
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qa_secret}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qa -d qa_pipeline"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports: ["6333:6333"]
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -lc 'cat < /dev/null > /dev/tcp/127.0.0.1/6333'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports: ["8000:8000"]
+    environment:
+      ALLOW_RESET: "true"
+      IS_PERSISTENT: "true"
+      ANONYMIZED_TELEMETRY: "false"
+    volumes:
+      - chroma_data:/chroma/chroma
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; urls=['http://127.0.0.1:8000/api/v2/heartbeat','http://127.0.0.1:8000/api/v1/heartbeat','http://127.0.0.1:8000/']; ok=False;\nfor u in urls:\n    try:\n        urllib.request.urlopen(u, timeout=3); ok=True; break\n    except Exception:\n        pass\nsys.exit(0 if ok else 1)\""]
+      interval: 15s
+      timeout: 8s
+      retries: 20
+      start_period: 45s
+
+  minio:
+    image: minio/minio:latest
+    ports: ["9000:9000", "9001:9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio123}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports: ["9090:9090"]
+    volumes:
+      - ../observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+    depends_on:
+      - redis
+      - postgres
+
+  grafana:
+    image: grafana/grafana:latest
+    ports: ["3001:3000"]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
+  langfuse-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: ${LANGFUSE_DB_PASSWORD:-langfuse}
+      POSTGRES_DB: langfuse
+    volumes:
+      - langfuse_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse -d langfuse"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  langfuse:
+    image: langfuse/langfuse:2
+    ports: ["3002:3000"]
+    environment:
+      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-change-me-local-only}
+      NEXTAUTH_URL: ${LANGFUSE_NEXTAUTH_URL:-http://localhost:3002}
+      DATABASE_URL: postgresql://langfuse:${LANGFUSE_DB_PASSWORD:-langfuse}@langfuse-db:5432/langfuse
+      SALT: ${LANGFUSE_SALT:-change-me-local-only}
+      ENCRYPTION_KEY: ${LANGFUSE_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+      TELEMETRY_ENABLED: "false"
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+
+  # Local LangSmith readiness bridge. LangSmith itself is a hosted service;
+  # this lightweight container stays running so the mandatory Docker stack is stable.
+  # Credential/config validation is handled separately by the GUI.
+  langsmith-bridge:
+    image: python:3.12-slim
+    ports: ["3003:3003"]
+    environment:
+      LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2:-true}
+      LANGCHAIN_ENDPOINT: ${LANGCHAIN_ENDPOINT:-https://api.smith.langchain.com}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY:-}
+      LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT:-ai-qa-pipeline}
+    command: ["python", "-m", "http.server", "3003", "--bind", "0.0.0.0"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:3003', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # GUI-managed GitHub MCP readiness bridge. It stays running even before GITHUB_TOKEN
+  # is configured; authentication is validated from the GUI before PR/repo actions.
+  github-mcp:
+    image: python:3.12-slim
+    ports: ["8811:8811"]
+    environment:
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_TOKEN:-}
+    command: ["python", "-m", "http.server", "8811", "--bind", "0.0.0.0"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8811', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # GUI-managed Jira MCP readiness bridge. It stays running even before Jira credentials
+  # are configured; Jira API connectivity is validated by the GUI JIRA page.
+  jira-mcp:
+    image: python:3.12-slim
+    ports: ["8812:8080"]
+    environment:
+      JIRA_URL: ${JIRA_URL:-}
+      JIRA_USERNAME: ${JIRA_USERNAME:-${JIRA_EMAIL:-}}
+      JIRA_API_TOKEN: ${JIRA_API_TOKEN:-}
+      CONFLUENCE_URL: ${CONFLUENCE_URL:-}
+    command: ["python", "-m", "http.server", "8080", "--bind", "0.0.0.0"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # Microsoft Playwright MCP-compatible server for AI/browser-assist workflows.
+  # VS Code also receives .vscode/mcp.json for local IDE discovery.
+  playwright-mcp:
+    image: node:20-bookworm-slim
+    ports: ["8931:8931"]
+    working_dir: /workspace
+    volumes:
+      - ../..:/workspace
+    command: sh -lc "npx -y @playwright/mcp@latest --port 8931 --host 0.0.0.0 --headless --snapshot-mode full"
+    environment:
+      BASE_URL: ${BASE_URL:-https://www.acima.com/en}
+
+  ollama:
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes:
+      - ollama_data:/root/.ollama
+
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    ports: ["8090:8090"]
+    command: zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true
+    volumes:
+      - zap_data:/zap/wrk
+    # ZAP can take time to initialise and the upstream image health behavior varies.
+    # The GUI validates the container is running and reports ZAP logs if security scans fail.
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # k6 is present in the enterprise stack. It exits after command execution by design.
+  k6-runner:
+    image: grafana/k6:latest
+    profiles: ["manual-tools"]
+    volumes:
+      - ../../k6-scripts:/scripts
+      - ../../generated-playwright/reports:/reports
+    entrypoint: ["k6"]
+    command: ["version"]
+
+
+  # API automation support stack. These are optional GUI-managed tools for API testing.
+  # Java/Maven/Node do not need to be installed on the host when Docker runtime is selected in the GUI.
+  wiremock:
+    image: ${AIQA_API_WIREMOCK_IMAGE:-wiremock/wiremock:latest}
+    profiles: ["api-tools"]
+    ports: ["8089:8080"]
+    command: ["--verbose"]
+    volumes:
+      - ../../api-mocks/wiremock:/home/wiremock:rw
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/__admin/mappings >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  mockserver:
+    image: ${AIQA_API_MOCKSERVER_IMAGE:-mockserver/mockserver:latest}
+    profiles: ["api-tools"]
+    ports: ["1080:1080"]
+    environment:
+      MOCKSERVER_LOG_LEVEL: ${MOCKSERVER_LOG_LEVEL:-INFO}
+    volumes:
+      - ../../api-mocks/mockserver:/config:rw
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:1080/mockserver/status >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  api-playwright-runner:
+    image: ${AIQA_API_PLAYWRIGHT_IMAGE:-mcr.microsoft.com/playwright:v1.50.0-noble}
+    profiles: ["api-runners"]
+    working_dir: /workspace
+    volumes:
+      - ../../generated-api-playwright:/workspace:rw
+      - api_node_cache:/root/.npm
+    environment:
+      API_BASE_URL: ${API_BASE_URL:-http://host.docker.internal:8080}
+      API_AUTH_TOKEN: ${API_AUTH_TOKEN:-}
+      HTTP_PROXY: ${HTTP_PROXY:-}
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1,host.docker.internal}
+    command: ["bash", "-lc", "node --version && npm --version && echo API Playwright runner ready && sleep infinity"]
+
+  api-restassured-runner:
+    image: ${AIQA_API_RESTASSURED_IMAGE:-maven:3.9-eclipse-temurin-21}
+    profiles: ["api-runners"]
+    working_dir: /workspace
+    volumes:
+      - ../../generated-api-restassured:/workspace:rw
+      - aiqa_maven_cache:/root/.m2
+    environment:
+      API_BASE_URL: ${API_BASE_URL:-http://host.docker.internal:8080}
+      API_AUTH_TOKEN: ${API_AUTH_TOKEN:-}
+      MAVEN_OPTS: ${MAVEN_OPTS:--Dmaven.repo.local=/root/.m2/repository}
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:-}
+      HTTP_PROXY: ${HTTP_PROXY:-}
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1,host.docker.internal}
+    command: ["bash", "-lc", "java -version && mvn -version && echo Rest Assured Maven runner ready && sleep infinity"]
+
+  api-newman-runner:
+    image: ${AIQA_API_NEWMAN_IMAGE:-postman/newman:alpine}
+    profiles: ["api-runners"]
+    working_dir: /workspace
+    volumes:
+      - ../../api-collections:/workspace:rw
+    command: ["--version"]
+
+  pipeline-gui:
+    profiles: ["app"]
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.pipeline
+    ports: ["8080:8080"]
+    environment:
+      BASE_URL: ${BASE_URL:-http://host.docker.internal:3000}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      CODEGEN_PROVIDER: ${CODEGEN_PROVIDER:-codex}
+      LLM_PROVIDER: ${LLM_PROVIDER:-codex}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://qa:${POSTGRES_PASSWORD:-qa_secret}@postgres:5432/qa_pipeline}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      CHROMA_URL: ${CHROMA_URL:-http://chromadb:8000}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://minio:9000}
+      LANGFUSE_HOST: ${LANGFUSE_HOST:-http://langfuse:3000}
+      PLAYWRIGHT_MCP_URL: ${PLAYWRIGHT_MCP_URL:-http://playwright-mcp:8931}
+    volumes:
+      - ../..:/app
+    depends_on:
+      - redis
+      - postgres
+      - qdrant
+      - chromadb
+      - minio
+      - prometheus
+      - grafana
+      - langfuse
+      - github-mcp
+      - jira-mcp
+      - playwright-mcp
+
+volumes:
+  redis_data: {}
+  pg_data: {}
+  qdrant_data: {}
+  chroma_data: {}
+  minio_data: {}
+  grafana_data: {}
+  langfuse_pg_data: {}
+  ollama_data: {}
+  zap_data: {}
+  aiqa_maven_cache: {}
+  api_node_cache: {}
