@@ -2672,6 +2672,7 @@ def _build_exact_plain_english_failure_report(inventory: dict[str, Any], root: P
     outcomes = []
     failed = 0
     passed = 0
+    category_counter: Counter[str] = Counter()
     for rec in cases:
         status_raw = str(rec.get("status") or "unknown").lower()
         is_bad = status_raw in {"failed", "timedout", "interrupted"}
@@ -2680,18 +2681,29 @@ def _build_exact_plain_english_failure_report(inventory: dict[str, Any], root: P
         elif status_raw in {"passed", "skipped", "expected", "flaky"}:
             passed += 1
         reason = _failure_reason_from_case(rec) if is_bad else "passed"
-        fix_area = "No fix required" if not is_bad else "Check live DOM with Playwright MCP/codegen, then update pageObjects/locator repository or reusable page method; avoid hard waits and test skips."
-        if is_bad and "payment option" in reason:
-            fix_area = "Validate environment/test data first; then patch reusable page method only if UI selector is actually wrong."
-        elif is_bad and "overlay" in reason:
-            fix_area = "Patch shared blocker/overlay handling helper or BasePage action method before changing test assertions."
+        repair = _repair_strategy_for_case(rec, reason, root=root) if is_bad else {
+            "failure_category": "passed",
+            "target_patch_layer": "No fix required",
+            "suggested_fix_area": "No fix required",
+            "mcp_codegen_action": "Not required",
+            "fix_steps": [],
+            "approval_summary": "No framework change required.",
+        }
+        if is_bad:
+            category_counter[repair.get("failure_category") or "unknown"] += 1
         outcomes.append({
             "spec": rec.get("spec"),
             "line": rec.get("line"),
             "test": rec.get("title") or "(whole spec fallback)",
             "status": "failed" if is_bad else ("passed" if status_raw in {"passed", "skipped", "expected", "flaky"} else status_raw),
             "plain_english_reason": reason,
-            "suggested_fix_area": fix_area,
+            "failure_category": repair.get("failure_category"),
+            "target_patch_layer": repair.get("target_patch_layer"),
+            "suggested_fix_area": repair.get("suggested_fix_area"),
+            "mcp_codegen_action": repair.get("mcp_codegen_action"),
+            "fix_steps": repair.get("fix_steps") or [],
+            "recommended_files_or_folders": repair.get("recommended_files_or_folders") or [],
+            "approval_summary": repair.get("approval_summary"),
             "errors": rec.get("errors") or [],
         })
     return {
@@ -2701,22 +2713,201 @@ def _build_exact_plain_english_failure_report(inventory: dict[str, Any], root: P
         "total_test_cases": len(cases),
         "passed_test_cases": passed,
         "failed_test_cases": failed,
+        "failure_category_counts": dict(category_counter),
         "test_case_outcomes": outcomes,
-        "message": "Test-level RCA generated from the latest failed inventory. Passed tests are shown as passed; failed tests include a plain-English reason and safe fix area."
+        "message": "Test-level RCA generated from the latest failed inventory. Failed tests include reason, MCP/codegen action, target patch layer, and safe fix steps. This is an auditable RCA checklist, not hidden chain-of-thought."
     }
 
+
+
+def _case_error_text(rec: dict[str, Any], limit: int = 9000) -> str:
+    """Return compact observable failure evidence for one test case."""
+    try:
+        return json.dumps(rec.get("errors") or rec, ensure_ascii=False)[-limit:]
+    except Exception:
+        return str(rec)[-limit:]
+
+
+def _failure_category_from_reason(reason: str, evidence: str = "") -> str:
+    low = ((reason or "") + "\n" + (evidence or "")).lower()
+    if any(x in low for x in ["locator is missing", "not available in dom", "element(s) not found", "waiting for locator", "expected: visible", "to be visible"]):
+        return "locator_missing_hidden_or_wrong_page_state"
+    if any(x in low for x in ["not attached to the dom", "detached"]):
+        return "locator_detached_or_stale_after_rerender"
+    if any(x in low for x in ["intercepts pointer events", "overlay", "modal", "cookie", "permission", "geolocation"]):
+        return "blocked_by_overlay_or_browser_permission"
+    if any(x in low for x in ["test timed out", "timeout", "slow aut", "navigation/state wait", "navigation", "waitforurl", "tohaveurl", "networkidle"]):
+        return "slow_aut_navigation_or_blocked_action"
+    if any(x in low for x in ["trace/screenshot review", "native playwright shard report", "insufficient", "unknown"]):
+        return "requires_trace_screenshot_review"
+    if any(x in low for x in ["payment option", "test data", "auth", "401", "403", "500"]):
+        return "environment_or_test_data"
+    return "requires_trace_screenshot_review"
+
+
+def _recommended_patch_files_for_case(root: Path | None, spec: str | None) -> list[str]:
+    """Best-effort file candidates. It never invents absolute paths outside the selected framework."""
+    if not root:
+        return []
+    spec_norm = str(spec or "").replace("\\", "/").lstrip("./")
+    candidates: list[str] = []
+    seen: set[str] = set()
+
+    def add(rel: str) -> None:
+        rel = str(rel or "").replace("\\", "/").lstrip("./")
+        if rel and rel not in seen and (root / rel).exists():
+            seen.add(rel)
+            candidates.append(rel)
+
+    add(spec_norm)
+    stem = Path(spec_norm).stem.replace(".spec", "").replace(".test", "")
+    fragments = [stem]
+    if "/" in spec_norm:
+        fragments.append(Path(spec_norm).parent.name)
+    preferred_roots = ["pageObjects", "page-objects", "objects", "locators", "selectors", "pages", "src/pages", "src/pageObjects", "utils", "helpers", "support"]
+    suffixes = tuple(TS_SUFFIXES)
+    for base in preferred_roots:
+        folder = root / base
+        if not folder.exists() or not folder.is_dir():
+            continue
+        for path in folder.rglob("*"):
+            if len(candidates) >= 12:
+                return candidates
+            if not path.is_file() or not path.name.lower().endswith(suffixes) or _is_ignored(path, root):
+                continue
+            rel = _rel_to(path, root)
+            low = rel.lower()
+            if any(f and f.lower().replace("-", "") in low.replace("-", "") for f in fragments):
+                add(rel)
+    # Include shared helper candidates because slow AUT/actionability failures often belong there.
+    for rel in [
+        "pages/base-page.ts", "pages/BasePage.ts", "src/pages/base-page.ts", "src/pages/BasePage.ts",
+        "pages/mobile/mobile-base-page.ts", "utils/safeActions.ts", "utils/safe-actions.ts",
+        "helpers/safeActions.ts", "support/actionability.ts",
+    ]:
+        if len(candidates) >= 16:
+            break
+        add(rel)
+    return candidates[:16]
+
+
+def _repair_strategy_for_case(rec: dict[str, Any], reason: str, root: Path | None = None) -> dict[str, Any]:
+    """Build an auditable, test-level repair strategy.
+
+    This is the visible RCA breakdown the user asked for. It does not expose hidden
+    model chain-of-thought. It shows observable checks and deterministic next
+    actions that Codex/MCP/codegen should follow before changing files.
+    """
+    evidence = _case_error_text(rec)
+    category = _failure_category_from_reason(reason, evidence)
+    spec = str(rec.get("spec") or "")
+    files = _recommended_patch_files_for_case(root, spec)
+
+    if category in {"locator_missing_hidden_or_wrong_page_state", "locator_detached_or_stale_after_rerender"}:
+        steps = [
+            "Open the failed shard trace/screenshot and reproduce the exact failed page state.",
+            "Use Playwright MCP accessibility snapshot/codegen to check whether the intended element exists in the live DOM for that page state.",
+            "If the element exists, capture the stable role/name/testId/label locator and compare it with the existing locator repository/pageObject locator.",
+            "Update the locator in the object repository/pageObject file first; then update the page method only when the call flow must re-query after DOM re-render.",
+            "If the element does not exist, classify as wrong route/state/test-data/environment and do not weaken assertions or add hard waits.",
+            "Rerun only this failed test target or the failed-only distributed subset and update the combined report.",
+        ]
+        if category == "locator_detached_or_stale_after_rerender":
+            steps.insert(3, "Avoid storing ElementHandle or stale resolved element. Keep Playwright Locator lazy and re-query immediately before action/assertion.")
+        return {
+            "failure_category": category,
+            "target_patch_layer": "pageObjects/locator repository first, then page method/BasePage only if DOM re-render or actionability needs a reusable helper",
+            "suggested_fix_area": "Use MCP/codegen/live DOM evidence to generate the correct locator and place it in the respective pageObject/locator repository file. Do not add blind waits.",
+            "mcp_codegen_action": "Run MCP snapshot/codegen on the failed page state and capture role/name/testId/label. Patch only the mapped pageObject/page method files.",
+            "fix_steps": steps,
+            "recommended_files_or_folders": files,
+            "approval_summary": f"Approve patch only for locator/pageObject/page method files related to {spec}; expected change is locator replacement/addition or safe re-query helper.",
+        }
+
+    if category == "slow_aut_navigation_or_blocked_action":
+        steps = [
+            "Open the shard native Playwright report and inspect the failed test trace/video around the timeout timestamp.",
+            "Classify the timeout: slow AUT response, navigation/state wait mismatch, hidden/blocking locator, overlay/permission popup, or network/API delay.",
+            "If the UI is blocked by cookie/location/permission/modal, patch the shared browser blocker/action helper before clicking.",
+            "If navigation state is late, patch the reusable page navigation/wait helper with bounded domcontentloaded/URL/business-state checks; avoid networkidle-only waits.",
+            "If the AUT/VM is slow but eventually correct, recommend VM Stable Mode/BrowserStack execution and reduce shards; do not edit business assertions.",
+            "Rerun failed-only targets and compare first-run vs rerun timing in the combined report.",
+        ]
+        return {
+            "failure_category": category,
+            "target_patch_layer": "shared page/action/navigation helper, blocker guard, or environment execution profile; not raw spec sleeps",
+            "suggested_fix_area": "Diagnose trace timing, then patch reusable wait/navigation/blocker handling. Keep explicit waits <= 30 seconds unless VM profile is intentionally configured.",
+            "mcp_codegen_action": "Use MCP trace/snapshot to prove whether the element is blocked or navigation is incomplete before patching helpers.",
+            "fix_steps": steps,
+            "recommended_files_or_folders": files,
+            "approval_summary": f"Approve only reusable stability helper/page method changes related to {spec}; do not approve hard waits, force:true by default, or assertion weakening.",
+        }
+
+    if category == "blocked_by_overlay_or_browser_permission":
+        steps = [
+            "Inspect screenshot/video for cookie banner, geolocation prompt, permission dialog, modal, header/body overlay, or iframe blocker.",
+            "Use MCP snapshot to identify the blocker role/text and close/dismiss it through a reusable blocker guard.",
+            "Patch shared popup/browser-blocker helper or BasePage action method before the target action.",
+            "Rerun failed-only target to confirm the target receives pointer events without force:true by default.",
+        ]
+        return {
+            "failure_category": category,
+            "target_patch_layer": "shared blocker guard / BasePage click helper / page method",
+            "suggested_fix_area": "Patch blocker handling before the action. Do not hide the problem with force click unless explicitly approved and reported.",
+            "mcp_codegen_action": "Use MCP snapshot to identify blocker text/role and target locator, then patch blocker guard.",
+            "fix_steps": steps,
+            "recommended_files_or_folders": files,
+            "approval_summary": f"Approve patch to blocker guard/action helper files for {spec}.",
+        }
+
+    if category == "environment_or_test_data":
+        steps = [
+            "Check whether the data, account, feature flag, API response, auth session, VPN/proxy, or test environment is different from the passing machine.",
+            "Do not self-heal by weakening assertions until product/data owner confirms expected behavior.",
+            "If only framework setup is unstable, patch login/data fixture/helper; otherwise mark for manual environment review.",
+        ]
+        return {
+            "failure_category": category,
+            "target_patch_layer": "test data/fixture/env configuration only after evidence; product behavior requires manual review",
+            "suggested_fix_area": "Validate data/environment first; patch reusable fixture/helper only if the framework setup is wrong.",
+            "mcp_codegen_action": "MCP/codegen is secondary here; first verify API/auth/data evidence.",
+            "fix_steps": steps,
+            "recommended_files_or_folders": files,
+            "approval_summary": f"Approve only fixture/config/helper changes for {spec} after environment evidence is captured.",
+        }
+
+    steps = [
+        "Open the exact native Playwright shard report, trace.zip, screenshot, video, and error-context.md for this failed test.",
+        "Run MCP failed element check again after evidence is available to classify locator, blocker, navigation, data, or product behavior.",
+        "Do not auto-patch until the failed element/state is identified. Save human update if a product/environment reason is found.",
+    ]
+    return {
+        "failure_category": "requires_trace_screenshot_review",
+        "target_patch_layer": "evidence collection first; no blind code patch",
+        "suggested_fix_area": "Open trace/screenshot/native shard report and collect evidence before applying self-healing.",
+        "mcp_codegen_action": "Use trace/screenshot plus MCP snapshot to identify the exact failed element or state before patching.",
+        "fix_steps": steps,
+        "recommended_files_or_folders": files,
+        "approval_summary": f"Do not approve code change for {spec} until trace/screenshot identifies the failed element or state.",
+    }
 
 def _write_exact_plain_failure_report(report: dict[str, Any]) -> None:
     try:
         EXISTING_PLAIN_FAILURE_JSON.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         rows = []
+        repair_rows = []
         for rec in report.get("test_case_outcomes") or []:
             cls = "bad" if rec.get("status") == "failed" else ("ok" if rec.get("status") == "passed" else "warn")
-            rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code></td><td>{_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td class='{cls}'>{_html(rec.get('status'))}</td><td>{_html(rec.get('plain_english_reason'))}</td><td>{_html(rec.get('suggested_fix_area'))}</td></tr>")
+            steps = rec.get('fix_steps') or []
+            steps_html = '<ol>' + ''.join(f'<li>{_html(step)}</li>' for step in steps[:8]) + '</ol>' if steps else ''
+            rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code></td><td>{_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td class='{cls}'>{_html(rec.get('status'))}</td><td>{_html(rec.get('plain_english_reason'))}</td><td>{_html(rec.get('failure_category'))}</td><td>{_html(rec.get('target_patch_layer'))}</td></tr>")
+            if rec.get('status') == 'failed':
+                repair_rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code><br/>line {_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td>{_html(rec.get('mcp_codegen_action'))}</td><td>{steps_html}</td><td><pre>{_html(json.dumps(rec.get('recommended_files_or_folders') or [], indent=2, ensure_ascii=False))}</pre></td><td>{_html(rec.get('approval_summary'))}</td></tr>")
         html = f"""<!doctype html><html><head><meta charset='utf-8'><title>Plain English RCA</title>
-<style>body{{font-family:Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#0f172a}}.card{{background:white;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:14px 0}}.warn{{color:#b45309;font-weight:800}}.ok{{color:#16a34a;font-weight:800}}.bad{{color:#dc2626;font-weight:800}}table{{width:100%;border-collapse:collapse;background:white}}th,td{{border:1px solid #cbd5e1;padding:8px;vertical-align:top}}th{{background:#1e293b;color:white}}code{{background:#0f172a;color:#dbeafe;padding:2px 6px;border-radius:6px}}</style></head><body>
-<h1>Plain English RCA Report</h1><section class='card'><h2>Summary</h2><p>{_html(report.get('summary'))}</p><p>{_html(report.get('message'))}</p></section>
-<section class='card'><h2>Test-by-test outcome and RCA</h2><p>Format: spec file → test case → passed/failed → plain English reason → safest fix area.</p><table><thead><tr><th>Spec</th><th>Line</th><th>Test</th><th>Status</th><th>Reason</th><th>Safe fix area</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="6">No test-case level evidence found. Open the native Playwright shard report.</td></tr>'}</tbody></table></section>
+<style>body{{font-family:Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#0f172a}}.card{{background:white;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:14px 0}}.warn{{color:#b45309;font-weight:800}}.ok{{color:#16a34a;font-weight:800}}.bad{{color:#dc2626;font-weight:800}}table{{width:100%;border-collapse:collapse;background:white}}th,td{{border:1px solid #cbd5e1;padding:8px;vertical-align:top}}th{{background:#1e293b;color:white}}code{{background:#0f172a;color:#dbeafe;padding:2px 6px;border-radius:6px}}pre{{white-space:pre-wrap;background:#0f172a;color:#dbeafe;border-radius:8px;padding:8px;max-height:220px;overflow:auto}}ol{{margin:0 0 0 18px;padding:0}}</style></head><body>
+<h1>Plain English RCA Report</h1><section class='card'><h2>Summary</h2><p>{_html(report.get('summary'))}</p><p>{_html(report.get('message'))}</p><p><b>Failure category counts:</b> <code>{_html(json.dumps(report.get('failure_category_counts') or {}, ensure_ascii=False))}</code></p></section>
+<section class='card'><h2>Test-by-test outcome and RCA</h2><p>Format: spec file → test case → passed/failed → plain English reason → failure category → safest patch layer.</p><table><thead><tr><th>Spec</th><th>Line</th><th>Test</th><th>Status</th><th>Reason</th><th>Failure category</th><th>Target patch layer</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="7">No test-case level evidence found. Open the native Playwright shard report.</td></tr>'}</tbody></table></section>
+<section class='card'><h2>Auditable RCA + MCP/codegen fix recipe</h2><p>This section breaks each failed test into observable checks and safe actions. It is not hidden chain-of-thought; it is an auditable checklist for locator/MCP/codegen/self-healing.</p><table><thead><tr><th>Failed spec/test</th><th>Test</th><th>MCP/codegen action</th><th>Safe steps</th><th>Recommended files</th><th>Approval summary</th></tr></thead><tbody>{''.join(repair_rows) or '<tr><td colspan="6">No failed tests found.</td></tr>'}</tbody></table></section>
 </body></html>"""
         EXISTING_PLAIN_FAILURE_HTML.write_text(html, encoding="utf-8")
     except Exception:
@@ -3089,7 +3280,16 @@ def _deterministic_existing_fix_plan(rca: dict[str, Any], failure_text: str, all
     primary = signals[0].get("kind") if signals else "unknown_or_insufficient_evidence"
     common = rca.get("common_cause_analysis") or {}
     primary_common = common.get("primary_common_cause") or {}
+    plain_report = rca.get("plain_english_failure_report") or {}
+    failed_outcomes = [x for x in (plain_report.get("test_case_outcomes") or []) if isinstance(x, dict) and str(x.get("status") or "").lower() == "failed"]
     plan: list[str] = []
+    if failed_outcomes:
+        plan.append(f"Build fix from exact failed test-case evidence first: {len(failed_outcomes)} failed test case(s) are in scope; passed tests are not touched.")
+        for rec in failed_outcomes[:20]:
+            plan.append(f"{rec.get('spec')} -> {rec.get('test')} failed - reason: {rec.get('plain_english_reason')}. Category: {rec.get('failure_category')}. Patch layer: {rec.get('target_patch_layer')}. MCP/codegen: {rec.get('mcp_codegen_action')}")
+            steps = rec.get('fix_steps') or []
+            if steps:
+                plan.append("  Safe sequence: " + " | ".join(str(s) for s in steps[:4]))
     if common.get("has_multi_workflow_common_cause") and primary_common:
         plan.extend([
             f"Prioritize shared component first: {primary_common.get('component')} ({primary_common.get('failure_kind')}) impacts {primary_common.get('impacted_count')} failed spec(s).",
@@ -3158,7 +3358,9 @@ def _write_self_healing_html(payload: dict[str, Any]) -> Path:
     case_fix_rows = []
     for rec in (((rca.get('plain_english_failure_report') or {}).get('test_case_outcomes')) or []):
         if str(rec.get('status') or '').lower() == 'failed':
-            case_fix_rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code></td><td>{_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td>{_html(rec.get('plain_english_reason'))}</td><td>{_html(rec.get('suggested_fix_area'))}</td></tr>")
+            steps_html = '<ol>' + ''.join(f'<li>{_html(step)}</li>' for step in ((rec.get('fix_steps') or [])[:6])) + '</ol>' if rec.get('fix_steps') else ''
+            files_html = '<pre>' + _html(json.dumps(rec.get('recommended_files_or_folders') or [], indent=2, ensure_ascii=False)) + '</pre>' if rec.get('recommended_files_or_folders') else ''
+            case_fix_rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code></td><td>{_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td>{_html(rec.get('plain_english_reason'))}<br/><b>Category:</b> {_html(rec.get('failure_category'))}</td><td>{_html(rec.get('mcp_codegen_action'))}<br/>{steps_html}</td><td>{_html(rec.get('target_patch_layer'))}<br/>{files_html}</td></tr>")
     files = []
     for f in (payload.get("scope") or {}).get("allowed_files") or []:
         files.append(f"<li><code>{_html(f)}</code></li>")
@@ -3183,7 +3385,7 @@ def _write_self_healing_html(payload: dict[str, Any]) -> Path:
 <div class='card'><h2>Human approval and multi-signal RCA gate</h2><p class='{gate_class}'>{_html(gate.get('user_message') or 'No separate gate status was recorded for this proposal/apply step.')}</p><pre>{_html(json.dumps(gate, indent=2, ensure_ascii=False)[:12000])}</pre></div>
 <div class='card'><h2>Codex apply diagnostics</h2><p>This section explains whether Codex was missing, unauthenticated, failed, or executed successfully but returned no file diff. Human approval is not treated as missing when the popup was approved.</p><pre>{_html(json.dumps({'codex_apply_diagnostics': payload.get('codex_apply_diagnostics'), 'codex_attempts': payload.get('codex_attempts'), 'deterministic_fallback_patch': payload.get('deterministic_fallback_patch'), 'ai_message': (payload.get('ai') or {}).get('message')}, indent=2, ensure_ascii=False)[:24000])}</pre></div>
 <div class='card'><h2>Failed specs in scope</h2><pre>{_html(json.dumps(rca.get('failed_specs') or [], indent=2, ensure_ascii=False))}</pre></div>
-<div class='card'><h2>Specific failed tests and proposed safe fix</h2><p>For each failed test, AstraHeal identifies the failure reason and the safest project layer to update. Locator fixes should normally go into pageObjects/locator repository or page methods, not random waits inside specs.</p><table style="width:100%;border-collapse:collapse"><thead><tr><th>Spec</th><th>Line</th><th>Failed test</th><th>Reason</th><th>Proposed safe fix area</th></tr></thead><tbody>{''.join(case_fix_rows) if case_fix_rows else '<tr><td colspan="5">No failed test-case level evidence found. Use native shard report/trace before patching.</td></tr>'}</tbody></table></div>
+<div class='card'><h2>Specific failed tests and proposed safe fix</h2><p>For each failed test, AstraHeal identifies the failure reason, MCP/codegen action, safe sequence, and safest project layer to update. Locator fixes should normally go into pageObjects/locator repository or page methods, not random waits inside specs.</p><table style="width:100%;border-collapse:collapse"><thead><tr><th>Spec</th><th>Line</th><th>Failed test</th><th>Reason/category</th><th>MCP/codegen + safe sequence</th><th>Patch target/files</th></tr></thead><tbody>{''.join(case_fix_rows) if case_fix_rows else '<tr><td colspan="6">No failed test-case level evidence found. Use native shard report/trace before patching.</td></tr>'}</tbody></table></div>
 <div class='card'><h2>Safe fix plan</h2><ol>{''.join(rows) if rows else '<li>No deterministic plan was generated.</li>'}</ol></div>
 <div class='card'><h2>Common-cause fix priority</h2><p>When several workflows fail because of the same component, the shared component is fixed first before individual test edits.</p><table style="width:100%;border-collapse:collapse"><thead><tr><th>Shared component/action</th><th>Failure kind</th><th>Impacted count</th><th>Impacted specs</th><th>Fix priority</th></tr></thead><tbody>{''.join(common_rows) if common_rows else '<tr><td colspan="5">No common-cause group available.</td></tr>'}</tbody></table><p><a href='/artifacts/reports/existing-framework/common-cause-memory.html' target='_blank'>Open common-cause memory/cache</a></p></div>
 <div class='card'><h2>Auditable RCA reasoning checklist used for patching</h2><table style="width:100%;border-collapse:collapse"><thead><tr><th>#</th><th>Check</th><th>Status</th><th>Fix decision</th></tr></thead><tbody>{''.join(checklist_rows) if checklist_rows else '<tr><td colspan="4">No checklist available.</td></tr>'}</tbody></table><p>This is an observable RCA checklist, not hidden chain-of-thought.</p></div>
@@ -3337,7 +3539,7 @@ Return a concise summary of files changed after editing.
 def _candidate_deterministic_patch_files(root: Path, allowed_files: list[str]) -> list[str]:
     seen: set[str] = set()
     ordered: list[str] = []
-    keywords = ("base-page", "basepage", "mobile-base", "page", "helper", "action", "click", "locator")
+    keywords = ("base-page", "basepage", "mobile-base", "page", "helper", "action", "click", "locator", "wait", "navigation", "router", "popup", "blocker", "browser", "safe")
     for rel in allowed_files or []:
         norm = str(rel or "").replace("\\", "/").lstrip("./")
         low = norm.lower()
@@ -3370,8 +3572,8 @@ def _try_deterministic_self_heal_patch(root: Path, rca: dict[str, Any], failure_
     backup/policy validation and must be validated by failed-only rerun.
     """
     low = (failure_text or "").lower()
-    if not any(k in low for k in ["locator", "tobevisible", "element(s) not found", "not attached", "detached", "intercepts pointer events", "locator.click", "scrollintoviewifneeded"]):
-        return {"attempted": False, "changed_files": [], "message": "Deterministic fallback skipped because the failure evidence was not locator/actionability related."}
+    if not any(k in low for k in ["locator", "tobevisible", "element(s) not found", "not attached", "detached", "intercepts pointer events", "locator.click", "scrollintoviewifneeded", "test timeout", "timeout", "waitforurl", "tohaveurl", "navigation", "networkidle", "domcontentloaded", "permission", "cookie", "modal", "popup"]):
+        return {"attempted": False, "changed_files": [], "message": "Deterministic fallback skipped because the failure evidence did not match locator/actionability/timeout/navigation/blocker patterns."}
     changed: list[str] = []
     details: list[dict[str, Any]] = []
     marker = "AstraHeal deterministic self-healing fallback"
@@ -3433,6 +3635,37 @@ def _try_deterministic_self_heal_patch(root: Path, rca: dict[str, Any], failure_
                 new = new.replace(pat, tap_replacement, 1)
                 local_changes.append("bounded scroll-before-tap guard")
                 break
+        # Slow AUT / navigation-state timeout guard: avoid indefinite or fragile networkidle-only waits.
+        # This keeps the timeout bounded and records that a business-state assertion should still validate the page.
+        nav_patterns = [
+            "await this.page.waitForLoadState('networkidle');",
+            'await this.page.waitForLoadState("networkidle");',
+            "await page.waitForLoadState('networkidle');",
+            'await page.waitForLoadState("networkidle");',
+        ]
+        nav_replacements = {
+            "await this.page.waitForLoadState('networkidle');": "await this.page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});\n    // AstraHeal deterministic self-healing fallback: networkidle is fragile on slow VM/AUT; rely on bounded DOM ready plus business assertions.",
+            'await this.page.waitForLoadState("networkidle");': 'await this.page.waitForLoadState("domcontentloaded", { timeout: 10000 }).catch(() => {});\n    // AstraHeal deterministic self-healing fallback: networkidle is fragile on slow VM/AUT; rely on bounded DOM ready plus business assertions.',
+            "await page.waitForLoadState('networkidle');": "await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});\n    // AstraHeal deterministic self-healing fallback: networkidle is fragile on slow VM/AUT; rely on bounded DOM ready plus business assertions.",
+            'await page.waitForLoadState("networkidle");': 'await page.waitForLoadState("domcontentloaded", { timeout: 10000 }).catch(() => {});\n    // AstraHeal deterministic self-healing fallback: networkidle is fragile on slow VM/AUT; rely on bounded DOM ready plus business assertions.',
+        }
+        if any(k in low for k in ["test timeout", "timeout", "navigation", "networkidle", "waitforurl", "tohaveurl"]):
+            for pat in nav_patterns:
+                if pat in new and "networkidle is fragile on slow VM/AUT" not in new:
+                    new = new.replace(pat, nav_replacements[pat], 1)
+                    local_changes.append("bounded domcontentloaded guard for slow AUT/navigation wait")
+                    break
+        # Browser blocker guard for common cookie/location/permission/modal issues where a helper file already has close/dismiss hooks.
+        blocker_patterns = [
+            "await locator.click({ timeout: 10000 });",
+            "await locator.click({ timeout: 10_000 });",
+        ]
+        if any(k in low for k in ["intercepts pointer events", "permission", "cookie", "modal", "popup", "geolocation"]):
+            for pat in blocker_patterns:
+                if pat in new and "AstraHeal blocker evidence" not in new:
+                    new = new.replace(pat, "// AstraHeal blocker evidence: before this action, ensure known cookie/location/permission/modal blockers are dismissed in the shared blocker guard if present.\n      " + pat, 1)
+                    local_changes.append("blocker guard note before bounded click")
+                    break
         if new != text:
             try:
                 path.write_text(new, encoding="utf-8")
@@ -4754,7 +4987,9 @@ def _failed_case_gui_lines_from_rca(rca: dict[str, Any], *, include_passed: bool
             if include_passed:
                 lines.append(f"{rec.get('spec')} -> {rec.get('test') or '(whole spec fallback)'} passed")
         elif status == "failed":
-            lines.append(f"{rec.get('spec')} -> {rec.get('test') or '(whole spec fallback)'} failed - reason: {rec.get('plain_english_reason') or 'see Playwright report'}")
+            category = rec.get('failure_category') or 'failure'
+            target = rec.get('target_patch_layer') or rec.get('suggested_fix_area') or 'see Playwright report'
+            lines.append(f"{rec.get('spec')} -> {rec.get('test') or '(whole spec fallback)'} failed - reason: {rec.get('plain_english_reason') or 'see Playwright report'} | category: {category} | fix target: {target}")
         else:
             lines.append(f"{rec.get('spec')} -> {rec.get('test') or '(whole spec fallback)'} {status}")
     return lines

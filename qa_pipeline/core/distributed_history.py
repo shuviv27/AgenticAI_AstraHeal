@@ -368,6 +368,118 @@ def _run_local_parallel_shard_process(root: Path, run_id: str, shard: dict[str, 
     return result
 
 
+
+def _run_browserstack_shard_process(root: Path, run_id: str, shard: dict[str, Any], headed: bool, progress_callback: ProgressCallback | None = None) -> dict[str, Any]:
+    """Run an AstraHeal shard on BrowserStack while keeping AI/RCA on this VM.
+
+    This path intentionally mirrors the local/VM shard contract so downstream
+    inventory, RCA, Playwright report routing, failed-only rerun and combined
+    reporting continue to work without branching everywhere else.
+    """
+    from qa_pipeline.core.browserstack_adapter import (
+        check_browserstack_readiness,
+        write_browserstack_config,
+        build_browserstack_command,
+    )
+    shard_id = str(shard.get('shard_id') or 'shard')
+    browser = str(shard.get('browser') or os.environ.get('ASTRAHEAL_BROWSERSTACK_BROWSER') or 'chrome')
+    bs_browser_version = os.environ.get('ASTRAHEAL_BROWSERSTACK_BROWSER_VERSION') or 'latest'
+    bs_os = os.environ.get('ASTRAHEAL_BROWSERSTACK_OS') or 'Windows'
+    bs_os_version = os.environ.get('ASTRAHEAL_BROWSERSTACK_OS_VERSION') or '11'
+    bs_local = str(os.environ.get('ASTRAHEAL_BROWSERSTACK_LOCAL') or 'true').lower() not in {'0','false','no'}
+    local_identifier = os.environ.get('ASTRAHEAL_BROWSERSTACK_LOCAL_IDENTIFIER') or f'astraheal-{run_id}'
+    shard_dir = root / 'reports' / 'existing-framework' / 'browserstack-runs' / run_id / shard_id
+    html_dir = shard_dir / 'html'
+    json_file = shard_dir / 'results.json'
+    test_results_dir = shard_dir / 'test-results'
+    readiness = check_browserstack_readiness(str(root))
+    cfg = write_browserstack_config(
+        root,
+        run_id,
+        shard_id,
+        list(shard.get('tests') or []),
+        browser=browser,
+        browser_version=bs_browser_version,
+        os_name=bs_os,
+        os_version=bs_os_version,
+        local_testing=bs_local,
+        local_identifier=local_identifier,
+        project_name=os.environ.get('ASTRAHEAL_BROWSERSTACK_PROJECT') or 'AstraHeal AI',
+        build_name=os.environ.get('ASTRAHEAL_BROWSERSTACK_BUILD') or f'AstraHeal-{run_id}',
+        session_name=f'{shard_id}-{len(shard.get("tests") or [])}-targets',
+    )
+    command = build_browserstack_command(root, cfg, list(shard.get('tests') or []), headed=headed, output_dir=test_results_dir)
+    env_overrides = {
+        'PLAYWRIGHT_HTML_OPEN': 'never',
+        'PLAYWRIGHT_HTML_OUTPUT_DIR': str(html_dir),
+        'PLAYWRIGHT_JSON_OUTPUT_NAME': str(json_file),
+        'BROWSERSTACK_CONFIG_FILE': str(cfg),
+        'ASTRAHEAL_EXECUTION_PROVIDER': 'browserstack',
+        'ASTRAHEAL_RUN_ID': run_id,
+        'ASTRAHEAL_SHARD_ID': shard_id,
+        'ASTRAHEAL_MAX_EXPLICIT_WAIT_MS': str(_astraheal_max_wait_ms()),
+        'ASTRAHEAL_MAX_TEST_TIMEOUT_MS': str(_astraheal_max_wait_ms()),
+    }
+    env = {**os.environ.copy(), **env_overrides}
+    launcher = _write_local_shard_launcher(root, shard_dir, command, env_overrides, f'BrowserStack execution shard {shard_id}')
+    started = time.time()
+    log_event('browserstack_execution', f'Starting BrowserStack execution shard {shard_id}. AI/RCA stays on this VM.', status='running', progress=35, details={'command': command, 'config': str(cfg), 'tests': shard.get('tests'), 'readiness': readiness})
+    output_lines: list[str] = []
+    if not readiness.get('ok'):
+        output_lines.append('BrowserStack readiness failed: ' + readiness.get('message',''))
+        return_code = 2
+    else:
+        try:
+            popen_args = ['cmd.exe', '/d', '/s', '/c', str(launcher)] if os.name == 'nt' else [str(launcher)]
+            proc = subprocess.Popen(popen_args, cwd=str(root), env=env, text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+            assert proc.stdout is not None
+            last_log = 0.0
+            for line in proc.stdout:
+                line = line.rstrip('\n')
+                output_lines.append(line)
+                now = time.time()
+                parsed_progress = _parse_playwright_live_progress(line)
+                if parsed_progress and progress_callback:
+                    progress_callback(shard_id, parsed_progress[0], parsed_progress[1], line)
+                if now - last_log > 1.0:
+                    log_event('browserstack_execution', f'{shard_id}: {line[-240:]}', status='running', progress=45, details={'shard_id': shard_id, 'browserstack_config': str(cfg)})
+                    last_log = now
+            return_code = proc.wait()
+        except Exception as exc:
+            return_code = None
+            output_lines.append(f'{type(exc).__name__}: {exc}')
+    duration = round(time.time() - started, 2)
+    stdout = '\n'.join(output_lines)[-60000:]
+    log_path = shard_dir / 'execution-console.log'
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.write_text('\n'.join([f'Command: {command}', f'Config: {cfg}', f'CWD: {root}', f'Return code: {return_code}', f'Duration seconds: {duration}', '', stdout]), encoding='utf-8', errors='replace')
+    status = 'passed' if return_code == 0 else 'failed'
+    result = {
+        **shard,
+        'mode': 'browserstack_cloud_execution_shard',
+        'execution_provider': 'browserstack',
+        'command': command,
+        'browserstack_config': str(cfg),
+        'browserstack_readiness': readiness,
+        'browserstack_local': bs_local,
+        'browserstack_local_identifier': local_identifier,
+        'launcher_script': str(launcher),
+        'artifact_dir': str(shard_dir),
+        'html_report': str(html_dir / 'index.html'),
+        'json_report': str(json_file),
+        'test_results_dir': str(test_results_dir),
+        'test_case_count': shard.get('test_case_count'),
+        'test_count_source': shard.get('test_count_source'),
+        'execution': {'ok': return_code == 0, 'returncode': return_code, 'stdout_tail': stdout[-30000:], 'duration_seconds': duration, 'cwd': str(root)},
+        'return_code': return_code,
+        'stdout_tail': stdout[-30000:],
+        'status': status,
+        'browserstack_dashboard_note': 'Open BrowserStack Automate dashboard using the generated project/build/session names. AstraHeal local artifacts remain under this shard folder.',
+    }
+    result['parallel_rca'] = _agentic_rca_for_shard(result)
+    log_event('browserstack_execution', f'BrowserStack shard {shard_id} {status}.', status='done' if status == 'passed' else 'warning', progress=75, details={'return_code': return_code, 'artifact_dir': str(shard_dir), 'config': str(cfg)})
+    return result
+
 def _publish_local_parallel_failed_inventory(root: Path, summary: dict[str, Any], headed: bool, run_role: str = 'first_run') -> dict[str, Any]:
     try:
         from qa_pipeline.agents.existing_framework_control.controller import (
@@ -638,7 +750,7 @@ def _normalize_execution_target_mode(mode: str) -> str:
         'central_plus_workers': 'central_and_workers',
     }
     m = aliases.get(m, m)
-    return m if m in {'central_only', 'workers_only', 'central_and_workers'} else 'central_and_workers'
+    return m if m in {'central_only', 'workers_only', 'central_and_workers', 'browserstack', 'browserstack_cloud', 'browserstack_automate'} else 'central_and_workers'
 
 
 def _match_agent(agent: dict[str, Any], token: str) -> bool:
@@ -698,13 +810,23 @@ def create_distributed_plan(framework_path: str, selected_tests: str = '', brows
     root, tests = _read_selected_tests(framework_path, selected_tests)
     browser_list = [b.strip() for b in (browsers or '').replace('\n', ',').split(',') if b.strip()] or ['chromium']
     execution_target_mode = _normalize_execution_target_mode(execution_target_mode)
-    workers, online_agents = _resolve_execution_workers(agent_ids, execution_target_mode, master_worker_name)
+    is_browserstack = str(execution_target_mode).lower() in {'browserstack', 'browserstack_cloud', 'browserstack_automate'} or str(os.environ.get('ASTRAHEAL_EXECUTION_PROVIDER') or '').lower() == 'browserstack'
+    if is_browserstack:
+        execution_target_mode = 'browserstack_cloud'
+        workers = [{'agent_id': MASTER_AGENT_ID, 'agent_name': 'AstraHeal-VM-BrowserStack-Controller', 'is_master_worker': True, 'execution_location': 'browserstack_cloud_execution_only'}]
+        online_agents = workers
+    else:
+        workers, online_agents = _resolve_execution_workers(agent_ids, execution_target_mode, master_worker_name)
 
     local_tests_per_shard = max(0, int(tests_per_shard or 0))
     requested_shards = max(1, int(shard_count or len(browser_list) or len(workers) or 1))
     local_parallel_enabled = bool(execution_target_mode == 'central_only' and (local_tests_per_shard > 0 or requested_shards > 1))
+    browserstack_enabled = bool(execution_target_mode == 'browserstack_cloud')
 
-    if execution_target_mode == 'central_only' and local_tests_per_shard > 0:
+    if execution_target_mode == 'browserstack_cloud' and local_tests_per_shard > 0:
+        groups = _chunks_by_size(tests, local_tests_per_shard) if workers else []
+        shard_strategy = 'tests_per_browserstack_shard'
+    elif execution_target_mode == 'central_only' and local_tests_per_shard > 0:
         groups = _chunks_by_size(tests, local_tests_per_shard) if workers else []
         shard_strategy = 'tests_per_local_browser_instance'
     else:
@@ -727,7 +849,11 @@ def create_distributed_plan(framework_path: str, selected_tests: str = '', brows
             'worker_execution_location': worker.get('execution_location') or 'worker_vm',
         })
 
-    if execution_target_mode == 'central_only' and local_parallel_enabled:
+    if execution_target_mode == 'browserstack_cloud':
+        agent_mode = 'browserstack_automate_execution_only'
+        msg = (f'BrowserStack execution plan created: {len(tests)} executable test target(s) split into {len(shards)} BrowserStack shard(s). '
+               f'AstraHeal AI/RCA/self-healing and reports remain on this VM; BrowserStack runs only the browsers.')
+    elif execution_target_mode == 'central_only' and local_parallel_enabled:
         agent_mode = 'local_or_central_vm_parallel_browser_shards'
         msg = (f'Local/VM parallel plan created: {len(tests)} executable tests/** script(s) split into {len(shards)} browser shard(s) '
                f'using {local_tests_per_shard or "auto"} test(s) per local browser instance. No worker VM/VDI agents are required.')
@@ -747,6 +873,8 @@ def create_distributed_plan(framework_path: str, selected_tests: str = '', brows
         'browsers': browser_list,
         'execution_target_mode': execution_target_mode,
         'agent_mode': agent_mode,
+        'browserstack_enabled': bool(execution_target_mode == 'browserstack_cloud'),
+        'execution_provider': 'browserstack' if execution_target_mode == 'browserstack_cloud' else 'local_or_worker',
         'local_parallel_enabled': local_parallel_enabled,
         'tests_per_shard': local_tests_per_shard,
         'requested_shard_count': requested_shards,
@@ -881,7 +1009,8 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
         summary['initial_report_warning'] = f'{type(exc).__name__}: {exc}'
         _save_run_state(summary)
     is_local_parallel = bool(plan.get('execution_target_mode') == 'central_only' and plan.get('local_parallel_enabled'))
-    log_event('distributed_execution', 'Local/VM parallel execution started.' if is_local_parallel else 'Distributed node-hub execution started.', status='running', progress=10, details={'run_id': run_id, 'shards': len(plan.get('shards') or []), 'local_parallel_enabled': is_local_parallel})
+    is_browserstack = bool(plan.get('execution_target_mode') == 'browserstack_cloud' or plan.get('execution_provider') == 'browserstack')
+    log_event('distributed_execution', ('BrowserStack execution started.' if is_browserstack else ('Local/VM parallel execution started.' if is_local_parallel else 'Distributed node-hub execution started.')), status='running', progress=10, details={'run_id': run_id, 'shards': len(plan.get('shards') or []), 'local_parallel_enabled': is_local_parallel})
 
     if not plan.get('ok'):
         summary['ok'] = False
@@ -891,17 +1020,21 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
         return summary
 
     local_runtime_preflight: dict[str, Any] = {}
-    if is_local_parallel:
+    if is_local_parallel or is_browserstack:
         try:
             from qa_pipeline.agents.existing_framework_control.controller import _ensure_runtime
             local_runtime_preflight = _ensure_runtime(root, auto_install=True)
+            if is_browserstack:
+                from qa_pipeline.core.browserstack_adapter import check_browserstack_readiness
+                bs_ready = check_browserstack_readiness(str(root))
+                local_runtime_preflight = {**local_runtime_preflight, 'browserstack': bs_ready, 'ok': bool(local_runtime_preflight.get('ok') and bs_ready.get('ok'))}
         except Exception as exc:
             local_runtime_preflight = {'ok': False, 'error': f'{type(exc).__name__}: {exc}'}
         summary['local_runtime_preflight'] = local_runtime_preflight
         if not local_runtime_preflight.get('ok'):
             summary['ok'] = False
-            summary['stage'] = 'local_vm_parallel_runtime_preflight_failed'
-            summary['message'] = local_runtime_preflight.get('error') or 'Runtime preflight failed before local/VM parallel browser shards could start.'
+            summary['stage'] = 'browserstack_runtime_preflight_failed' if is_browserstack else 'local_vm_parallel_runtime_preflight_failed'
+            summary['message'] = local_runtime_preflight.get('error') or ('BrowserStack readiness failed before cloud execution could start. Check BROWSERSTACK_USERNAME/BROWSERSTACK_ACCESS_KEY, Node/npm/npx, package.json and BrowserStack Local tunnel policy.' if is_browserstack else 'Runtime preflight failed before local/VM parallel browser shards could start.')
             _save_run_state(summary)
             write_distributed_report(summary)
             return summary
@@ -909,7 +1042,7 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
     # Runtime test-case counting: this is separate from spec-file count.  It lets
     # the GUI show 1/210, 10/210, etc. while Playwright is running.
     count_reports: list[dict[str, Any]] = []
-    if is_local_parallel:
+    if is_local_parallel or is_browserstack:
         total_cases = 0
         exact = True
         for shard in plan.get('shards') or []:
@@ -925,7 +1058,7 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
         plan['test_case_count_reports'] = count_reports
         summary['plan'] = plan
         summary['runtime_test_progress'] = {'completed': 0, 'total': total_cases, 'exact': exact, 'display': f'0/{total_cases}' if total_cases else '0/?', 'per_shard': {}}
-        summary['message'] = f'Runtime Playwright test-case progress initialized: 0/{total_cases or "?"}. Script files: {plan.get("total_tests")}. Shards: {len(plan.get("shards") or [])}.'
+        summary['message'] = f'Runtime Playwright test-case progress initialized: 0/{total_cases or "?"}. Script files: {plan.get("total_tests")}. Shards: {len(plan.get("shards") or [])}. Provider: {"BrowserStack Automate" if is_browserstack else "local/VM browsers"}.'
         _save_run_state(summary)
         try:
             write_distributed_report(summary)
@@ -967,6 +1100,8 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
             log_event('distributed_execution', summary['message'], status='running', progress=max(20, min(95, percent)), details={'run_id': run_id, 'shard_id': shard_id, 'line': line[-240:], 'runtime_test_progress': summary['runtime_test_progress']})
 
     def run_local_shard(shard: dict[str, Any]) -> dict[str, Any]:
+        if is_browserstack:
+            return _run_browserstack_shard_process(root, run_id, shard, headed, progress_callback=_update_runtime_progress)
         if is_local_parallel:
             return _run_local_parallel_shard_process(root, run_id, shard, headed, progress_callback=_update_runtime_progress if is_local_parallel else None)
         from qa_pipeline.agents.existing_framework_control.controller import execute_existing_framework
@@ -997,16 +1132,20 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
             summary.setdefault('parallel_rca_events', []).append(sr.get('parallel_rca') or {})
             _save_run_state(summary)
 
-    summary['stage'] = 'local_vm_parallel_distributed_execution_completed' if is_local_parallel else 'distributed_node_hub_execution_started_or_completed'
+    summary['stage'] = 'browserstack_execution_completed' if is_browserstack else ('local_vm_parallel_distributed_execution_completed' if is_local_parallel else 'distributed_node_hub_execution_started_or_completed')
     summary['run_role'] = run_role
     summary['ok'] = all(r.get('status') in {'queued', 'passed'} for r in summary.get('shard_results', []))
-    if is_local_parallel:
+    if is_browserstack:
+        completed = len(summary.get('shard_results') or [])
+        failed = len([r for r in summary.get('shard_results') or [] if r.get('status') == 'failed'])
+        summary['message'] = f'BrowserStack execution completed: {completed} cloud browser shard(s), {failed} failed shard(s). AI/RCA/self-healing remained on the VM and failed-only inventory was refreshed from this run.'
+    elif is_local_parallel:
         completed = len(summary.get('shard_results') or [])
         failed = len([r for r in summary.get('shard_results') or [] if r.get('status') == 'failed'])
         summary['message'] = f'Local/VM parallel run completed: {completed} browser shard(s), {failed} failed shard(s). Failed-only RCA/self-healing inventory was refreshed from this run.'
     else:
         summary['message'] = 'Distributed node-hub run launched. VM worker shards run asynchronously; local fallback shards completed now. Parallel RCA starts as soon as each shard finishes.'
-    if is_local_parallel:
+    if is_local_parallel or is_browserstack:
         progress_state = summary.get('runtime_test_progress') or {}
         total_cases = int(progress_state.get('total') or plan.get('total_test_cases') or 0)
         completed_cases = int(progress_state.get('completed') or 0)
@@ -1026,7 +1165,7 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
     summary['playwright_html_report_url'] = '/api/module2/framework-artifact/playwright-report?framework_path=' + _framework_query(str(root))
     summary['existing_framework_consolidated_report_url'] = '/artifacts/reports/existing-framework/consolidated-report.html'
 
-    if is_local_parallel:
+    if is_local_parallel or is_browserstack:
         summary['failed_inventory_publish'] = _publish_local_parallel_failed_inventory(root, summary, headed, run_role=run_role)
         _save_run_state(summary)
         report_info = write_distributed_report(summary)
@@ -1035,9 +1174,16 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
         summary['html_report'] = report_info.get('framework_html_report') or report_info.get('central_html_report')
         summary['playwright_html_report_url'] = '/api/module2/framework-artifact/playwright-report?framework_path=' + _framework_query(str(root))
         summary['existing_framework_consolidated_report_url'] = '/artifacts/reports/existing-framework/consolidated-report.html'
+        if is_browserstack:
+            try:
+                from qa_pipeline.core.browserstack_adapter import write_browserstack_report_index
+                summary['browserstack_report'] = write_browserstack_report_index(root, summary)
+                summary['browserstack_report_url'] = '/artifacts/reports/existing-framework/browserstack-execution-report.html'
+            except Exception as exc:
+                summary['browserstack_report_warning'] = f'{type(exc).__name__}: {exc}'
 
     append_execution_history(str(root), {'type': 'local_vm_parallel_distributed_execution' if is_local_parallel else 'distributed_node_hub_execution', **summary, 'html_report': summary.get('html_report'), 'framework_html_report': summary.get('framework_html_report'), 'central_html_report': summary.get('central_html_report')}, mirror_to_framework=True)
-    log_event('distributed_execution', 'Local/VM parallel report generated.' if is_local_parallel else 'Distributed node-hub report generated.', status='done' if summary['ok'] else 'warning', progress=100, details={'framework_report': summary.get('framework_html_report'), 'central_mirror_report': summary.get('central_html_report'), 'failed_inventory_publish': summary.get('failed_inventory_publish')})
+    log_event('distributed_execution', 'BrowserStack execution report generated.' if is_browserstack else ('Local/VM parallel report generated.' if is_local_parallel else 'Distributed node-hub report generated.'), status='done' if summary['ok'] else 'warning', progress=100, details={'framework_report': summary.get('framework_html_report'), 'central_mirror_report': summary.get('central_html_report'), 'failed_inventory_publish': summary.get('failed_inventory_publish')})
     return summary
 
 

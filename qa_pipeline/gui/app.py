@@ -2470,9 +2470,14 @@ async def module2_distributed_plan(
     worker_workspace_mode: str = Form("central_shared_workspace"),
     central_shared_framework_path: str = Form(""),
     centralize_reports_and_ai_memory: bool = Form(True),
+    execution_provider: str = Form('local_vm'),
+    browserstack_local: str = Form('true'),
 ) -> JSONResponse:
     from qa_pipeline.core.distributed_history import create_distributed_plan
     try:
+        if str(execution_provider).lower() == 'browserstack':
+            execution_target_mode = 'browserstack_cloud'
+            os.environ['ASTRAHEAL_BROWSERSTACK_LOCAL'] = str(browserstack_local or 'true')
         payload = create_distributed_plan(framework_path, selected_tests, distributed_browsers, distributed_shard_count, distributed_agent_ids, worker_workspace_mode, central_shared_framework_path, bool(centralize_reports_and_ai_memory), execution_target_mode, master_worker_name, tests_per_shard=distributed_tests_per_shard)
         record_action("module2_distributed_plan", "done" if payload.get("ok") else "warning", payload.get("message", "Distributed plan created."), {"framework_path": framework_path, "payload": payload})
         return JSONResponse(payload)
@@ -2497,9 +2502,14 @@ async def module2_distributed_run(
     worker_workspace_mode: str = Form("central_shared_workspace"),
     central_shared_framework_path: str = Form(""),
     centralize_reports_and_ai_memory: bool = Form(True),
+    execution_provider: str = Form('local_vm'),
+    browserstack_local: str = Form('true'),
 ) -> JSONResponse:
     from qa_pipeline.core.distributed_history import run_distributed_plan
     try:
+        if str(execution_provider).lower() == 'browserstack':
+            execution_target_mode = 'browserstack_cloud'
+            os.environ['ASTRAHEAL_BROWSERSTACK_LOCAL'] = str(browserstack_local or 'true')
         # Run the long Playwright/distributed execution in a worker thread so
         # the FastAPI event loop can still serve /distributed/status polling.
         # This is what makes the GUI runtime test-case counter update live
@@ -2527,6 +2537,18 @@ async def module2_distributed_run(
         log_event("distributed_execution", msg, status="error", progress=100)
         return JSONResponse({"ok": False, "stage": "distributed_run_failed", "error": msg, "message": msg}, status_code=200)
 
+
+
+@app.post("/api/browserstack/readiness")
+async def browserstack_readiness(framework_path: str = Form("")) -> JSONResponse:
+    from qa_pipeline.core.browserstack_adapter import check_browserstack_readiness
+    try:
+        payload = check_browserstack_readiness(framework_path)
+        return JSONResponse(payload)
+    except Exception as exc:
+        msg = f"BrowserStack readiness failed: {type(exc).__name__}: {exc}"
+        log_event("browserstack_execution", msg, status="error", progress=100)
+        return JSONResponse({"ok": False, "stage": "browserstack_readiness_failed", "error": msg, "message": msg}, status_code=200)
 
 @app.post("/api/module2/distributed/status")
 async def module2_distributed_status(
@@ -3134,6 +3156,8 @@ async def api_existing_framework_execute_failed_only_distributed(
     worker_workspace_mode: str = Form("central_shared_workspace"),
     central_shared_framework_path: str = Form(""),
     master_worker_name: str = Form("Local-PC-or-Central-VM"),
+    execution_provider: str = Form("local_vm"),
+    browserstack_local: str = Form("true"),
 ) -> JSONResponse:
     """Rerun failed specs through the distributed/local parallel runner.
 
@@ -3174,6 +3198,9 @@ async def api_existing_framework_execute_failed_only_distributed(
         }, status_code=200)
     browsers = (distributed_browsers or "").strip() or ((project if project and project != "auto" else "chromium"))
     mode = (execution_target_mode or "central_only").strip() or "central_only"
+    if str(execution_provider).lower() == 'browserstack':
+        mode = 'browserstack_cloud'
+        os.environ['ASTRAHEAL_BROWSERSTACK_LOCAL'] = str(browserstack_local or 'true')
     # For the user's requested 1-10, 11-20, rest-on-next-browser pattern,
     # central_only + distributed_tests_per_shard drives local/central VM browser shards.
     record_action("existing_framework_failed_only_distributed_rerun", "running", f"Distributed failed-only rerun started for {len(failed_targets)} failed target(s).", {"framework_path": framework_path, "failed_targets": failed_targets, "failed_specs": failed_specs, "tests_per_shard": distributed_tests_per_shard, "execution_target_mode": mode})
