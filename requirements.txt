@@ -11,6 +11,7 @@ python-multipart>=0.0.9,<1
 # Source parsers for PDF/SRS/DOCX inputs
 pypdf>=4.2,<6
 python-docx>=1.1,<2
+openpyxl>=3.1,<4
 
 # Enterprise required dependencies
 -r requirements-enterprise.txt

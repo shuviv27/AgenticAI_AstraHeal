@@ -1,0 +1,468 @@
+{
+  "config": {
+    "configFile": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\playwright.config.ts",
+    "rootDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/tests",
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "unit",
+        "name": "unit",
+        "testDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/tests/unit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "ui/**/*.spec.ts",
+          "smoke/ui-smoke.spec.ts",
+          "mobile/**/*.spec.ts",
+          "api/**/*.spec.ts",
+          "unit/**/*.spec.ts",
+          "seed.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "api",
+        "name": "api",
+        "testDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "api/**/*.spec.ts",
+          "smoke/api-smoke.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "bdd-ui-chromium",
+        "name": "bdd-ui-chromium",
+        "testDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/.features-gen/ui",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "bdd-api",
+        "name": "bdd-api",
+        "testDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/.features-gen/api",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "bdd-mobile-ios",
+        "name": "bdd-mobile-ios",
+        "testDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/.features-gen/mobile",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "bdd-mobile-android",
+        "name": "bdd-mobile-android",
+        "testDir": "C:/PROJECTS/qa_acima_testautomation_execution_fixed/qa_acima_fixed/.features-gen/mobile",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ],
+      [
+        "html"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "mobile\\mobile-home.spec.ts",
+      "file": "mobile/mobile-home.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Mobile Home Page - Direct Tests",
+          "file": "mobile/mobile-home.spec.ts",
+          "line": 10,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Login button visible and functional",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4290,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "  🔹 🏠 Navigating to Acima home page on mobile: https://qa.www.rac.acima.com/en\n"
+                        },
+                        {
+                          "text": "  🔹 🌍 Geolocation popup not displayed\n"
+                        },
+                        {
+                          "text": "  🔹 🍪 Cookie popup not displayed\n"
+                        },
+                        {
+                          "text": "  🔹 ✔ Validating Login button is visible on mobile\n"
+                        },
+                        {
+                          "text": "  ✅ Login button is visible on mobile\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-15T20:47:05.121Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9b46ff3a7e50bf8c3c5a-652d8345cb5bb41c6f03",
+              "file": "mobile/mobile-home.spec.ts",
+              "line": 42,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ui\\dashboard.spec.ts",
+      "file": "ui/dashboard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Dashboard – Customer Portal",
+          "file": "ui/dashboard.spec.ts",
+          "line": 10,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Dashboard shows sold lease status message",
+              "ok": false,
+              "tags": [
+                "regression"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30344,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "  📋 🚀 Starting login for: PAST DUE\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Clicking Login CTA\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 1: Clicking the Login button\n"
+                        },
+                        {
+                          "text": "  🔹 🖱️ Click on 'Login Button'\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 2: Selecting Customer Login option\n"
+                        },
+                        {
+                          "text": "  🔹 🖱️ Click on 'Customer Login Menu Item'\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Signing in as: 110038759\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 3: Clicking \"Sign in with Username Instead\"\n"
+                        },
+                        {
+                          "text": "  🔹 ✅ \"Sign in with Username Instead\" clicked\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 4: Entering customer number and password\n"
+                        },
+                        {
+                          "text": "  🔹 ✅ Customer number entered\n"
+                        },
+                        {
+                          "text": "  🔹 ✅ Password entered\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 5: Clicking the Submit button\n"
+                        },
+                        {
+                          "text": "  🔹 ✅ Submit clicked — awaiting navigation\n"
+                        },
+                        {
+                          "text": "  🔹 ✔ Validating Customer Portal page loaded\n"
+                        },
+                        {
+                          "text": "  ✅ Customer Portal/Dashboard loaded successfully\n"
+                        },
+                        {
+                          "text": "  🔹 ✔ Validating Lease Sold Status\n"
+                        },
+                        {
+                          "text": "ℹ️  Sold status not displayed for this account\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-15T20:47:10.205Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\test-results\\ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\test-results\\ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\test-results\\ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium\\error-context.md"
+                        }
+                      ]
+                    },
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30628,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "  📋 🚀 Starting login for: PAST DUE\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Clicking Login CTA\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 1: Clicking the Login button\n"
+                        },
+                        {
+                          "text": "  🔹 🖱️ Click on 'Login Button'\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 2: Selecting Customer Login option\n"
+                        },
+                        {
+                          "text": "  🔹 🖱️ Click on 'Customer Login Menu Item'\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Signing in as: 110038759\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 3: Clicking \"Sign in with Username Instead\"\n"
+                        },
+                        {
+                          "text": "  🔹 ✅ \"Sign in with Username Instead\" clicked\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 4: Entering customer number and password\n"
+                        },
+                        {
+                          "text": "  🔹 ✅ Customer number entered\n"
+                        },
+                        {
+                          "text": "  🔹 ✅ Password entered\n"
+                        },
+                        {
+                          "text": "  🔹 🔐 Step 5: Clicking the Submit button\n"
+                        },
+                        {
+                          "text": "  🔹 ✅ Submit clicked — awaiting navigation\n"
+                        },
+                        {
+                          "text": "  🔹 ✔ Validating Customer Portal page loaded\n"
+                        },
+                        {
+                          "text": "  ✅ Customer Portal/Dashboard loaded successfully\n"
+                        },
+                        {
+                          "text": "  🔹 ✔ Validating Lease Sold Status\n"
+                        },
+                        {
+                          "text": "ℹ️  Sold status not displayed for this account\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-15T20:47:41.592Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\test-results\\ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\test-results\\ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\test-results\\ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\test-results\\ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b669bf248218912d02d6-6caf54bf5003e8de88dc",
+              "file": "ui/dashboard.spec.ts",
+              "line": 103,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-07-15T20:47:04.337Z",
+    "duration": 68618.308,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

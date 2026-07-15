@@ -1,0 +1,568 @@
+{
+  "ok": true,
+  "stage": "mcp_assisted_locator_rca_ready",
+  "generated_at": "2026-07-16T02:16:32",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "base_url": "",
+  "category": "locator_or_actionability_failure",
+  "confidence": 0.86,
+  "significance": {
+    "button_name": "Check failed element with Playwright MCP",
+    "purpose": "Diagnose the exact failed element/action using observable browser/accessibility/DOM evidence before any code patch.",
+    "what_it_identifies": [
+      "the failed locator/action candidate from Playwright error text",
+      "whether the intended text/role/testId is visible in the current GUI evidence",
+      "whether the element is missing, detached from DOM, hidden, disabled, duplicated, inside iframe/shadow DOM, or blocked by overlay/permission popup",
+      "which pageObject/page/helper file should own the smallest safe fix"
+    ],
+    "what_it_does_not_do": "It does not silently change files. It creates RCA evidence and a safe patch direction for Create safe fix plan / Fix failed tests safely."
+  },
+  "element_level_failure_identification": {
+    "failure_type": "locator_ambiguous_multiple_matches",
+    "plain_english": "The locator matches more than one element. It needs a more specific role/name/testId or parent-child scope in the pageObject repository.",
+    "locator_candidates": [
+      "'button:has-text(\\\\'Log in\\\\'",
+      "'button', { name: /^log.?in$/i }",
+      "'link', { name: /^log.?in$|^login$/i }",
+      "\"message\": \"TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for getByRole('button', { name: /^log.?in$/i }).or(getByRole('link', { name: /^log.?in$|^login$/i })).or(locator('button:has-text(\\\\'Log in\\\\'), button:has-te"
+    ],
+    "visible_text_candidates": [
+      "^log.?in$",
+      "^log.?in$|^login$",
+      "button:has-text(\\\\",
+      "message",
+      "Login Button",
+      "Customer Login Menu Item",
+      "Sign in with Username Instead"
+    ],
+    "recommended_next_fix": "Use accessibility snapshot to choose the exact role/name and replace the broad locator in the shared locator/pageObject file."
+  },
+  "failed_specs": [
+    "tests/mobile/mobile-home.spec.ts",
+    "tests/ui/dashboard.spec.ts"
+  ],
+  "failed_tests": [
+    {
+      "id": "mobile/mobile-home.spec.ts::chromium::mobile\\mobile-home.spec.ts › mobile home page - direct tests › login button visible and functional",
+      "spec": "tests/mobile/mobile-home.spec.ts",
+      "title": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Login button visible and functional",
+      "projectName": "chromium",
+      "status": "failed",
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\mobile\\mobile-home-page.ts",
+            "column": 28,
+            "line": 371
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /^log.?in$/i }).or(getByRole('link', { name: /^log.?in$|^login$/i })).or(locator('button:has-text(\\'Log in\\'), button:has-text(\\'Login\\'), a:has-text(\\'Log in\\'), a:has-text(\\'Login\\')')).first() to be visible\u001b[22m\n\u001b[2m    24 × locator resolved to hidden <a href=\"https://customer.acima.com/?davuid=1003191784147197484&dasrc=web\">Customer Login</a>\u001b[22m\n\n\n   at ..\\pages\\mobile\\mobile-home-page.ts:371\n\n  369 |   async validateLoginButtonVisible(): Promise<void> {\n  370 |     this.logStep('✔ Validating Login button is visible on mobile');\n> 371 |     await this.loginButton.waitFor({ state: 'visible', timeout: 10_000 });\n      |                            ^\n  372 |     this.logPass('Login button is visible on mobile');\n  373 |   }\n  374 |\n    at MobileHomePage.validateLoginButtonVisible (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\mobile\\mobile-home-page.ts:371:28)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\mobile\\mobile-home.spec.ts:49:26"
+        },
+        {
+          "location": {
+            "file": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\mobile\\mobile-home-page.ts",
+            "column": 28,
+            "line": 371
+          },
+          "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /^log.?in$/i }).or(getByRole('link', { name: /^log.?in$|^login$/i })).or(locator('button:has-text(\\'Log in\\'), button:has-text(\\'Login\\'), a:has-text(\\'Log in\\'), a:has-text(\\'Login\\')')).first() to be visible\u001b[22m\n\u001b[2m    24 × locator resolved to hidden <a href=\"https://customer.acima.com/?davuid=1004661784147211163&dasrc=web\">Customer Login</a>\u001b[22m\n\n\n   at ..\\pages\\mobile\\mobile-home-page.ts:371\n\n  369 |   async validateLoginButtonVisible(): Promise<void> {\n  370 |     this.logStep('✔ Validating Login button is visible on mobile');\n> 371 |     await this.loginButton.waitFor({ state: 'visible', timeout: 10_000 });\n      |                            ^\n  372 |     this.logPass('Login button is visible on mobile');\n  373 |   }\n  374 |\n    at MobileHomePage.validateLoginButtonVisible (C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\pages\\mobile\\mobile-home-page.ts:371:28)\n    at C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\tests\\mobile\\mobile-home.spec.ts:49:26"
+        }
+      ],
+      "line": 42,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 2
+    },
+    {
+      "id": "ui/dashboard.spec.ts::chromium::ui\\dashboard.spec.ts › dashboard – customer portal › dashboard shows sold lease status message",
+      "spec": "tests/ui/dashboard.spec.ts",
+      "title": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message",
+      "projectName": "chromium",
+      "status": "timedout",
+      "errors": [
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        },
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        }
+      ],
+      "line": 103,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 2
+    }
+  ],
+  "failed_locator_or_action_candidates": [
+    "'button:has-text(\\\\'Log in\\\\'",
+    "'button', { name: /^log.?in$/i }",
+    "'link', { name: /^log.?in$|^login$/i }",
+    "\"message\": \"TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for getByRole('button', { name: /^log.?in$/i }).or(getByRole('link', { name: /^log.?in$|^login$/i })).or(locator('button:has-text(\\\\'Log in\\\\'), button:has-te"
+  ],
+  "visible_text_candidates": [
+    "^log.?in$",
+    "^log.?in$|^login$",
+    "button:has-text(\\\\",
+    "message",
+    "Login Button",
+    "Customer Login Menu Item",
+    "Sign in with Username Instead"
+  ],
+  "dom_or_artifact_text_hits": {
+    "^log.?in$": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260711-172935/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260716-015622/run-state.json"
+    ],
+    "^log.?in$|^login$": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260711-172935/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260716-015622/run-state.json"
+    ],
+    "button:has-text(\\\\": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-181944/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-221535/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260709-013300/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260716-015622/run-state.json"
+    ],
+    "message": [
+      "package-lock.json",
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/new_feature-enterprise-generation-plan.json",
+      "specs/acima-mexico-test.plan.md",
+      "specs/shop-online.plan.md",
+      "utils/teams/README.md",
+      "agents/failure-analyzer/output/run-history.json",
+      ".qa-cache/existing-framework/agentic-memory/framework-understanding-memory.json",
+      ".github/agents/healer.agent.md",
+      ".github/agents/playwright-test-healer.agent.md",
+      ".github/agents/playwright-test-planner.agent.md",
+      ".claude/skills/playwright-cli/references/tracing.md",
+      ".aiqa-history/distributed-runs/run-20260702-134131/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260703-230135/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-002533/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json"
+    ],
+    "Login Button": [
+      ".aiqa-history/common-cause-memory.json",
+      ".aiqa-history/latest-execution.json",
+      "agents/failure-analyzer/output/run-history.json",
+      ".aiqa-history/distributed-runs/run-20260702-134131/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-151342/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260703-230135/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-002533/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-162437/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-214455/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-181944/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-221535/run-state.json"
+    ],
+    "Customer Login Menu Item": [
+      ".aiqa-history/latest-execution.json",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260703-230135/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-002533/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-162437/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260707-001046/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260707-003915/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260709-013300/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260711-172935/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260715-235813/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260716-015622/run-state.json"
+    ],
+    "Sign in with Username Instead": [
+      ".aiqa-history/latest-execution.json",
+      "specs/acima-mexico-test.plan.md",
+      ".aiqa-history/distributed-runs/run-20260702-175534/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-205825/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210219/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260702-210757/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260703-230135/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-000928/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-002533/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-014951/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-022530/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-113720/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-141711/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-162437/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260704-175113/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-142239/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-165213/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260705-182621/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260706-011339/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260707-001046/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260707-003915/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260709-013300/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260711-172935/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260715-235813/run-state.json",
+      ".aiqa-history/distributed-runs/run-20260716-015622/run-state.json"
+    ]
+  },
+  "pom_locator_mapping": {
+    "page_or_page_object_hits": [
+      {
+        "file": "pages/acima-advantage-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "pages/acima-home-page.ts",
+        "matched": [
+          "'button', { name: /^log.?in$/i }",
+          "^log.?in$"
+        ]
+      },
+      {
+        "file": "pages/base-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "pages/benefit-plus-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "pages/home-page.ts",
+        "matched": [
+          "'button', { name: /^log.?in$/i }",
+          "^log.?in$"
+        ]
+      },
+      {
+        "file": "pages/login-page.ts",
+        "matched": [
+          "^log.?in$",
+          "^log.?in$|^login$",
+          "message",
+          "Login Button",
+          "Customer Login Menu Item",
+          "Sign in with Username Instead"
+        ]
+      },
+      {
+        "file": "pages/mexico-customer-portal-page.ts",
+        "matched": [
+          "message",
+          "Sign in with Username Instead"
+        ]
+      },
+      {
+        "file": "pages/mexico-page.ts",
+        "matched": [
+          "Login Button"
+        ]
+      },
+      {
+        "file": "pages/my-profile-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "pages/payment-methods-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "pages/payments-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "pages/shop-marketplace-page.ts",
+        "matched": [
+          "Login Button"
+        ]
+      },
+      {
+        "file": "pages/shop-online-page.ts",
+        "matched": [
+          "Login Button"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-home-page.ts",
+        "matched": [
+          "'button', { name: /^log.?in$/i }",
+          "'link', { name: /^log.?in$|^login$/i }",
+          "^log.?in$",
+          "^log.?in$|^login$",
+          "Login Button"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-login-page.ts",
+        "matched": [
+          "message",
+          "Login Button",
+          "Sign in with Username Instead"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-payment-methods-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-payments-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "pages/mobile/mobile-profile-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260716-002145/pages/benefit-plus-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260716-002145/pages/login-page.ts",
+        "matched": [
+          "^log.?in$",
+          "^log.?in$|^login$",
+          "message",
+          "Login Button",
+          "Customer Login Menu Item",
+          "Sign in with Username Instead"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260716-002145/pages/my-profile-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260707-003200/pages/shop-marketplace-page.ts",
+        "matched": [
+          "Login Button"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260706-232657/pages/login-page.ts",
+        "matched": [
+          "^log.?in$",
+          "^log.?in$|^login$",
+          "message",
+          "Login Button",
+          "Customer Login Menu Item",
+          "Sign in with Username Instead"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260706-232657/pages/payment-methods-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-224747/pages/benefit-plus-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-224747/pages/login-page.ts",
+        "matched": [
+          "^log.?in$",
+          "^log.?in$|^login$",
+          "message",
+          "Login Button",
+          "Customer Login Menu Item",
+          "Sign in with Username Instead"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-192833/pages/acima-home-page.ts",
+        "matched": [
+          "'button', { name: /^log.?in$/i }",
+          "^log.?in$"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-192833/pages/base-page.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-192833/pages/login-page.ts",
+        "matched": [
+          "^log.?in$",
+          "^log.?in$|^login$",
+          "message",
+          "Login Button",
+          "Customer Login Menu Item",
+          "Sign in with Username Instead"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-192833/pages/my-profile-page.ts",
+        "matched": [
+          "message"
+        ]
+      }
+    ],
+    "spec_inline_hits": [
+      {
+        "file": "tests/mobile/mobile-home.spec.ts",
+        "matched": [
+          "Login Button"
+        ]
+      },
+      {
+        "file": "tests/ui/benefit-plus.spec.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "tests/ui/dashboard.spec.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "tests/unit/teams/teamsNotifier.spec.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": "tests/unit/teams/testRunAggregator.spec.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260705-224747/tests/ui/benefit-plus.spec.ts",
+        "matched": [
+          "message"
+        ]
+      },
+      {
+        "file": ".codex-backups/RTA-20260702-105726/tests/mobile/mobile-home.spec.ts",
+        "matched": [
+          "Login Button"
+        ]
+      }
+    ],
+    "pom_strategy_observation": "Prefer fixing locator in pageObjects/locator module or reusable page method. Inline spec locator changes require human review unless no POM layer exists."
+  },
+  "mcp_auditable_rca_steps": [
+    {
+      "step": 1,
+      "name": "Identify failed locator/action",
+      "question": "Which locator or Playwright action failed?",
+      "evidence": [
+        "'button:has-text(\\\\'Log in\\\\'",
+        "'button', { name: /^log.?in$/i }",
+        "'link', { name: /^log.?in$|^login$/i }",
+        "\"message\": \"TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\\nCall log:\\n\\u001b[2m  - waiting for getByRole('button', { name: /^log.?in$/i }).or(getByRole('link', { name: /^log.?in$|^login$/i })).or(locator('button:has-text(\\\\'Log in\\\\'), button:has-te"
+      ],
+      "mcp_usage": "Use Playwright MCP accessibility snapshot around the current page or failed state to compare the target role/name/text with the failed locator."
+    },
+    {
+      "step": 2,
+      "name": "Check locator text on visible GUI",
+      "question": "Is the intended button/link/input text visible to the user?",
+      "evidence": [
+        "^log.?in$",
+        "^log.?in$|^login$",
+        "button:has-text(\\\\",
+        "message",
+        "Login Button",
+        "Customer Login Menu Item",
+        "Sign in with Username Instead"
+      ],
+      "mcp_usage": "Use MCP browser snapshot / accessibility tree to list visible roles and names. Prefer role+accessible-name over screenshot guessing."
+    },
+    {
+      "step": 3,
+      "name": "Check DOM/accessibility presence",
+      "question": "Does the element exist in DOM/accessibility tree?",
+      "mcp_usage": "Use MCP snapshot and locator probe to confirm whether the target exists, is hidden, duplicated, or inside iframe/shadow DOM."
+    },
+    {
+      "step": 4,
+      "name": "Check actionability/interactability",
+      "question": "If element exists, can it receive click/fill/select action?",
+      "mcp_usage": "Use MCP click/hover/fill probes only in diagnostic mode. Detect overlays, disabled state, offscreen location, detached DOM, and permission popups."
+    },
+    {
+      "step": 5,
+      "name": "Map fix to POM/reuse layer",
+      "question": "Is the correct locator strategy implemented in pageObjects/pages/util layer?",
+      "mcp_usage": "Use observed role/name/testId from MCP plus RAG-indexed framework context. Patch pageObjects first, then page methods/helpers, not raw spec locators."
+    }
+  ],
+  "safe_fix_rule": "Use MCP/accessibility snapshot evidence to repair the smallest POM-layer locator/action fix. Do not weaken assertions, skip tests, force click by default, or patch passed scripts.",
+  "memory_note": "This MCP-assisted diagnosis is saved so future Codex/Ollama prompts can reuse observed locator, UI text, DOM, and POM mapping evidence."
+}

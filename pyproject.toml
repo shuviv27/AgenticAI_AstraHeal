@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "advanced-ai-automation-pipeline"
-version = "0.4.0"
+version = "0.4.3"
 description = "Python Agentic AI QA Pipeline with GUI and reuse-aware Playwright generation"
 requires-python = ">=3.11,<3.14"
 dependencies = [
@@ -15,7 +15,8 @@ dependencies = [
   "uvicorn[standard]>=0.30,<1",
   "python-multipart>=0.0.9,<1",
   "pypdf>=4.2,<6",
-  "python-docx>=1.1,<2"
+  "python-docx>=1.1,<2",
+  "openpyxl>=3.1,<4"
 ]
 
 [project.scripts]

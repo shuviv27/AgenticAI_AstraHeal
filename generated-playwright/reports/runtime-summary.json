@@ -1,45 +1,377 @@
 {
   "ok": true,
   "current": {
-    "id": 55,
-    "ts": "2026-07-06T16:25:25.949690+00:00",
-    "epoch_ms": 1783355125949,
-    "stage": "distributed_execution",
-    "status": "ok",
+    "id": 684,
+    "ts": "2026-07-15T20:49:49.366953+00:00",
+    "epoch_ms": 1784148589366,
+    "stage": "existing_framework_self_healing",
+    "status": "done",
     "progress": 100,
     "feature": "",
     "source_type": "",
-    "message": "BrowserStack execution plan created: 2 executable test target(s) split into 2 BrowserStack shard(s). AstraHeal AI/RCA/self-healing and reports remain on this VM; BrowserStack runs only the browsers.",
+    "message": "Safe patch was applied. Now click Run failed tests again for validation.",
     "details": {
-      "shards": 2,
-      "tests": 2,
-      "framework_report_folder": "/mnt/data/bs_test_fw/.aiqa-history/reports",
-      "local_parallel_enabled": false
+      "applied": true,
+      "changed_files": [
+        "pages/login-page.ts",
+        "pages/mobile/mobile-home-page.ts"
+      ],
+      "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed"
     }
   },
-  "event_count": 55,
+  "event_count": 684,
   "by_stage": {
-    "existing_framework_mcp": 7,
-    "existing_framework": 7,
-    "existing_framework_self_healing": 27,
-    "existing_framework_rca": 1,
-    "human_intervention": 6,
-    "existing_framework_report": 1,
+    "existing_framework_mcp": 22,
+    "existing_framework": 68,
+    "existing_framework_self_healing": 40,
+    "existing_framework_rca": 2,
+    "human_intervention": 7,
+    "existing_framework_report": 2,
     "browserstack_execution": 3,
-    "distributed_execution": 3
+    "distributed_execution": 453,
+    "module2_existing_framework": 48,
+    "existing_framework_deep_agents": 18,
+    "runtime_mode": 1,
+    "host_runtime": 5,
+    "ai_provider": 7,
+    "existing_framework_full_control_fix": 2,
+    "framework_history": 1,
+    "human_approval": 1,
+    "existing_framework_failed_only": 4
   },
   "by_status": {
-    "done": 21,
-    "running": 23,
-    "warning": 6,
-    "ok": 5
+    "done": 92,
+    "running": 545,
+    "warning": 14,
+    "ok": 33
   },
-  "recent_errors": [],
+  "recent_errors": [
+    {
+      "id": 425,
+      "ts": "2026-07-15T20:28:49.638865+00:00",
+      "epoch_ms": 1784147329638,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K[chromium] › tests\\smoke\\ui-smoke.spec.ts:293:7 › Smoke – Spanish Language › Spanish version of home page loads without errors @smoke",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 545,
+      "ts": "2026-07-15T20:31:52.821668+00:00",
+      "epoch_ms": 1784147512821,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K[18/20] [chromium] › tests\\ui\\benefit-plus.spec.ts:82:7 › Benefit Plus – Customer Portal › Benefit+ agreement error when name does not match @regression",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    }
+  ],
   "slow_or_waiting_events": [
     {
-      "id": 10,
-      "ts": "2026-07-05T11:10:04.496946+00:00",
-      "epoch_ms": 1783249804496,
+      "id": 500,
+      "ts": "2026-07-15T20:30:42.770402+00:00",
+      "epoch_ms": 1784147442770,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 510,
+      "ts": "2026-07-15T20:30:55.273312+00:00",
+      "epoch_ms": 1784147455273,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 513,
+      "ts": "2026-07-15T20:31:00.699857+00:00",
+      "epoch_ms": 1784147460699,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 523,
+      "ts": "2026-07-15T20:31:13.546376+00:00",
+      "epoch_ms": 1784147473546,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 525,
+      "ts": "2026-07-15T20:31:18.818848+00:00",
+      "epoch_ms": 1784147478818,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 537,
+      "ts": "2026-07-15T20:31:39.758046+00:00",
+      "epoch_ms": 1784147499758,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 538,
+      "ts": "2026-07-15T20:31:42.474873+00:00",
+      "epoch_ms": 1784147502474,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 549,
+      "ts": "2026-07-15T20:31:57.754026+00:00",
+      "epoch_ms": 1784147517754,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 551,
+      "ts": "2026-07-15T20:32:02.745997+00:00",
+      "epoch_ms": 1784147522746,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 565,
+      "ts": "2026-07-15T20:32:21.861558+00:00",
+      "epoch_ms": 1784147541861,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 566,
+      "ts": "2026-07-15T20:32:22.497098+00:00",
+      "epoch_ms": 1784147542497,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 580,
+      "ts": "2026-07-15T20:32:44.553088+00:00",
+      "epoch_ms": 1784147564553,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-03: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-03",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 581,
+      "ts": "2026-07-15T20:32:46.317380+00:00",
+      "epoch_ms": 1784147566317,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 591,
+      "ts": "2026-07-15T20:33:05.633265+00:00",
+      "epoch_ms": 1784147585633,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 598,
+      "ts": "2026-07-15T20:33:26.567223+00:00",
+      "epoch_ms": 1784147606567,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 604,
+      "ts": "2026-07-15T20:33:47.472929+00:00",
+      "epoch_ms": 1784147627472,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 610,
+      "ts": "2026-07-15T20:34:05.169437+00:00",
+      "epoch_ms": 1784147645169,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 618,
+      "ts": "2026-07-15T20:34:27.699776+00:00",
+      "epoch_ms": 1784147667699,
+      "stage": "distributed_execution",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "shard-04: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
+      "details": {
+        "shard_id": "shard-04",
+        "browser": "chromium",
+        "test_case_count": 20
+      }
+    },
+    {
+      "id": 628,
+      "ts": "2026-07-15T20:41:40.055516+00:00",
+      "epoch_ms": 1784148100055,
       "stage": "existing_framework_self_healing",
       "status": "running",
       "progress": 10,
@@ -47,14 +379,48 @@
       "source_type": "",
       "message": "Creating safe fix plan in background thread so GUI remains responsive on slow VM/VDI.",
       "details": {
-        "provider": "deterministic",
+        "provider": "codex",
         "policy_mode": "approved_with_backup"
       }
     },
     {
-      "id": 15,
-      "ts": "2026-07-05T11:10:04.536497+00:00",
-      "epoch_ms": 1783249804536,
+      "id": 633,
+      "ts": "2026-07-15T20:43:32.235703+00:00",
+      "epoch_ms": 1784148212235,
+      "stage": "existing_framework_self_healing",
+      "status": "running",
+      "progress": 45,
+      "feature": "",
+      "source_type": "",
+      "message": "Codex patch execution started with optimized common-cause prompt scope.",
+      "details": {
+        "timeout_seconds": 420,
+        "total_allowed_files": 37,
+        "prompt_allowed_files": 37,
+        "common_cause": {
+          "signature": "navigation_or_synchronization::css-class-spec",
+          "memory_key": "navigation_or_synchronization::css-class-spec",
+          "failure_kind": "navigation_or_synchronization",
+          "component": ".spec",
+          "component_kind": "css_class",
+          "action": "verify",
+          "impacted_specs": [
+            "tests/ui/dashboard.spec.ts"
+          ],
+          "impacted_titles": [
+            "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message"
+          ],
+          "evidence_excerpt": "tests/ui/dashboard.spec.ts\nui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message\n{\"id\": \"ui/dashboard.spec.ts::chromium::ui\\\\dashboard.spec.ts › dashboard – customer portal › dashboard shows sold lease status message\", \"spec\": \"tests/ui/dashboard.spec.ts\", \"title\": \"ui\\\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message\", \"projectName\": \"chromium\", \"status\": \"timedout\", \"errors\": [{\"message\": \"\\u001b[31mTest timeout of 30000ms exceeded.\\u001b[39m\"}, {\"message\": \"\\u001b[31mTest timeout of 30000ms exceeded.\\u001b[39m\"}], \"line\": 103, \"column\": 7, \"expectedStatus\": \"passed\", \"outcome\": null, \"attempt_count\": 2}",
+          "impacted_count": 1,
+          "recommended_fix_priority": "fix_single_workflow_after_shared_components",
+          "why": "Single failed workflow/signature. Still patch reusable page/pageObject/helper layer first."
+        }
+      }
+    },
+    {
+      "id": 634,
+      "ts": "2026-07-15T20:44:31.786115+00:00",
+      "epoch_ms": 1784148271786,
       "stage": "existing_framework_self_healing",
       "status": "done",
       "progress": 100,
@@ -64,13 +430,13 @@
       "details": {
         "applied": false,
         "changed_files": [],
-        "framework_path": "/mnt/data/clear_failed_gui_work/tmp_endpoint_fw"
+        "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed"
       }
     },
     {
-      "id": 22,
-      "ts": "2026-07-05T14:36:45.555625+00:00",
-      "epoch_ms": 1783262205555,
+      "id": 646,
+      "ts": "2026-07-15T20:46:41.723617+00:00",
+      "epoch_ms": 1784148401723,
       "stage": "existing_framework_self_healing",
       "status": "running",
       "progress": 45,
@@ -78,86 +444,23 @@
       "source_type": "",
       "message": "Codex patch execution started with optimized common-cause prompt scope.",
       "details": {
-        "timeout_seconds": 300,
-        "total_allowed_files": 4,
-        "prompt_allowed_files": 4,
+        "timeout_seconds": 420,
+        "total_allowed_files": 20,
+        "prompt_allowed_files": 20,
         "common_cause": {
-          "signature": "locator_or_dom_change::locator-data-testid-benefit-plus-section",
-          "memory_key": "locator_or_dom_change::locator-data-testid-benefit-plus-section",
-          "failure_kind": "locator_or_dom_change",
-          "component": "[data-testid=benefit-plus-section]",
-          "component_kind": "locator",
-          "action": "verify",
-          "impacted_specs": [
-            "tests/ui/benefit-plus.spec.ts"
-          ],
-          "impacted_titles": [
-            "Benefit Plus – Customer Portal › Active Benefit+ membership displays correctly @regression"
-          ],
-          "evidence_excerpt": "tests/ui/benefit-plus.spec.ts\nBenefit Plus – Customer Portal › Active Benefit+ membership displays correctly @regression\n{\"spec\": \"tests/ui/benefit-plus.spec.ts\", \"title\": \"Benefit Plus – Customer Portal › Active Benefit+ membership displays correctly @regression\", \"status\": \"failed\", \"errors\": [{\"message\": \"Error: Benefit+ section should be visible\\nexpect(locator).toBeVisible() failed\\nLocator: locator('[data-testid=benefit-plus-section]').first()\\nError: element(s) not found\\n at pages/base-page.ts:5\"}]}",
-          "impacted_count": 1,
-          "recommended_fix_priority": "fix_single_workflow_after_shared_components",
-          "why": "Single failed workflow/signature. Still patch reusable page/pageObject/helper layer first."
-        }
-      }
-    },
-    {
-      "id": 23,
-      "ts": "2026-07-05T14:36:45.558894+00:00",
-      "epoch_ms": 1783262205558,
-      "stage": "existing_framework_self_healing",
-      "status": "running",
-      "progress": 62,
-      "feature": "",
-      "source_type": "",
-      "message": "Codex returned without a diff; running focused second patch attempt before reporting no-change.",
-      "details": {
-        "allowed_files": 4,
-        "prompt_allowed_files": 4
-      }
-    },
-    {
-      "id": 24,
-      "ts": "2026-07-05T14:36:45.561484+00:00",
-      "epoch_ms": 1783262205561,
-      "stage": "existing_framework_self_healing",
-      "status": "running",
-      "progress": 70,
-      "feature": "",
-      "source_type": "",
-      "message": "Codex still produced no diff; checking deterministic locator/actionability fallback patch.",
-      "details": {
-        "failure_kind": "locator_not_found_or_ambiguous"
-      }
-    },
-    {
-      "id": 33,
-      "ts": "2026-07-05T14:37:05.256447+00:00",
-      "epoch_ms": 1783262225256,
-      "stage": "existing_framework_self_healing",
-      "status": "running",
-      "progress": 45,
-      "feature": "",
-      "source_type": "",
-      "message": "Codex patch execution started with optimized common-cause prompt scope.",
-      "details": {
-        "timeout_seconds": 300,
-        "total_allowed_files": 4,
-        "prompt_allowed_files": 4,
-        "common_cause": {
-          "signature": "assertion_or_product_behavior_drift::css-class-spec",
-          "memory_key": "assertion_or_product_behavior_drift::css-class-spec",
-          "failure_kind": "assertion_or_product_behavior_drift",
+          "signature": "navigation_or_synchronization::css-class-spec",
+          "memory_key": "navigation_or_synchronization::css-class-spec",
+          "failure_kind": "navigation_or_synchronization",
           "component": ".spec",
           "component_kind": "css_class",
           "action": "verify",
           "impacted_specs": [
-            "tests/ui/a.spec.ts"
+            "tests/ui/dashboard.spec.ts"
           ],
           "impacted_titles": [
-            "x"
+            "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message"
           ],
-          "evidence_excerpt": "tests/ui/a.spec.ts\nx\n{\"spec\": \"tests/ui/a.spec.ts\", \"title\": \"x\", \"status\": \"failed\", \"errors\": [{\"message\": \"Expected 1 received 2\"}]}",
+          "evidence_excerpt": "tests/ui/dashboard.spec.ts\nui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message\n{\"id\": \"ui/dashboard.spec.ts::chromium::ui\\\\dashboard.spec.ts › dashboard – customer portal › dashboard shows sold lease status message\", \"spec\": \"tests/ui/dashboard.spec.ts\", \"title\": \"ui\\\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message\", \"projectName\": \"chromium\", \"status\": \"timedout\", \"errors\": [{\"message\": \"\\u001b[31mTest timeout of 30000ms exceeded.\\u001b[39m\"}, {\"message\": \"\\u001b[31mTest timeout of 30000ms exceeded.\\u001b[39m\"}], \"line\": 103, \"column\": 7, \"expectedStatus\": \"passed\", \"outcome\": null, \"attempt_count\": 2}",
           "impacted_count": 1,
           "recommended_fix_priority": "fix_single_workflow_after_shared_components",
           "why": "Single failed workflow/signature. Still patch reusable page/pageObject/helper layer first."
@@ -165,117 +468,64 @@
       }
     },
     {
-      "id": 34,
-      "ts": "2026-07-05T14:37:05.259582+00:00",
-      "epoch_ms": 1783262225259,
-      "stage": "existing_framework_self_healing",
+      "id": 668,
+      "ts": "2026-07-15T20:47:21.974665+00:00",
+      "epoch_ms": 1784148441974,
+      "stage": "existing_framework",
       "status": "running",
-      "progress": 62,
+      "progress": 51,
       "feature": "",
       "source_type": "",
-      "message": "Codex returned without a diff; running focused second patch attempt before reporting no-change.",
+      "message": "Existing framework execution: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
       "details": {
-        "allowed_files": 4,
-        "prompt_allowed_files": 4
+        "command": "npx --no-install playwright test tests/mobile/mobile-home.spec.ts:42 tests/ui/dashboard.spec.ts:103 --workers=1 --reporter=line,json,html --timeout=30000 --retries=1 --headed",
+        "launcher_script": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\reports\\existing-framework\\RUN_EXISTING_PLAYWRIGHT_HEADED.cmd"
       }
     },
     {
-      "id": 35,
-      "ts": "2026-07-05T14:37:05.262310+00:00",
-      "epoch_ms": 1783262225262,
-      "stage": "existing_framework_self_healing",
+      "id": 676,
+      "ts": "2026-07-15T20:47:53.638907+00:00",
+      "epoch_ms": 1784148473638,
+      "stage": "existing_framework",
       "status": "running",
-      "progress": 70,
+      "progress": 82,
       "feature": "",
       "source_type": "",
-      "message": "Codex still produced no diff; checking deterministic locator/actionability fallback patch.",
+      "message": "Existing framework execution: \u001b[1A\u001b[2K  🔹 ✅ Submit clicked — awaiting navigation",
       "details": {
-        "failure_kind": "unknown_or_insufficient_evidence"
+        "command": "npx --no-install playwright test tests/mobile/mobile-home.spec.ts:42 tests/ui/dashboard.spec.ts:103 --workers=1 --reporter=line,json,html --timeout=30000 --retries=1 --headed",
+        "launcher_script": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\reports\\existing-framework\\RUN_EXISTING_PLAYWRIGHT_HEADED.cmd"
       }
     },
     {
-      "id": 37,
-      "ts": "2026-07-05T14:37:05.270756+00:00",
-      "epoch_ms": 1783262225270,
-      "stage": "existing_framework_self_healing",
-      "status": "warning",
-      "progress": 100,
-      "feature": "",
-      "source_type": "",
-      "message": "Codex CLI executed after human approval, but no file diff was produced. AstraHeal retried with a smaller focused patch prompt and checked deterministic fallback. Deterministic fallback skipped because the failure evidence was not locator/actionability related. Open the self-healing report to see Codex stdout/stderr and exact failed tests. Failed-only rerun scope is preserved.",
-      "details": {
-        "applied": false,
-        "changed_files": [],
-        "framework_path": "/tmp/astraheal_test_fw_nochange_b2egio5o"
-      }
-    },
-    {
-      "id": 44,
-      "ts": "2026-07-05T14:38:12.731284+00:00",
-      "epoch_ms": 1783262292731,
+      "id": 683,
+      "ts": "2026-07-15T20:49:39.089540+00:00",
+      "epoch_ms": 1784148579089,
       "stage": "existing_framework_self_healing",
       "status": "running",
-      "progress": 45,
+      "progress": 68,
       "feature": "",
       "source_type": "",
-      "message": "Codex patch execution started with optimized common-cause prompt scope.",
+      "message": "Codex patch attempt timed out; running bounded deterministic locator/actionability fallback instead of requesting another human approval.",
       "details": {
-        "timeout_seconds": 300,
-        "total_allowed_files": 4,
-        "prompt_allowed_files": 4,
-        "common_cause": {
-          "signature": "locator_or_dom_change::css-class-spec",
-          "memory_key": "locator_or_dom_change::css-class-spec",
-          "failure_kind": "locator_or_dom_change",
-          "component": ".spec",
-          "component_kind": "css_class",
-          "action": "verify",
-          "impacted_specs": [
-            "tests/ui/benefit-plus.spec.ts"
-          ],
-          "impacted_titles": [
-            "Benefit Plus – Customer Portal › Active Benefit+ membership displays correctly @regression"
-          ],
-          "evidence_excerpt": "tests/ui/benefit-plus.spec.ts\nBenefit Plus – Customer Portal › Active Benefit+ membership displays correctly @regression\n{\"spec\": \"tests/ui/benefit-plus.spec.ts\", \"title\": \"Benefit Plus – Customer Portal › Active Benefit+ membership displays correctly @regression\", \"status\": \"failed\", \"errors\": [{\"message\": \"expect(locator).toBeVisible() failed Locator: locator([data-testid=benefit-plus-section]) Error: element(s) not found at pages/base-page.ts:5\"}]}",
-          "impacted_count": 1,
-          "recommended_fix_priority": "fix_single_workflow_after_shared_components",
-          "why": "Single failed workflow/signature. Still patch reusable page/pageObject/helper layer first."
-        }
-      }
-    },
-    {
-      "id": 45,
-      "ts": "2026-07-05T14:38:12.734855+00:00",
-      "epoch_ms": 1783262292734,
-      "stage": "existing_framework_self_healing",
-      "status": "running",
-      "progress": 62,
-      "feature": "",
-      "source_type": "",
-      "message": "Codex returned without a diff; running focused second patch attempt before reporting no-change.",
-      "details": {
-        "allowed_files": 4,
-        "prompt_allowed_files": 4
-      }
-    },
-    {
-      "id": 46,
-      "ts": "2026-07-05T14:38:12.742350+00:00",
-      "epoch_ms": 1783262292742,
-      "stage": "existing_framework_self_healing",
-      "status": "running",
-      "progress": 70,
-      "feature": "",
-      "source_type": "",
-      "message": "Codex still produced no diff; checking deterministic locator/actionability fallback patch.",
-      "details": {
+        "codex_attempts": [
+          {
+            "attempt": "primary",
+            "ok": false,
+            "exit_code": 1,
+            "stdout_tail": "",
+            "stderr_tail": "}\n }\ndiff --git a/pages/mobile/mobile-home-page.ts b/pages/mobile/mobile-home-page.ts\nindex 9f38eb6..1c34aa8 100644\n--- a/pages/mobile/mobile-home-page.ts\n+++ b/pages/mobile/mobile-home-page.ts\n@@ -33,10 +33,10 @@ export class MobileHomePage extends MobileBasePage {\n   }\n \n   private get loginButton() {\n-    return this.page.locator(\n-      \"button:has-text('Log in'), a:has-text('Log in'), \" +\n-      \"button:has-text('Login'), a:has-text('Login')\"\n-    ).first();\n+    return this.page.getByRole('button', { name: /^log.?in$/i })\n+      .or(this.page.getByRole('link', { name: /^log.?in$|^login$/i }))\n+      .or(this.page.locator(\"button:visible:has-text('Log in'), button:visible:has-text('Login'), a:visible:has-text('Log in'), a:visible:has-text('Login')\"))\n+      .first();\n   }\n \n   private get languageToggle() {\n@@ -368,10 +368,52 @@ export class MobileHomePage extends MobileBasePage {\n \n   async validateLoginButtonVisible(): Promise<void> {\n     this.logStep('✔ Validating Login button is visible on mobile');\n-    await this.loginButton.waitFor({ state: 'visible', timeout: 10_000 });\n+    const loginButton = await this.findVisibleLoginButton();\n+    await loginButton.waitFor({ state: 'visible', timeout: 10_000 });\n     this.logPass('Login button is visible on mobile');\n   }\n \n+  private async findVisibleLoginButton(): Promise<Locator> {\n+    await this.dismissTransientOverlays();\n+    const visibleLoginButton = await this.firstVisibleLocator([\n+      this.page.getByRole('button', { name: /^log.?in$/i }),\n+      this.page.getByRole('link', { name: /^log.?in$|^login$/i }),\n+      this.page.locator(\"button:visible:has-text('Log in'), button:visible:has-text('Login'), a:visible:has-text('Log in'), a:visible:has-text('Login')\"),\n+    ]);\n+\n+    if (visibleLoginButton) {\n+      return visibleLoginButton;\n+    }\n+\n+    const hamburgerVisible = await this.hamburgerMenu.isVisible({ timeout: 3_000 }).catch(() => false);\n+    if (hamburgerVisible) {\n+      await this.openHamburgerMenu();\n+      const visibleDrawerLoginButton = await this.firstVisibleLocator([\n+        this.page.getByRole('button', { name: /^log.?in$|^customer login$/i }),\n+        this.page.getByRole('link', { name: /^log.?in$|^login$|^customer login$/i }),\n+        this.page.locator(\"button:visible:has-text('Log in'), button:visible:has-text('Login'), a:visible:has-text('Log in'), a:visible:has-text('Login'), a:visible:has-text('Customer Login')\"),\n+      ]);\n+      if (visibleDrawerLoginButton) {\n+        return visibleDrawerLoginButton;\n+      }\n+    }\n+\n+    return this.loginButton;\n+  }\n+\n+  private async firstVisibleLocator(locators: Locator[]): Promise<Locator | null> {\n+    for (const locator of locators) {\n+      const count = Math.min(await locator.count().catch(() => 0), 8);\n+      for (let index = 0; index < count; index += 1) {\n+        const candidate = locator.nth(index);\n+        if (await candidate.isVisible({ timeout: 500 }).catch(() => false)) {\n+          return candidate;\n+        }\n+      }\n+    }\n+    return null;\n+  }\n+\n   // ─── Hero Section ─────────────────────────────────────────\n \n   async validateHeroSectionVisible(): Promise<void> {\nwarning: in the working copy of 'pages/login-page.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'pages/mobile/mobile-home-page.ts', LF will be replaced by CRLF the next time Git touches it\n\n succeeded in 2247ms:\ndiff --git a/pages/login-page.ts b/pages/login-page.ts\nindex 3afdfdccbaf9b0e666b2de2b58d4b3da0f112fb6..c443a6d267d16b70104c0e321980059cdce75ae4\n--- a/pages/login-page.ts\n+++ b/pages/login-page.ts\n@@ -369,7 +369,9 @@\n     this.logStep('✔ Validating Lease Sold Status');\n     const soldText = this.page.locator('[class*=\"sold-status\"], [data-testid=\"sold-lease\"]')\n       .or(this.page.locator('[class*=\"sold\"], p, span').filter({ hasText: /\\bsold\\b/i })).first();\n-    await this.assertVisible(soldText, 'Sold status banner should be visible');\n+    await this.waitForStableDom();\n+    await soldText.waitFor({ state: 'visible', timeout: 3_000 });\n+    this.logPass('Sold status banner visible');\n   }\n \n   // ─── Payment Actions ──────────────────────────────────────\ndiff --git a/pages/mobile/mobile-home-page.ts b/pages/mobile/mobile-home-page.ts\nindex 397520f1dcab97079d9d05152bd9fdd0a1c9778b..1c34aa8d24a471d6bc31bfe4f72ea167c79975f2\n--- a/pages/mobile/mobile-home-page.ts\n+++ b/pages/mobile/mobile-home-page.ts\n@@ -35,7 +35,7 @@\n   private get loginButton() {\n     return this.page.getByRole('button', { name: /^log.?in$/i })\n       .or(this.page.getByRole('link', { name: /^log.?in$|^login$/i }))\n-      .or(this.page.locator(\"button:has-text('Log in'), button:has-text('Login'), a:has-text('Log in'), a:has-text('Login')\"))\n+      .or(this.page.locator(\"button:visible:has-text('Log in'), button:visible:has-text('Login'), a:visible:has-text('Log in'), a:visible:has-text('Login')\"))\n       .first();\n   }\n \n@@ -368,10 +368,52 @@\n \n   async validateLoginButtonVisible(): Promise<void> {\n     this.logStep('✔ Validating Login button is visible on mobile');\n-    await this.loginButton.waitFor({ state: 'visible', timeout: 10_000 });\n+    const loginButton = await this.findVisibleLoginButton();\n+    await loginButton.waitFor({ state: 'visible', timeout: 10_000 });\n     this.logPass('Login button is visible on mobile');\n   }\n \n+  private async findVisibleLoginButton(): Promise<Locator> {\n+    await this.dismissTransientOverlays();\n+    const visibleLoginButton = await this.firstVisibleLocator([\n+      this.page.getByRole('button', { name: /^log.?in$/i }),\n+      this.page.getByRole('link', { name: /^log.?in$|^login$/i }),\n+      this.page.locator(\"button:visible:has-text('Log in'), button:visible:has-text('Login'), a:visible:has-text('Log in'), a:visible:has-text('Login')\"),\n+    ]);\n+\n+    if (visibleLoginButton) {\n+      return visibleLoginButton;\n+    }\n+\n+    const hamburgerVisible = await this.hamburgerMenu.isVisible({ timeout: 3_000 }).catch(() => false);\n+    if (hamburgerVisible) {\n+      await this.openHamburgerMenu();\n+      const visibleDrawerLoginButton = await this.firstVisibleLocator([\n+        this.page.getByRole('button', { name: /^log.?in$|^customer login$/i }),\n+        this.page.getByRole('link', { name: /^log.?in$|^login$|^customer login$/i }),\n+        this.page.locator(\"button:visible:has-text('Log in'), button:visible:has-text('Login'), a:visible:has-text('Log in'), a:visible:has-text('Login'), a:visible:has-text('Customer Login')\"),\n+      ]);\n+      if (visibleDrawerLoginButton) {\n+        return visibleDrawerLoginButton;\n+      }\n+    }\n+\n+    return this.loginButton;\n+  }\n+\n+  private async firstVisibleLocator(locators: Locator[]): Promise<Locator | null> {\n+    for (const locator of locators) {\n+      const count = Math.min(await locator.count().catch(() => 0), 8);\n+      for (let index = 0; index < count; index += 1) {\n+        const candidate = locator.nth(index);\n+        if (await candidate.isVisible({ timeout: 500 }).catch(() => false)) {\n+          return candidate;\n+        }\n+      }\n+    }\n+    return null;\n+  }\n+\n   // ─── Hero Section ─────────────────────────────────────────\n \n   async validateHeroSectionVisible(): Promise<void> {\n\n2026-07-15T20:48:46.402311Z ERROR codex_models_manager::manager: failed to renew cache TTL: unknown variant `max`, expected one of `none`, `minimal`, `low`, `medium`, `high`, `xhigh` at line 103 column 25\ncodex\nTypeScript passes. The diff also shows earlier uncommitted edits already present in `pages/login-page.ts`; I only added the sold-status fast check there. Now I’m rerunning just `tests/mobile/mobile-home.spec.ts` and `tests/ui/dashboard.spec.ts` on the chromium project.\nexec\n\"C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command 'npx playwright test tests/mobile/mobile-home.spec.ts tests/ui/dashboard.spec.ts --project=chromium --reporter=list' in C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\n"
+          }
+        ],
         "failure_kind": "locator_not_found_or_ambiguous"
       }
     }
   ],
-  "self_learning_suggestions": [],
-  "log_file": "/mnt/data/browserstack_work/.qa-cache/runtime/runtime-events.jsonl",
-  "live_console_file": "/mnt/data/browserstack_work/generated-playwright/reports/runtime-live-console.html",
+  "self_learning_suggestions": [
+    "Review the latest failed stage first; do not continue to Playwright generation/execution until the active source context is correct."
+  ],
+  "log_file": "C:\\ASTRAHEALAI\\ASTRA_Latest\\Demo\\AstraHealAI_V11_GUI_AddNewTests_BDD_Atlassian_MCP_Fixed_v0.4.3\\.qa-cache\\runtime\\runtime-events.jsonl",
+  "live_console_file": "C:\\ASTRAHEALAI\\ASTRA_Latest\\Demo\\AstraHealAI_V11_GUI_AddNewTests_BDD_Atlassian_MCP_Fixed_v0.4.3\\generated-playwright\\reports\\runtime-live-console.html",
   "grafana_url": "http://localhost:3001",
   "prometheus_targets_url": "http://localhost:9090/targets",
   "local_metrics_url": "http://127.0.0.1:8080/metrics"

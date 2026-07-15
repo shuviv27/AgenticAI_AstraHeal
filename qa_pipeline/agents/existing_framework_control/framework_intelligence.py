@@ -72,7 +72,7 @@ def _write_active_framework_pointer(root: Path, summary: dict[str, Any]) -> None
 
 CODE_SUFFIXES = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"}
 DATA_SUFFIXES = {".json", ".yaml", ".yml", ".csv", ".env", ".txt", ".md"}
-IGNORED_PARTS = {"node_modules", ".git", "dist", "build", "coverage", "playwright-report", "test-results", "reports", ".next"}
+IGNORED_PARTS = {"node_modules", ".git", "dist", "build", "coverage", "playwright-report", "test-results", "reports", ".next", ".qa-cache", ".aiqa-history", ".codex-backups", "%appdata%", "%AppData%", ".npm", "npm-cache"}
 
 TECH_HINTS = {
     "playwright": ["@playwright/test", "playwright"],
@@ -114,23 +114,52 @@ def _rel(path: Path, root: Path) -> str:
         return str(path).replace("\\", "/")
 
 
+def _path_under_test_area(parts: tuple[str, ...] | list[str]) -> bool:
+    rel = "/".join(str(p).lower() for p in parts if str(p))
+    return rel.startswith(("tests/", "src/test/", "src/tests/", "test/", "specs/", "e2e/")) or "/src/test/" in ("/" + rel + "/") or "/tests/" in ("/" + rel + "/")
+
+
 def _ignored(path: Path, root: Path) -> bool:
     try:
         parts = path.relative_to(root).parts
     except Exception:
         parts = path.parts
-    return any(part in IGNORED_PARTS for part in parts)
+    under_test_area = _path_under_test_area(parts)
+    for part in parts:
+        low = str(part).lower()
+        if part in IGNORED_PARTS or low in IGNORED_PARTS:
+            if low == "reports" and under_test_area:
+                continue
+            return True
+    return False
 
 
 def _iter_files(root: Path, suffixes: set[str] | None = None, limit: int = 6000) -> list[Path]:
     files: list[Path] = []
-    for path in root.rglob("*"):
+    root = Path(root)
+    for current, dirs, names in os.walk(root):
+        base = Path(current)
+        kept_dirs = []
+        for d in dirs:
+            dlow = d.lower()
+            try:
+                rel_parts = list((base / d).relative_to(root).parts)
+            except Exception:
+                rel_parts = [d]
+            if (d in IGNORED_PARTS or dlow in IGNORED_PARTS) and not (dlow == "reports" and _path_under_test_area(rel_parts)):
+                continue
+            kept_dirs.append(d)
+        dirs[:] = kept_dirs
+        for name in names:
+            if len(files) >= limit:
+                break
+            path = base / name
+            if not path.is_file() or _ignored(path, root):
+                continue
+            if suffixes is None or path.suffix.lower() in suffixes:
+                files.append(path)
         if len(files) >= limit:
             break
-        if not path.is_file() or _ignored(path, root):
-            continue
-        if suffixes is None or path.suffix.lower() in suffixes:
-            files.append(path)
     return sorted(files, key=lambda p: _rel(p, root))
 
 
@@ -189,11 +218,17 @@ def _classify_chunk(path: Path, rel: str, text: str) -> tuple[str, list[str]]:
         kind = "page_object"; tags.append("locator")
     elif "/pages/" in f"/{low_path}/" or low_path.endswith("page.ts"):
         kind = "page_class"; tags.extend(["flow", "pom"])
+    elif any(x in low_path for x in ["/ui_base/", "/ui-base/", "/uibase/", "basepage"]):
+        kind = "ui_base"; tags.extend(["flow", "reuse"])
+    elif any(x in low_path for x in ["/config/", "/configs/", "/configuration/", "/environment/"]):
+        kind = "configuration"; tags.append("config")
+    elif any(x in low_path for x in ["/api/", "/apis/", "/services/", "/clients/", "/requests/"]):
+        kind = "api_service"; tags.append("api")
     elif any(x in low_path for x in ["fixtures", "fixture"]):
         kind = "fixture"; tags.append("session")
-    elif any(x in low_path for x in ["testdata", "test-data", "/data/"]):
+    elif any(x in low_path for x in ["testdata", "test-data", "test_data", "/data/", "/resources/"]):
         kind = "test_data"; tags.append("data")
-    elif low_path.endswith((".spec.ts", ".test.ts", ".spec.js", ".test.js")):
+    elif low_path.endswith((".spec.ts", ".specs.ts", ".test.ts", ".spec.js", ".specs.js", ".test.js", ".spec.mjs", ".specs.mjs", ".test.mjs", ".spec.cjs", ".specs.cjs", ".test.cjs")):
         kind = "spec"; tags.append("test")
     elif low_path.startswith(".github/") or "pipeline" in low_path or "workflow" in low_path:
         kind = "ci_trigger"; tags.append("trigger")
@@ -460,8 +495,10 @@ def build_framework_intelligence_v2(root: Path, inventory: dict[str, Any], base_
         "base_url": base_url,
         "architecture": {
             "directory_model": (inventory or {}).get("directory_model", {}),
+            "structure_discovery": (inventory or {}).get("structure_discovery", {}),
             "pom_compliance": (inventory or {}).get("pom_compliance", {}),
             "spec_count": (inventory or {}).get("spec_count", 0),
+            "executable_spec_count": (inventory or {}).get("executable_spec_count", 0),
             "import_graph_sample": (inventory or {}).get("spec_import_graph_sample", {}),
         },
         "technology_stack": analyze_technology_stack(root),
@@ -514,6 +551,19 @@ def _write_framework_intelligence_html(report: dict[str, Any]) -> None:
 
 
 
+def _is_module_resolution_failure_text(text: str) -> bool:
+    low = (text or '').lower()
+    return any(x in low for x in ['cannot find module', 'module_not_found', 'err_module_not_found', 'require stack', 'tsconfig-paths', 'path alias', 'failed to resolve import', 'cannot resolve module'])
+
+
+def _missing_module_name_text(text: str) -> str:
+    raw = text or ''
+    for pat in [r"Cannot find module ['\"]([^'\"]+)['\"]", r"ERR_MODULE_NOT_FOUND[^\n]*['\"]([^'\"]+)['\"]", r"Cannot resolve module ['\"]([^'\"]+)['\"]"]:
+        m = re.search(pat, raw, flags=re.I)
+        if m:
+            return m.group(1)[:180]
+    return ''
+
 def _plain_status(status: Any) -> str:
     s = str(status or '').lower()
     if s in {'passed', 'expected', 'skipped'}:
@@ -527,7 +577,11 @@ def _plain_reason(rec: dict[str, Any]) -> str:
     status = _plain_status(rec.get('status'))
     if status == 'passed':
         return 'passed'
-    text = json.dumps(rec.get('errors') or rec, ensure_ascii=False).lower()
+    raw = json.dumps(rec.get('errors') or rec, ensure_ascii=False)
+    text = raw.lower()
+    if _is_module_resolution_failure_text(raw):
+        missing = _missing_module_name_text(raw)
+        return f"Playwright/Node could not resolve module import or TypeScript path alias{(' ' + missing) if missing else ''}; test did not reach the browser DOM step"
     if 'element(s) not found' in text or ('locator' in text and 'not found' in text):
         return 'locator is missing or not available in DOM'
     if 'strict mode violation' in text:

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from qa_pipeline.core.commands import resolve_command, run_command
+from qa_pipeline.agents.existing_framework_control.structure_discovery import build_structure_profile
 from qa_pipeline.core.paths import REPORTS_DIR
 from qa_pipeline.llm.codex_cli import CodexCliProvider
 from qa_pipeline.llm.openai_compatible import OpenAICompatibleProvider
@@ -147,6 +148,23 @@ def run_mcp_readiness_preflight(framework_path: str, project: str = "auto", brow
         return payload
 
     payload["checks"]["framework_path"] = {"ok": True, "message": "Framework path exists."}
+    try:
+        structure_profile = build_structure_profile(root, limit=5000)
+    except Exception as exc:
+        structure_profile = {"ok": False, "executable_specs": [], "error": f"{type(exc).__name__}: {exc}"}
+    payload["framework_structure"] = structure_profile
+    payload["checks"]["deep_test_discovery"] = {
+        "ok": bool(structure_profile.get("executable_specs")),
+        "message": (
+            f"Recursive structure scan found {len(structure_profile.get('executable_specs') or [])} executable Playwright spec file(s) "
+            f"under {', '.join((structure_profile.get('discovered_test_roots') or [])[:8]) or 'content-proven custom locations'}."
+            if structure_profile.get("executable_specs")
+            else "Recursive structure scan did not find executable Playwright specs. Checked configured testDir, nested test folders and executable Playwright content."
+        ),
+        "discovered_test_roots": structure_profile.get("discovered_test_roots") or [],
+        "sample_specs": (structure_profile.get("executable_specs") or [])[:30],
+        "source_layout": structure_profile.get("source_layout") or {},
+    }
     package, package_error = _read_package_json(root)
     if package is None:
         payload["checks"]["package_json"] = {"ok": False, "message": package_error}
@@ -206,20 +224,56 @@ def run_mcp_readiness_preflight(framework_path: str, project: str = "auto", brow
         if project and project != "auto":
             args.append(f"--project={project}")
         listing = run_command(args, cwd=root, timeout=180)
+        listing_text = ((listing.stdout or "") + "\n" + (listing.stderr or "") + "\n" + (listing.error or "")).lower()
+        default_has_tests = listing.ok and not any(marker in listing_text for marker in ("no tests found", "total: 0 test", "0 tests"))
+        fallback = None
+        effective_ok = default_has_tests
+        discovered_specs = list((structure_profile or {}).get("executable_specs") or [])
+
+        # Some enterprise frameworks have valid deep specs but a stale/mismatched
+        # testDir. The selectable-test runner executes explicit paths, so verify
+        # that same scope before blocking MCP preparation.
+        if not default_has_tests and discovered_specs:
+            fallback_args = ["npx", "playwright", "test", *discovered_specs[:25], "--list"]
+            if project and project != "auto":
+                fallback_args.append(f"--project={project}")
+            fallback_run = run_command(fallback_args, cwd=root, timeout=180)
+            fallback_text = ((fallback_run.stdout or "") + "\n" + (fallback_run.stderr or "") + "\n" + (fallback_run.error or "")).lower()
+            fallback_ok = fallback_run.ok and not any(marker in fallback_text for marker in ("no tests found", "total: 0 test", "0 tests"))
+            effective_ok = fallback_ok
+            fallback = {
+                "used": True,
+                "ok": fallback_ok,
+                "reason": "Default Playwright --list did not prove test discovery; retried with recursively discovered explicit specs.",
+                "command": fallback_run.command,
+                "returncode": fallback_run.returncode,
+                "stdout_tail": _tail(fallback_run.stdout),
+                "stderr_tail": _tail(fallback_run.stderr or fallback_run.error),
+                "target_count": min(len(discovered_specs), 25),
+            }
+
         payload["checks"]["playwright_test_list"] = {
-            "ok": listing.ok,
-            "message": "npx playwright test --list passed." if listing.ok else "npx playwright test --list failed. Framework may have config/import/test discovery issues.",
+            "ok": effective_ok,
+            "default_config_ok": default_has_tests,
+            "message": (
+                "Playwright test listing passed using the framework default configuration."
+                if default_has_tests
+                else "Default Playwright discovery did not prove tests, but listing passed with recursively discovered explicit spec paths. Review testDir/testMatch alignment; selected execution remains available."
+                if effective_ok
+                else "Playwright could not list recursively discovered tests. Framework may have config/import/compile issues."
+            ),
             "command": listing.command,
             "returncode": listing.returncode,
             "stdout_tail": _tail(listing.stdout),
             "stderr_tail": _tail(listing.stderr or listing.error),
+            "recursive_discovery_fallback": fallback,
         }
-        if not listing.ok:
+        if not effective_ok:
             payload["action_required"] = True
             payload["stage"] = "mcp_preflight_test_list_failed"
-            payload["message"] = "MCP assist cannot start cleanly because Playwright test discovery failed."
-            payload["recommended_user_message"] = "Playwright could not list tests. Choose Fix with selected AI provider if this is a config/import issue, Continue MCP without build for exploratory evidence, or Cancel."
-            payload["next_actions"] = ["Fix framework config/import/test discovery issue.", "Run npx playwright test --list manually to confirm.", "Retry MCP assist after list passes."]
+            payload["message"] = "MCP assist cannot start cleanly because Playwright test discovery failed for both default configuration and recursive explicit targets."
+            payload["recommended_user_message"] = "Playwright could not list the discovered tests. Choose Fix with selected AI provider for config/import/build repair, Continue MCP without build only for exploratory evidence, or Cancel."
+            payload["next_actions"] = ["Fix framework config/import/test discovery issue.", "Review recursively discovered test roots in the preflight report.", "Retry MCP assist after listing passes."]
             payload["report_files"] = _write_report(root, payload)
             return payload
 

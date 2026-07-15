@@ -1,0 +1,34 @@
+<!doctype html><html><head><meta charset='utf-8'><title>Auditable RCA Chain</title><style>body{font-family:Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#0f172a}.card{background:white;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:14px 0}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #e2e8f0;padding:8px;text-align:left;vertical-align:top}code,pre{background:#0f172a;color:#dbeafe;border-radius:10px;padding:12px;white-space:pre-wrap}</style></head><body><h1>Auditable Existing-Framework RCA Chain</h1><div class='card'><p>This report is an evidence summary, not hidden model reasoning.</p><b>Framework:</b> <code>C:\PROJECTS\qa_acima_testautomation_execution_fixed\qa_acima_fixed</code></div><div class='card'><h2>Selected Decision</h2><pre>{
+  "step": "Chain 2 - Trace timing classifier",
+  "decision": "Trace/failure text indicates action fired too early/late or target not actionable.",
+  "confidence": 0.8,
+  "evidence_keys": [
+    "playwright_trace_replay",
+    "failure_text"
+  ],
+  "auto_patch_candidate": true,
+  "healing_strategy": "Patch reusable waits, waitForStableDom, safeClick, overlay dismissal, and navigation expectations."
+}</pre></div><div class='card'><h2>Chain Matrix</h2><table><tr><th>Chain</th><th>Decision</th><th>Confidence</th><th>Auto Patch?</th><th>Strategy</th></tr><tr><td>Chain 2 - Trace timing classifier</td><td>Trace/failure text indicates action fired too early/late or target not actionable.</td><td>0.8</td><td>Yes</td><td>Patch reusable waits, waitForStableDom, safeClick, overlay dismissal, and navigation expectations.</td></tr></table></div><div class='card'><h2>Evidence Index</h2><pre>{
+  "failure_run_dirs": [],
+  "trace_files": [
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/html/data/c1e7053815dc2f6d63653c2001a792102764676a.zip",
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/trace.zip",
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/html/data/079d75526e317f2633fb4ff601c53947d3813eb6.zip",
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium-retry1/trace.zip",
+    "reports/existing-framework/html/data/a2886c4046c57c87d50cef77b7811e2fde5fcb5d.zip",
+    "test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/trace.zip"
+  ],
+  "har_files": [],
+  "dom_snapshot_files": [],
+  "screenshots": [
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/html/data/9e017539a3aab1d055ab50acbac88231dad9ceef.png",
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/test-failed-1.png",
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium/test-failed-1.png",
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/html/data/710c8e689136706d134305b94712f31335baeeaa.png",
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium-retry1/test-failed-1.png",
+    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium/test-failed-1.png",
+    "reports/existing-framework/html/data/9e017539a3aab1d055ab50acbac88231dad9ceef.png",
+    "test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/test-failed-1.png",
+    "test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium/test-failed-1.png"
+  ]
+}</pre></div></body></html>

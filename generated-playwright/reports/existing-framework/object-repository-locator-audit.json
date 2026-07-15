@@ -1,0 +1,67 @@
+{
+  "ok": true,
+  "stage": "object_repository_locator_audit_completed",
+  "generated_at": "2026-07-16T02:16:56",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "base_url": "",
+  "summary": {
+    "total_locators": 2,
+    "object_repo_file_count": 1,
+    "static_verified_count": 0,
+    "needs_live_mcp_count": 2,
+    "high_risk_count": 0,
+    "counts_by_strategy": {
+      "getByText": 2
+    },
+    "top_locator_files": [
+      {
+        "file": "pageObjects/HomePage.objects.ts",
+        "locator_count": 2
+      }
+    ]
+  },
+  "locators": [
+    {
+      "file": "pageObjects/HomePage.objects.ts",
+      "line": 8,
+      "strategy": "getByText",
+      "value": "UPLOADED\\ FILE\\ Sample\\ test\\ cases\\.xlsx:",
+      "role": "",
+      "name": "",
+      "human_selector": "getByText=UPLOADED\\ FILE\\ Sample\\ test\\ cases\\.xlsx:",
+      "risk": "medium",
+      "dynamic": false,
+      "source_snippet": "ModuleNamedOpenpyxlLocator: Locator; constructor(page: Page) { this.uPLOADEDFILESampleTestCasesXlsxLocator = page.getByText(/UPLOADED\\ FILE\\ Sample\\ test\\ cases\\.xlsx:/i); this.excelExtractionWarningModuleNotFoundErrorNoModuleNamedOpenpyxlLocator = page.getByText(/Excel\\ Extraction\\ W",
+      "dom_verification": {
+        "status": "not_found_in_static_artifacts_needs_live_playwright_mcp",
+        "confidence": 0.28,
+        "evidence_files": [],
+        "note": "Not found in static artifacts. This is not a final failure because the element may appear only after navigation/login/scroll/modal state. Use Check failed element with Playwright MCP for exact live DOM/actionability evidence."
+      }
+    },
+    {
+      "file": "pageObjects/HomePage.objects.ts",
+      "line": 9,
+      "strategy": "getByText",
+      "value": "Excel\\ Extraction\\ Warning.*ModuleNotFoundError.*No\\ module\\ named.*openpyxl",
+      "role": "",
+      "name": "",
+      "human_selector": "getByText=Excel\\ Extraction\\ Warning.*ModuleNotFoundError.*No\\ module\\ named.*openpyxl",
+      "risk": "medium",
+      "dynamic": false,
+      "source_snippet": "LE\\ Sample\\ test\\ cases\\.xlsx:/i); this.excelExtractionWarningModuleNotFoundErrorNoModuleNamedOpenpyxlLocator = page.getByText(/Excel\\ Extraction\\ Warning.*ModuleNotFoundError.*No\\ module\\ named.*openpyxl/i); } }",
+      "dom_verification": {
+        "status": "not_found_in_static_artifacts_needs_live_playwright_mcp",
+        "confidence": 0.28,
+        "evidence_files": [],
+        "note": "Not found in static artifacts. This is not a final failure because the element may appear only after navigation/login/scroll/modal state. Use Check failed element with Playwright MCP for exact live DOM/actionability evidence."
+      }
+    }
+  ],
+  "object_repo_files": [
+    "pageObjects/HomePage.objects.ts"
+  ],
+  "report_url": "/artifacts/reports/existing-framework/object-repository-locator-audit.html",
+  "human_summary": "Scanned 1 object/page/locator file(s), found 2 locator definition(s), statically matched 0, and marked 2 for live Playwright MCP verification when the related workflow fails.",
+  "live_mcp_note": "Use Check failed element with Playwright MCP after a real failure. It inspects the failed page state and identifies whether the element is missing, detached, hidden, blocked by overlay, inside iframe/shadow DOM, or needs a new locator in the pageObject repository."
+}

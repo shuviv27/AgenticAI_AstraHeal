@@ -220,18 +220,36 @@ def _extract_uploaded_text(uploaded_bytes: bytes | None, uploaded_name: str = ''
     return uploaded_bytes.decode('utf-8', errors='replace')
 
 
-def load_functional_testcases_enterprise(feature: str, pasted_json_or_steps: str = '', uploaded_bytes: bytes | None = None, uploaded_name: str = '', jira_story: str = '', jira_epic: str = '') -> dict[str, Any]:
-    raw_parts = []
-    if jira_epic.strip(): raw_parts.append('JIRA EPIC:\n' + jira_epic.strip())
-    if jira_story.strip(): raw_parts.append('JIRA STORY/TASK/BUG:\n' + jira_story.strip())
-    if pasted_json_or_steps.strip(): raw_parts.append('PASTED TESTCASE/STEPS:\n' + pasted_json_or_steps.strip())
-    uploaded_text = _extract_uploaded_text(uploaded_bytes, uploaded_name)
-    if uploaded_text.strip(): raw_parts.append(f'UPLOADED FILE {uploaded_name}:\n' + uploaded_text.strip())
-    raw = '\n\n'.join(raw_parts)
-    result = load_functional_testcases(feature, raw, None, '')
-    result['source_inputs'] = {'uploaded_name': uploaded_name, 'has_jira_story': bool(jira_story.strip()), 'has_jira_epic': bool(jira_epic.strip())}
-    result['message'] = 'Functional testcase source was normalized from document/Jira/pasted input and saved for robust existing-framework script generation.'
-    return result
+def load_functional_testcases_enterprise(feature: str, pasted_json_or_steps: str = '', uploaded_bytes: bytes | None = None, uploaded_name: str = '', jira_story: str = '', jira_epic: str = '', source_mode: str = 'auto') -> dict[str, Any]:
+    from qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests import extract_and_normalize_source, save_normalized_source
+    try:
+        payload = extract_and_normalize_source(
+            feature=feature,
+            pasted_json_or_steps=pasted_json_or_steps,
+            uploaded_bytes=uploaded_bytes,
+            uploaded_name=uploaded_name,
+            jira_story=jira_story,
+            jira_epic=jira_epic,
+            source_mode=source_mode,
+        )
+        return save_normalized_source(payload)
+    except Exception as exc:
+        return {'ok': False, 'error': f'{type(exc).__name__}: {exc}', 'message': 'Testcase source could not be normalized safely.'}
+
+
+def preview_existing_framework_generation_enterprise(framework_path: str, feature: str, target_test_folder: str = '', target_page_file: str = '', target_locator_file: str = '', placement_mode: str = 'confirm_if_ambiguous') -> dict[str, Any]:
+    from qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests import preview_generation_placement
+    try:
+        return preview_generation_placement(
+            framework_path=framework_path,
+            feature=feature,
+            target_test_folder=target_test_folder,
+            target_page_file=target_page_file,
+            target_locator_file=target_locator_file,
+            placement_mode=placement_mode,
+        )
+    except Exception as exc:
+        return {'ok': False, 'error': f'{type(exc).__name__}: {exc}'}
 
 
 def _candidate_dirs(root: Path, role: str) -> list[Path]:
@@ -259,56 +277,23 @@ def _pick_reusable_file(root: Path, dirs: list[Path], feature: str, suffix: str,
     return dirs[0] / default_name
 
 
-def generate_existing_framework_extension_enterprise(framework_path: str, feature: str, provider: str='deterministic', model: str='llama3', base_url: str='') -> dict[str, Any]:
-    """Stronger add-new-test workflow for existing frameworks.
-
-    It reuses the deep framework understanding where available, chooses existing
-    folder conventions, records a generation plan, and then delegates to the safe
-    POM generator. It is deterministic-first so it works without external LLMs.
-    """
-    feature=_safe_feature(feature)
-    root=Path(framework_path).expanduser().resolve()
-    if not root.exists():
-        return {'ok': False, 'error': f'Framework path does not exist: {root}'}
-    # Run deep framework learning first so memory is current.
+def generate_existing_framework_extension_enterprise(framework_path: str, feature: str, provider: str='deterministic', model: str='llama3', base_url: str='', target_test_folder: str='', target_page_file: str='', target_locator_file: str='', placement_mode: str='confirm_if_ambiguous', allow_new_support_files: bool=True, validate_generated: bool=True, bdd_output_mode: str='playwright_specs') -> dict[str, Any]:
+    from qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests import generate_existing_framework_tests
     try:
-        from qa_pipeline.agents.existing_framework_control.deep_framework_agents import build_deep_framework_understanding
-        deep = build_deep_framework_understanding(root, base_url=base_url)
+        return generate_existing_framework_tests(
+            framework_path=framework_path,
+            feature=feature,
+            provider=provider,
+            model=model,
+            base_url=base_url,
+            target_test_folder=target_test_folder,
+            target_page_file=target_page_file,
+            target_locator_file=target_locator_file,
+            placement_mode=placement_mode,
+            allow_new_support_files=allow_new_support_files,
+            validate_generated=validate_generated,
+            bdd_output_mode=bdd_output_mode,
+        )
     except Exception as exc:
-        deep = {'ok': False, 'warning': f'{type(exc).__name__}: {exc}'}
-    tests_dir = _candidate_dirs(root, 'tests')[0]
-    pages_dir = _candidate_dirs(root, 'pages')[0]
-    objects_dir = _candidate_dirs(root, 'objects')[0]
-    chosen = {
-        'tests_dir': str(tests_dir.relative_to(root)) if tests_dir.is_absolute() else str(tests_dir),
-        'pages_dir': str(pages_dir.relative_to(root)) if pages_dir.is_absolute() else str(pages_dir),
-        'objects_dir': str(objects_dir.relative_to(root)) if objects_dir.is_absolute() else str(objects_dir),
-        'strategy': 'reuse existing framework folders first; create missing folders only when no suitable folder exists',
-    }
-    # Existing generator creates in pages/pageObjects/tests/ai-generated. Keep that
-    # behavior for compatibility but add this enterprise intelligence report.
-    result = generate_existing_framework_extension(framework_path, feature, provider, model, base_url)
-    plan = {
-        'ok': result.get('ok'),
-        'feature': feature,
-        'framework_path': str(root),
-        'deep_framework_understanding_used': bool(deep.get('ok')),
-        'chosen_framework_conventions': chosen,
-        'generated_extension_summary': {k: result.get(k) for k in ['ok','message','extension_plan_file']},
-        'enterprise_reuse_rules': [
-            'Search existing page methods/locator files before adding new code.',
-            'Prefer pageObjects/locator layer for new locators.',
-            'Prefer page class methods for business actions.',
-            'Keep specs thin: specs call page methods only.',
-            'Save generation plan to project memory for future RCA/self-healing.',
-        ],
-    }
-    mem = root/'.aiqa-history'/'new-test-generation.jsonl'
-    mem.parent.mkdir(parents=True, exist_ok=True)
-    mem.open('a', encoding='utf-8').write(json.dumps(plan, ensure_ascii=False)+'\n')
-    plan_file = root/'.aiqa-history'/f'{feature}-enterprise-generation-plan.json'
-    plan_file.write_text(json.dumps(plan, indent=2, ensure_ascii=False)+'\n', encoding='utf-8')
-    result['enterprise_generation_plan'] = plan
-    result['enterprise_generation_plan_file'] = str(plan_file)
-    result['message'] = 'New test was generated/extended using enterprise framework understanding. Review the plan, then run selected tests and RCA/self-healing as usual.'
-    return result
+        return {'ok': False, 'error': f'{type(exc).__name__}: {exc}', 'message': 'Existing-framework test generation stopped safely before uncontrolled changes.'}
+

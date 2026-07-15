@@ -1,0 +1,409 @@
+{
+  "ok": true,
+  "stage": "mcp_readiness_preflight_passed",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "checks": {
+    "framework_path": {
+      "ok": true,
+      "message": "Framework path exists."
+    },
+    "deep_test_discovery": {
+      "ok": true,
+      "message": "Recursive structure scan found 23 executable Playwright spec file(s) under e2e, tests, tests/unit.",
+      "discovered_test_roots": [
+        "e2e",
+        "tests",
+        "tests/unit"
+      ],
+      "sample_specs": [
+        "e2e/example.spec.ts",
+        "e2e/seed.spec.ts",
+        "tests/ai-generated/new_feature.spec.ts",
+        "tests/api/customer.spec.ts",
+        "tests/api/lease.spec.ts",
+        "tests/api/payment.spec.ts",
+        "tests/mobile/mobile-home.spec.ts",
+        "tests/seed.spec.ts",
+        "tests/smoke/api-smoke.spec.ts",
+        "tests/smoke/ui-smoke.spec.ts",
+        "tests/ui/acima-advantage.spec.ts",
+        "tests/ui/benefit-plus.spec.ts",
+        "tests/ui/dashboard.spec.ts",
+        "tests/ui/login.spec.ts",
+        "tests/ui/payment.spec.ts",
+        "tests/ui/profile.spec.ts",
+        "tests/ui/shop-marketplace.spec.ts",
+        "tests/ui/shop-online.spec.ts",
+        "tests/ui/static-pages.spec.ts",
+        "tests/unit/seed.spec.ts",
+        "tests/unit/teams/teamsNotifier.spec.ts",
+        "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "tests/unit/teams/testRunAggregator.spec.ts"
+      ],
+      "source_layout": {
+        "has_src": false,
+        "has_src_main": false,
+        "has_src_test": false,
+        "has_src_test_specs": false,
+        "has_root_tests": true
+      }
+    },
+    "package_json": {
+      "ok": true,
+      "message": "package.json found and parsed."
+    },
+    "npm": {
+      "ok": true,
+      "message": "npm found."
+    },
+    "npx": {
+      "ok": true,
+      "message": "npx found."
+    }
+  },
+  "typescript_errors": [],
+  "next_actions": [
+    "Continue with Playwright MCP assist.",
+    "Run failed element RCA if a test has failed."
+  ],
+  "framework_structure": {
+    "ok": true,
+    "generated_at": "2026-07-16T01:55:36",
+    "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+    "scan_strategy": "recursive_config_plus_path_plus_content_evidence",
+    "candidate_spec_count": 23,
+    "executable_spec_count": 23,
+    "executable_specs": [
+      "e2e/example.spec.ts",
+      "e2e/seed.spec.ts",
+      "tests/ai-generated/new_feature.spec.ts",
+      "tests/api/customer.spec.ts",
+      "tests/api/lease.spec.ts",
+      "tests/api/payment.spec.ts",
+      "tests/mobile/mobile-home.spec.ts",
+      "tests/seed.spec.ts",
+      "tests/smoke/api-smoke.spec.ts",
+      "tests/smoke/ui-smoke.spec.ts",
+      "tests/ui/acima-advantage.spec.ts",
+      "tests/ui/benefit-plus.spec.ts",
+      "tests/ui/dashboard.spec.ts",
+      "tests/ui/login.spec.ts",
+      "tests/ui/payment.spec.ts",
+      "tests/ui/profile.spec.ts",
+      "tests/ui/shop-marketplace.spec.ts",
+      "tests/ui/shop-online.spec.ts",
+      "tests/ui/static-pages.spec.ts",
+      "tests/unit/seed.spec.ts",
+      "tests/unit/teams/teamsNotifier.spec.ts",
+      "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+      "tests/unit/teams/testRunAggregator.spec.ts"
+    ],
+    "spec_evidence": [
+      {
+        "path": "e2e/example.spec.ts",
+        "accepted": true,
+        "reason": "conventional_or_enterprise_test_area",
+        "test_root": "e2e",
+        "configured_test_dir": "",
+        "content_proof": false
+      },
+      {
+        "path": "e2e/seed.spec.ts",
+        "accepted": true,
+        "reason": "conventional_or_enterprise_test_area",
+        "test_root": "e2e",
+        "configured_test_dir": "",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ai-generated/new_feature.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/api/customer.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/api/lease.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/api/payment.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/mobile/mobile-home.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/seed.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/smoke/api-smoke.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/smoke/ui-smoke.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ui/acima-advantage.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ui/benefit-plus.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ui/dashboard.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ui/login.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ui/payment.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ui/profile.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ui/shop-marketplace.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ui/shop-online.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/ui/static-pages.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests",
+        "configured_test_dir": "tests",
+        "content_proof": false
+      },
+      {
+        "path": "tests/unit/seed.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests/unit",
+        "configured_test_dir": "tests/unit",
+        "content_proof": false
+      },
+      {
+        "path": "tests/unit/teams/teamsNotifier.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests/unit",
+        "configured_test_dir": "tests/unit",
+        "content_proof": false
+      },
+      {
+        "path": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests/unit",
+        "configured_test_dir": "tests/unit",
+        "content_proof": false
+      },
+      {
+        "path": "tests/unit/teams/testRunAggregator.spec.ts",
+        "accepted": true,
+        "reason": "configured_playwright_test_dir",
+        "test_root": "tests/unit",
+        "configured_test_dir": "tests/unit",
+        "content_proof": false
+      }
+    ],
+    "rejected_spec_candidates": [],
+    "configured_test_dirs": [
+      "tests",
+      "tests/unit",
+      ".features-gen/ui",
+      ".features-gen/api",
+      ".features-gen/mobile"
+    ],
+    "discovered_test_roots": [
+      "e2e",
+      "tests",
+      "tests/unit"
+    ],
+    "acceptance_reason_counts": {
+      "conventional_or_enterprise_test_area": 2,
+      "configured_playwright_test_dir": 21
+    },
+    "component_directory_model": {
+      "spec_dirs": [
+        "e2e",
+        "specs",
+        "tests",
+        "tests/ai-generated",
+        "tests/api",
+        "tests/mobile",
+        "tests/smoke",
+        "tests/ui",
+        "tests/unit",
+        "tests/unit/teams"
+      ],
+      "page_dirs": [
+        "pages"
+      ],
+      "page_object_dirs": [
+        "pageObjects"
+      ],
+      "config_dirs": [
+        "config"
+      ],
+      "api_dirs": [
+        "api",
+        "api/services",
+        "features/api",
+        "step-definitions/api",
+        "test-data/api",
+        "tests/api"
+      ],
+      "ui_base_dirs": [],
+      "fixture_dirs": [
+        "fixtures"
+      ],
+      "test_data_dirs": [
+        "reports/existing-framework/html/data",
+        "test-data"
+      ],
+      "utility_dirs": [
+        "agents/failure-analyzer/lib",
+        "agents/failure-analyzer/utils",
+        "step-definitions/common",
+        "utils"
+      ],
+      "reporter_dirs": [
+        "agents/failure-analyzer/reporter",
+        "reporters"
+      ]
+    },
+    "source_layout": {
+      "has_src": false,
+      "has_src_main": false,
+      "has_src_test": false,
+      "has_src_test_specs": false,
+      "has_root_tests": true
+    },
+    "safety_rules": [
+      "Ignore dependency, build, report, result, cache, backup and history directories.",
+      "Keep all legacy tests/** discovery behavior.",
+      "Accept custom locations only when Playwright config or executable test content proves the file is runnable.",
+      "Never infer a source patch target from filename alone; dependency mapping remains required."
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "playwright test --project=chromium --project=api --project=unit",
+    "test:ui": "playwright test tests/ui --project=chromium",
+    "test:api": "playwright test tests/api --project=api",
+    "test:smoke": "playwright test tests/smoke --project=chromium --project=api",
+    "test:smoke:ui": "playwright test tests/smoke/ui-smoke.spec.ts --project=chromium",
+    "test:smoke:api": "playwright test tests/smoke/api-smoke.spec.ts --project=api",
+    "test:smoke:all": "playwright test --grep @smoke --project=chromium --project=api",
+    "test:regression": "playwright test --grep @regression --project=chromium --project=api",
+    "test:headed": "playwright test --project=chromium --headed",
+    "test:debug": "playwright test --project=chromium --debug",
+    "test:report": "playwright show-report",
+    "test:qa": "cross-env ENV=qa playwright test --project=chromium --project=api --project=unit",
+    "test:stage": "cross-env ENV=stage playwright test --project=chromium --project=api --project=unit",
+    "test:prod": "cross-env ENV=prod playwright test --project=chromium --project=api --project=unit",
+    "bdd:gen": "bddgen",
+    "bdd:gen:ui": "bddgen --project bdd-ui-chromium",
+    "bdd:gen:api": "bddgen --project bdd-api",
+    "test:bdd": "bddgen && playwright test --project=bdd-ui-chromium --project=bdd-api",
+    "test:bdd:ui": "bddgen && playwright test --project bdd-ui-chromium",
+    "test:bdd:api": "bddgen && playwright test --project bdd-api",
+    "test:bdd:smoke": "bddgen && playwright test --project=bdd-ui-chromium --project=bdd-api --grep @smoke",
+    "test:bdd:regression": "bddgen && playwright test --project=bdd-ui-chromium --project=bdd-api --grep @regression",
+    "codegen": "playwright codegen",
+    "install:browsers": "playwright install",
+    "agent:analyze": "playwright test",
+    "agent:fix": "ts-node agents/test-fixer/cli.ts",
+    "agent:fix:dry": "ts-node agents/test-fixer/cli.ts --dry-run",
+    "agent:fix:all": "ts-node agents/test-fixer/cli.ts --all",
+    "agent:flakiness": "ts-node agents/failure-analyzer/cli/run-flakiness.ts",
+    "agent:rca": "ts-node agents/failure-analyzer/cli/run-rca.ts",
+    "agent:heal": "ts-node agents/failure-analyzer/cli/run-self-heal.ts",
+    "agent:predict": "ts-node agents/failure-analyzer/cli/run-predictive.ts",
+    "test:unit": "playwright test --project unit --reporter list",
+    "test:unit:teams": "playwright test tests/unit/teams/ --project unit --reporter list",
+    "notify:teams": "ts-node -e \"require('./utils/teams/teamsNotifier')\""
+  },
+  "action_required": false,
+  "message": "MCP readiness preflight passed. package.json, build/list/browser checks are ready enough for MCP assist.",
+  "recommended_user_message": "MCP assist can proceed. Playwright Test remains the deterministic runner; MCP provides browser/accessibility evidence for RCA/self-healing."
+}

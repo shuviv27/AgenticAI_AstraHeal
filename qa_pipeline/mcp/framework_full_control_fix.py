@@ -13,6 +13,8 @@ from qa_pipeline.llm.codex_cli import CodexCliProvider
 from qa_pipeline.llm.openai_compatible import OpenAICompatibleProvider
 from qa_pipeline.llm.ollama import OllamaProvider
 from qa_pipeline.core.paths import REPORTS_DIR
+from qa_pipeline.agents.existing_framework_control.structure_discovery import build_structure_profile
+from qa_pipeline.agents.existing_framework_control.deep_framework_agents import build_deep_framework_understanding
 from qa_pipeline.mcp.mcp_readiness_preflight import (
     _backup_files,
     _safe_apply_known_typescript_fixes,
@@ -178,6 +180,17 @@ def _apply_json_replacements(root: Path, patch_plan: dict[str, Any] | None, impa
 def _impacted_files_from_preflight(preflight: dict[str, Any]) -> set[str]:
     errors = preflight.get("typescript_errors") or []
     files = {str(e.get("file") or "").replace("\\", "/") for e in errors if e.get("file")}
+    checks = preflight.get("checks") or {}
+    test_list = checks.get("playwright_test_list") or {}
+    deep = checks.get("deep_test_discovery") or {}
+    # Recursive discovery may prove valid specs while Playwright configuration
+    # cannot list them. In that case the impacted safe scope is configuration.
+    if deep.get("ok") and test_list and not test_list.get("ok"):
+        files.update({
+            "playwright.config.ts", "playwright.config.js", "playwright.config.mjs",
+            "playwright.config.cjs", "playwright.config.mts", "playwright.config.cts",
+            "tsconfig.json", "jsconfig.json", "package.json",
+        })
     return {f for f in files if f}
 
 
@@ -186,6 +199,15 @@ def _build_full_control_prompt(root: Path, preflight: dict[str, Any], human_inst
     checks = preflight.get("checks") or {}
     build = checks.get("npm_run_build") or {}
     output_tail = ((build.get("stdout_tail") or "") + "\n" + (build.get("stderr_tail") or ""))[-16000:]
+    test_list = checks.get("playwright_test_list") or {}
+    test_list_tail = ((test_list.get("stdout_tail") or "") + "\n" + (test_list.get("stderr_tail") or ""))[-12000:]
+    structure = preflight.get("framework_structure") or {}
+    deep_context = preflight.get("deep_framework_understanding") or {}
+    if not structure:
+        try:
+            structure = build_structure_profile(root, limit=5000)
+        except Exception as exc:
+            structure = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
     error_files = sorted(_impacted_files_from_preflight(preflight))
     file_snippets: dict[str, str] = {}
     for rel in error_files[:8]:
@@ -221,12 +243,36 @@ def _build_full_control_prompt(root: Path, preflight: dict[str, Any], human_inst
         "- For page.locator(selector, selector), use getByText(/.../i) or locator().or(...).",
         f"Full-control scope: {full_control_scope}",
         f"Human instruction: {human_instruction or 'No extra human instruction.'}",
+        "Framework structure profile (preserve these paths and reusable layers):",
+        json.dumps({
+            "source_layout": structure.get("source_layout") or {},
+            "configured_test_dirs": structure.get("configured_test_dirs") or [],
+            "discovered_test_roots": structure.get("discovered_test_roots") or [],
+            "component_directory_model": structure.get("component_directory_model") or {},
+            "sample_executable_specs": (structure.get("executable_specs") or [])[:80],
+        }, indent=2, ensure_ascii=False),
+        "Deep framework understanding summary:",
+        json.dumps({
+            "inventory_summary": deep_context.get("inventory_summary") or {},
+            "component_directory_model": deep_context.get("component_directory_model") or {},
+            "folder_role_map": (deep_context.get("folder_role_map") or [])[:80],
+            "spec_dependency_chains": dict(list(((deep_context.get("dependency_graph") or {}).get("spec_dependency_chains") or {}).items())[:80]),
+            "unresolved_imports": dict(list(((deep_context.get("dependency_graph") or {}).get("unresolved_imports") or {}).items())[:80]),
+            "locator_strategy": deep_context.get("locator_strategy") or {},
+        }, indent=2, ensure_ascii=False),
+        "Architecture rules:",
+        "- Preserve the discovered spec path; do not move tests to root tests/ merely to make discovery easier.",
+        "- Reuse existing pages, pageObjects/locators, config, api, ui_base, fixtures, helpers and test-data layers when discovered.",
+        "- Search the dependency chain before adding a locator or function; add only missing reusable members in the proper existing file.",
+        "- Do not create duplicate page classes, locator keys, helper methods or config files.",
         "Required JSON schema:",
         json.dumps(schema, indent=2),
         "Parsed TypeScript errors:",
         json.dumps(errors, indent=2, ensure_ascii=False),
         "Build output tail:",
         output_tail,
+        "Playwright discovery/list output tail:",
+        test_list_tail,
         "Impacted file snippets:",
         json.dumps(file_snippets, indent=2, ensure_ascii=False),
     ])
@@ -315,9 +361,17 @@ def ai_full_control_fix_framework_issues(
             "rollback possible from .aiqa-history/backups",
         ],
     }
-    initial = run_mcp_readiness_preflight(str(root), project=project, browser=browser, run_build=True, run_test_list=False, check_browser=False)
+    initial = run_mcp_readiness_preflight(str(root), project=project, browser=browser, run_build=True, run_test_list=True, check_browser=False)
     result["preflight_before"] = initial
+    result["framework_structure"] = initial.get("framework_structure") or build_structure_profile(root, limit=5000)
+    try:
+        deep_understanding = build_deep_framework_understanding(root, inventory={"structure_discovery": result["framework_structure"]})
+    except Exception as exc:
+        deep_understanding = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Deep framework understanding failed safely; preflight structure discovery is still available."}
+    result["deep_framework_understanding"] = deep_understanding
+    initial["deep_framework_understanding"] = deep_understanding
     impacted = _impacted_files_from_preflight(initial)
+    impacted = {rel for rel in impacted if (root / rel).exists()}
     if not impacted and not initial.get("action_required"):
         result.update({"ok": True, "message": "Framework build readiness is already clean. No AI full-control fix was required."})
         result["report_files"] = _write_full_control_report(root, result)

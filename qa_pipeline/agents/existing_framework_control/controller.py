@@ -18,6 +18,7 @@ from qa_pipeline.core.commands import resolve_command, run_command
 from qa_pipeline.core.paths import QA_CACHE_DIR, GENERATED_PLAYWRIGHT_DIR, REPORTS_DIR, REPO_ROOT
 from qa_pipeline.core.runtime_logger import log_event
 from qa_pipeline.core.url_guard import normalize_base_url
+from qa_pipeline.core.tsconfig_alias import load_jsonc, runtime_env_for_tsconfig_aliases, tsconfig_alias_summary
 from qa_pipeline.llm.codex_cli import CodexCliProvider
 from qa_pipeline.llm.ollama import OllamaProvider
 from qa_pipeline.llm.openai_compatible import OpenAICompatibleProvider
@@ -41,6 +42,13 @@ from qa_pipeline.agents.existing_framework_control.deep_framework_agents import 
 from qa_pipeline.mcp.playwright_mcp import mcp_status, write_playwright_mcp_configs
 from qa_pipeline.core.human_intervention import create_human_intervention_request, read_human_intervention_memory, save_human_intervention_update
 from qa_pipeline.mcp.external_fix_research import collect_external_fix_research, ensure_external_research_config
+from qa_pipeline.agents.existing_framework_control.structure_discovery import (
+    EXECUTABLE_SPEC_SUFFIXES as STRUCTURE_EXECUTABLE_SPEC_SUFFIXES,
+    build_structure_profile,
+    classify_spec_candidate,
+    discover_configured_test_dirs,
+    executable_spec_paths,
+)
 
 EXISTING_CACHE_DIR = QA_CACHE_DIR / "existing-framework"
 EXISTING_REPORTS_DIR = REPORTS_DIR / "existing-framework"
@@ -66,7 +74,7 @@ EXISTING_RERUN_LEDGER_JSON = EXISTING_REPORTS_DIR / "failed-only-rerun-ledger.js
 EXISTING_FAILED_ONLY_LATEST_REPORT_HTML = EXISTING_REPORTS_DIR / "failed-only-latest-playwright-report.html"
 EXISTING_LATEST_PLAYWRIGHT_ROUTER_HTML = EXISTING_REPORTS_DIR / "latest-playwright-report.html"
 
-IGNORED_DIRS = {"node_modules", ".git", "reports", "playwright-report", "test-results", "dist", "build", ".next", "coverage", ".codex-backups", ".aiqa-history"}
+IGNORED_DIRS = {"node_modules", ".git", "reports", "playwright-report", "test-results", "dist", "build", ".next", "coverage", ".codex-backups", ".aiqa-history", "%appdata%", "%AppData%", ".npm", "npm-cache"}
 
 
 def _astraheal_max_wait_ms() -> int:
@@ -100,20 +108,110 @@ def _append_playwright_timeout_arg(cmd: list[str]) -> list[str]:
     if not any(c == "--retries" or c.startswith("--retries=") for c in lowered):
         out.append("--retries=1")
     return out
-EXECUTABLE_SPEC_SUFFIXES = (".spec.ts", ".specs.ts", ".test.ts", ".spec.js", ".specs.js", ".test.js", ".spec.mjs", ".specs.mjs", ".test.mjs", ".spec.cjs", ".specs.cjs", ".test.cjs")
+EXECUTABLE_SPEC_SUFFIXES = STRUCTURE_EXECUTABLE_SPEC_SUFFIXES
 FEATURE_SUFFIXES = (".feature",)
 # Broad suffix list is retained for manual/legacy Cucumber workflows, failed-output
-# parsing and framework scoring.  GUI discovery and normal Playwright execution
-# now use EXECUTABLE_SPEC_SUFFIXES under tests/** only so feature files are not
-# shown as runnable TypeScript/JavaScript scripts.
+# parsing and framework scoring. GUI discovery and normal Playwright execution now
+# use EXECUTABLE_SPEC_SUFFIXES from recursively proven Playwright test locations, not only root
+# tests/**. This supports enterprise layouts such as src/test/specs/** while
+# still excluding backups, generated reports, node_modules and history folders.
 SPEC_SUFFIXES = (*EXECUTABLE_SPEC_SUFFIXES, *FEATURE_SUFFIXES)
 TS_SUFFIXES = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"}
+
+IGNORED_EXECUTION_PARTS = {"node_modules", ".git", "reports", "playwright-report", "test-results", "dist", "build", ".next", "coverage", ".codex-backups", ".aiqa-history", ".qa-cache", "generated-playwright"}
+DEFAULT_EXECUTABLE_TEST_ROOTS = (
+    "tests",
+    "src/test/specs",
+    "src/test",
+    "src/tests",
+    "test/specs",
+    "test",
+    "specs",
+    "e2e",
+    "integration",
+)
 
 
 def _ensure_dirs() -> None:
     EXISTING_CACHE_DIR.mkdir(parents=True, exist_ok=True)
     EXISTING_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     EXISTING_HTML_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def existing_framework_artifact_locations(framework_path: str = "") -> dict[str, Any]:
+    """Return absolute local storage paths for reports, RCA, healing and logs.
+
+    Browser URLs are useful while the GUI is running, but users also need to
+    know where artifacts live on the Windows/local VM filesystem.  This report
+    deliberately distinguishes AstraHeal's central retained copy from the
+    client framework's native Playwright output folder.
+    """
+    _ensure_dirs()
+    root: Path | None = None
+    raw = str(framework_path or "").strip().strip('"').strip("'")
+    if raw:
+        try:
+            root = _resolve_framework_path(raw)
+        except Exception:
+            try:
+                root = Path(raw).expanduser().resolve()
+            except Exception:
+                root = None
+
+    def item(path: Path, purpose: str) -> dict[str, Any]:
+        return {
+            "path": str(path.resolve()),
+            "exists": path.exists(),
+            "purpose": purpose,
+        }
+
+    central = {
+        "latest_playwright_router": item(EXISTING_LATEST_PLAYWRIGHT_ROUTER_HTML, "Stage-aware link to the latest first-run or failed-only Playwright report."),
+        "native_playwright_copy": item(EXISTING_HTML_DIR / "index.html", "Central retained copy of the latest native Playwright HTML report."),
+        "combined_first_run_rerun": item(EXISTING_REPORTS_DIR / "consolidated-report.html", "Combined first-run and failed-only rerun ledger."),
+        "plain_english_rca_html": item(EXISTING_PLAIN_FAILURE_HTML, "Explainable test-by-test Plain English RCA report."),
+        "plain_english_rca_json": item(EXISTING_PLAIN_FAILURE_JSON, "Structured Plain English RCA data."),
+        "root_cause_html": item(EXISTING_REPORTS_DIR / "root-cause-report.html", "Detailed RCA evidence and auditable checklist."),
+        "root_cause_json": item(EXISTING_RCA_JSON, "Structured root-cause analysis."),
+        "self_healing_html": item(EXISTING_REPORTS_DIR / "self-healing-report.html", "Safe-fix proposal/apply result, impacted files, backup and rollback details."),
+        "self_healing_json": item(EXISTING_SELF_HEAL_JSON, "Structured self-healing result."),
+        "failed_inventory": item(EXISTING_INVENTORY_JSON, "Latest failed specs and failed test cases used by RCA and failed-only rerun."),
+        "execution_report": item(EXISTING_REPORTS_DIR / "execution-report.json", "Latest execution command, exit code and artifact evidence."),
+        "report_manifest": item(EXISTING_REPORTS_DIR / "report-manifest.json", "Stage-aware report links and latest report pointers."),
+        "common_cause_memory": item(EXISTING_COMMON_CAUSE_MEMORY_JSON, "Recurring shared failure signatures."),
+        "runtime_events": item(QA_CACHE_DIR / "runtime" / "runtime-events.jsonl", "Append-only runtime progress and diagnostic events."),
+        "runtime_status": item(QA_CACHE_DIR / "runtime" / "current-status.json", "Latest runtime stage/status."),
+        "ai_action_history": item(QA_CACHE_DIR / "ai-memory" / "action-history.jsonl", "Observable AI action and patch history."),
+        "human_intervention_memory": item(QA_CACHE_DIR / "existing-framework" / "human-intervention" / "human-intervention-memory.jsonl", "Human approval, guidance and approved-file memory."),
+        "backup_root": item(EXISTING_BACKUP_DIR, "Timestamped backups created before approved self-healing changes."),
+    }
+
+    framework_native: list[dict[str, Any]] = []
+    if root is not None:
+        for path, purpose in [
+            (root / "playwright-report" / "index.html", "Playwright default native HTML location when the framework does not override outputFolder."),
+            (root / "reports" / "existing-framework" / "html" / "index.html", "AstraHeal-compatible native HTML location inside the selected framework."),
+            (root / "reports" / "html-report" / "index.html", "Alternative framework HTML reporter location."),
+            (root / "test-results", "Native Playwright traces, screenshots, videos and attachments."),
+            (root / "reports" / "existing-framework" / "test-results", "AstraHeal-compatible test-results location inside the framework."),
+            (root / "reports" / "existing-framework" / "execution-console.log", "Exact streamed Playwright command output for the latest local/sequential execution."),
+        ]:
+            framework_native.append(item(path, purpose))
+
+    return {
+        "ok": True,
+        "astraheal_install_root": str(REPO_ROOT.resolve()),
+        "selected_framework_root": str(root) if root is not None else "",
+        "central_report_root": str(EXISTING_REPORTS_DIR.resolve()),
+        "central_cache_root": str(QA_CACHE_DIR.resolve()),
+        "existing_framework_cache_root": str(EXISTING_CACHE_DIR.resolve()),
+        "central_artifacts": central,
+        "framework_native_candidates": framework_native,
+        "explanation": {
+            "playwright": "Playwright first writes its native report under the selected framework. AstraHeal then copies/retains the latest report under generated-playwright/reports/existing-framework so GUI links remain stable.",
+            "rca_self_healing": "RCA and self-healing reports are retained centrally under generated-playwright/reports/existing-framework; supporting memory, runtime logs and backups are under .qa-cache.",
+        },
+    }
 
 
 def _safe_str(value: Any, limit: int = 12000) -> str:
@@ -219,27 +317,76 @@ def _resolve_framework_path(framework_path: str) -> Path:
     return selected
 
 
+def _path_under_test_area(parts: tuple[str, ...] | list[str]) -> bool:
+    rel = "/".join(str(p).lower() for p in parts if str(p))
+    return (
+        rel.startswith("tests/")
+        or rel.startswith("src/test/")
+        or rel.startswith("src/tests/")
+        or rel.startswith("test/")
+        or rel.startswith("specs/")
+        or rel.startswith("e2e/")
+        or "/src/test/" in ("/" + rel + "/")
+        or "/tests/" in ("/" + rel + "/")
+    )
+
+
 def _is_ignored(path: Path, root: Path) -> bool:
     try:
         parts = path.relative_to(root).parts
     except Exception:
         parts = path.parts
-    return any(str(p).lower() in IGNORED_DIRS for p in parts)
+    parts_low = [str(p).lower() for p in parts]
+    under_test_area = _path_under_test_area(parts_low)
+    for p in parts_low:
+        if p in IGNORED_DIRS:
+            # A business module can legitimately be named reports, e.g.
+            # src/test/specs/reports/reporting.spec.ts. Do not treat that as a
+            # generated reports folder when it is inside the executable test tree.
+            if p == "reports" and under_test_area:
+                continue
+            return True
+    return False
 
 
 def _find_files(root: Path, suffixes: tuple[str, ...] | set[str], limit: int = 5000) -> list[Path]:
+    """Fast recursive file search that prunes ignored enterprise folders.
+
+    Path.rglob() still walks inside ignored directories before filtering them.
+    That is slow for real Playwright repos with node_modules, reports, test-results
+    or generated cache folders.  os.walk lets us prune those directories before
+    descent, keeping Deep Learn and Find Scripts responsive.
+    """
     files: list[Path] = []
-    for path in root.rglob("*"):
+    root = Path(root)
+    for current, dirs, names in os.walk(root):
+        base = Path(current)
+        kept_dirs = []
+        for d in dirs:
+            dlow = d.lower()
+            rel_parts = []
+            try:
+                rel_parts = list((base / d).relative_to(root).parts)
+            except Exception:
+                rel_parts = [d]
+            if dlow in IGNORED_DIRS and not (dlow == "reports" and _path_under_test_area(rel_parts)):
+                continue
+            kept_dirs.append(d)
+        dirs[:] = kept_dirs
+        for name0 in names:
+            if len(files) >= limit:
+                break
+            path = base / name0
+            if not path.is_file() or _is_ignored(path, root):
+                continue
+            name = path.name.lower()
+            if isinstance(suffixes, tuple):
+                if name.endswith(suffixes):
+                    files.append(path)
+            elif path.suffix.lower() in suffixes:
+                files.append(path)
         if len(files) >= limit:
             break
-        if not path.is_file() or _is_ignored(path, root):
-            continue
-        name = path.name.lower()
-        if isinstance(suffixes, tuple):
-            if name.endswith(suffixes):
-                files.append(path)
-        elif path.suffix.lower() in suffixes:
-            files.append(path)
     return sorted(files, key=lambda p: _rel_to(p, root))
 
 
@@ -259,27 +406,118 @@ def _is_playwright_line_selector(target: Any) -> bool:
     return bool(re.search(r"\.(?:specs|spec|test)\.(?:ts|tsx|js|jsx|mjs|cjs):\d+(?::\d+)?$", str(target or "").replace("\\", "/"), flags=re.I))
 
 
-def _is_tests_folder_executable_spec(rel_path: str) -> bool:
-    """True only for executable Playwright spec/test targets under tests/**.
+def _clean_rel_for_execution(rel_path: Any) -> str:
+    return _strip_playwright_line_selector(rel_path).replace("\\", "/").strip().strip("'\"").lstrip("/")
 
-    Accepts both spec-file targets and Playwright line selectors generated by
-    the hierarchical GUI, while still rejecting backups/non-root test folders.
+
+def _has_blocked_execution_part(rel_path: str) -> bool:
+    parts = [p.lower() for p in str(rel_path or "").replace("\\", "/").split("/") if p]
+    under_test_area = _path_under_test_area(parts)
+    for p in parts:
+        if p in IGNORED_EXECUTION_PARTS:
+            if p == "reports" and under_test_area:
+                continue
+            return True
+    return False
+
+
+def _looks_like_enterprise_test_root(rel_path: str) -> bool:
+    """Return true for recognized executable Playwright test areas.
+
+    Root ``tests/**`` remains supported, and enterprise nested structures such as
+    ``src/test/specs/**`` are now first-class.  The function deliberately avoids
+    accepting backup/history/report folders even if they contain a nested tests
+    directory.
     """
-    rel = _strip_playwright_line_selector(rel_path).lower()
-    if not rel.endswith(EXECUTABLE_SPEC_SUFFIXES):
+    rel = str(rel_path or "").replace("\\", "/").strip().strip("/").lower()
+    if not rel:
         return False
-    # Strict enterprise rule for the Run & Fix selector: only the real project
-    # tests folder is runnable.  Do not include backups such as
-    # .codex-backups/.../tests/... or generated history folders that merely
-    # contain a nested tests directory.
-    return rel.startswith("tests/")
+    for prefix in DEFAULT_EXECUTABLE_TEST_ROOTS:
+        prefix = prefix.strip("/").lower()
+        if rel == prefix or rel.startswith(prefix + "/"):
+            return True
+    wrapped = "/" + rel + "/"
+    # Monorepo/package support: packages/app/src/test/specs/foo.spec.ts,
+    # apps/web/tests/foo.spec.ts, etc.  Backups/reports are already blocked.
+    enterprise_markers = ("/src/test/specs/", "/src/test/", "/tests/", "/test/specs/", "/specs/", "/e2e/")
+    return any(marker in wrapped for marker in enterprise_markers)
+
+
+def _is_tests_folder_executable_spec(rel_path: str, root: Path | None = None) -> bool:
+    """True for executable Playwright spec/test targets discovered safely.
+
+    Legacy root ``tests/**`` and nested ``src/test/specs/**`` paths remain
+    first-class. When ``root`` is provided, unusual enterprise locations are
+    also accepted only when Playwright configuration or executable test content
+    proves that the file is runnable.
+    """
+    rel = _clean_rel_for_execution(rel_path)
+    low = rel.lower()
+    if not low.endswith(EXECUTABLE_SPEC_SUFFIXES):
+        return False
+    if _has_blocked_execution_part(low):
+        return False
+    if _looks_like_enterprise_test_root(low):
+        return True
+    if root is not None:
+        try:
+            return bool(classify_spec_candidate(Path(root).resolve(), rel).get("accepted"))
+        except Exception:
+            return False
+    return False
+
+
+def _configured_playwright_test_dirs(root: Path) -> list[str]:
+    """Discover configured Playwright test roots plus compatible defaults.
+
+    The structure scanner understands literal ``testDir`` values, path.join /
+    path.resolve expressions and simple variables used by enterprise configs.
+    """
+    candidates = [*discover_configured_test_dirs(root), *DEFAULT_EXECUTABLE_TEST_ROOTS]
+    seen: set[str] = set()
+    out: list[str] = []
+    for c in candidates:
+        c = str(c or "").replace("\\", "/").strip().strip("/")
+        if not c or _has_blocked_execution_part(c):
+            continue
+        key = c.lower()
+        if key not in seen:
+            out.append(c)
+            seen.add(key)
+    return out
+
+
+def _discover_executable_test_roots(root: Path, rel_specs: list[str] | None = None) -> list[str]:
+    rel_specs = rel_specs or []
+    try:
+        profiled_roots = list(build_structure_profile(root, limit=5000).get("discovered_test_roots") or [])
+    except Exception:
+        profiled_roots = []
+    roots = [*_configured_playwright_test_dirs(root), *profiled_roots]
+    # If no configured/common root exists, add the highest approved parent folder
+    # from discovered specs so unusual monorepos are still explainable.
+    existing_common = [r for r in roots if (root / r).exists()]
+    if not existing_common:
+        for spec in rel_specs:
+            spec = _clean_rel_for_execution(spec)
+            parts = spec.split("/")[:-1]
+            for idx in range(len(parts), 0, -1):
+                cand = "/".join(parts[:idx])
+                if cand and _looks_like_enterprise_test_root(cand + "/x.spec.ts"):
+                    roots.append(cand)
+                    break
+    seen: set[str] = set()
+    out: list[str] = []
+    for r in roots:
+        key = r.lower().strip("/")
+        if key and key not in seen and (root / r).exists():
+            out.append(r.strip("/")); seen.add(key)
+    return out
 
 
 def _find_executable_tests_under_tests(root: Path, limit: int = 5000) -> list[Path]:
-    return [
-        p for p in _find_files(root, EXECUTABLE_SPEC_SUFFIXES, limit=limit)
-        if _is_tests_folder_executable_spec(_rel_to(p, root))
-    ]
+    """Recursively find executable Playwright specs in any proven test layout."""
+    return executable_spec_paths(Path(root).resolve(), limit=limit)
 
 
 def _load_package_json(root: Path) -> dict[str, Any]:
@@ -313,33 +551,31 @@ def _playwright_config_files(root: Path) -> list[str]:
 
 
 def _likely_dirs(root: Path) -> dict[str, list[str]]:
-    buckets = {
-        "spec_dirs": [],
-        "page_dirs": [],
-        "page_object_dirs": [],
-        "fixture_dirs": [],
-        "test_data_dirs": [],
-        "utility_dirs": [],
-    }
-    for path in root.rglob("*"):
-        if not path.is_dir() or _is_ignored(path, root):
-            continue
-        rel = _rel_to(path, root)
-        low = rel.lower()
-        name = path.name.lower()
-        if name in {"tests", "specs", "e2e", "integration"} or "/tests/" in f"/{low}/":
-            buckets["spec_dirs"].append(rel)
-        if name in {"pages", "page"} or low.endswith("/pages"):
-            buckets["page_dirs"].append(rel)
-        if name in {"pageobjects", "page-objects", "page_objects", "objects"} or "pageobject" in low or "page-object" in low:
-            buckets["page_object_dirs"].append(rel)
-        if name in {"fixtures", "fixture"}:
-            buckets["fixture_dirs"].append(rel)
-        if name in {"testdata", "test-data", "data", "fixtures-data"}:
-            buckets["test_data_dirs"].append(rel)
-        if name in {"utils", "helpers", "support", "lib", "common"}:
-            buckets["utility_dirs"].append(rel)
-    return {k: sorted(dict.fromkeys(v))[:80] for k, v in buckets.items()}
+    """Return structure-aware component folders from the recursive profile."""
+    try:
+        profile = build_structure_profile(Path(root).resolve(), limit=5000)
+        model = profile.get("component_directory_model") or {}
+        return {
+            "spec_dirs": list(model.get("spec_dirs") or profile.get("discovered_test_roots") or [])[:200],
+            "page_dirs": list(model.get("page_dirs") or [])[:200],
+            "page_object_dirs": list(model.get("page_object_dirs") or [])[:200],
+            "config_dirs": list(model.get("config_dirs") or [])[:200],
+            "api_dirs": list(model.get("api_dirs") or [])[:200],
+            "ui_base_dirs": list(model.get("ui_base_dirs") or [])[:200],
+            "fixture_dirs": list(model.get("fixture_dirs") or [])[:200],
+            "test_data_dirs": list(model.get("test_data_dirs") or [])[:200],
+            "utility_dirs": list(model.get("utility_dirs") or [])[:200],
+            "reporter_dirs": list(model.get("reporter_dirs") or [])[:200],
+        }
+    except Exception:
+        # Safe compatibility fallback. Deep discovery errors must never block
+        # the existing deterministic framework workflow.
+        return {
+            "spec_dirs": [], "page_dirs": [], "page_object_dirs": [],
+            "config_dirs": [], "api_dirs": [], "ui_base_dirs": [],
+            "fixture_dirs": [], "test_data_dirs": [], "utility_dirs": [],
+            "reporter_dirs": [],
+        }
 
 
 def _read(path: Path, limit: int = 200000) -> str:
@@ -383,15 +619,14 @@ def _discover_test_cases_in_spec(root: Path, rel_spec: str) -> dict[str, Any]:
     pattern = re.compile(r'''(?<![\w$])(?P<api>test|it)(?P<mods>(?:\.[A-Za-z_$][\w$]*)*)\s*\(\s*(?P<q>['"`])(?P<title>(?:\\.|(?!(?P=q)).)*?)(?P=q)''', re.S)
     allowed_mods = {"", "only", "skip", "fixme", "fail", "slow"}
     blocked_mods = {"describe", "step", "beforeeach", "aftereach", "beforeall", "afterall", "use", "extend", "info"}
-    for match in pattern.finditer(masked):
-        mods = [m for m in str(match.group("mods") or "").strip(".").split(".") if m]
-        low_mods = [m.lower() for m in mods]
-        if any(m in blocked_mods for m in low_mods):
-            continue
-        if any(m not in allowed_mods for m in low_mods):
-            continue
-        title = re.sub(r"\s+", " ", (match.group("title") or "").replace("\\`", "`").replace("\\'", "'").replace('\\"', '"')).strip()
-        line = _line_number_for_offset(masked, match.start())
+    seen_lines: set[int] = set()
+
+    def add_case(start_offset: int, title_raw: str, kind: str = "test_case") -> None:
+        title = re.sub(r"\s+", " ", (title_raw or "").replace("\\`", "`").replace("\\'", "'").replace('\\"', '"')).strip()
+        line = _line_number_for_offset(masked, start_offset)
+        if line in seen_lines:
+            return
+        seen_lines.add(line)
         target = f"{spec}:{line}"
         tests.append({
             "id": f"{spec}::{line}::{title}",
@@ -400,8 +635,26 @@ def _discover_test_cases_in_spec(root: Path, rel_spec: str) -> dict[str, Any]:
             "line": line,
             "title": title or f"Test at line {line}",
             "ordinal": len(tests) + 1,
-            "kind": "test_case",
+            "kind": kind,
         })
+
+    for match in pattern.finditer(masked):
+        mods = [m for m in str(match.group("mods") or "").strip(".").split(".") if m]
+        low_mods = [m.lower() for m in mods]
+        if any(m in blocked_mods for m in low_mods):
+            continue
+        if any(m not in allowed_mods for m in low_mods):
+            continue
+        add_case(match.start(), match.group("title") or "", "test_case")
+
+    # Enterprise/custom wrapper support. Many mature frameworks wrap Playwright
+    # test with helpers such as testDetails({...})("case title", async ...).
+    # These are still executable Playwright tests, so show them in the hierarchy
+    # and allow line-selector execution.
+    wrapper_pattern = re.compile(r"""(?<![\w$])(?P<api>testDetails|testCase|createTest|uiTest|scenario)\s*\((?:[^()]|\([^()]*\))*\)\s*\(\s*(?P<q>['"`])(?P<title>(?:\\.|(?!(?P=q)).)*?)(?P=q)""", re.S)
+    for match in wrapper_pattern.finditer(masked):
+        add_case(match.start(), match.group("title") or "", "custom_wrapper:" + str(match.group("api") or "wrapper"))
+
     return {
         "spec": spec,
         "test_case_count": len(tests),
@@ -414,7 +667,7 @@ def _build_test_case_inventory(root: Path, rel_specs: list[str]) -> dict[str, An
     items: list[dict[str, Any]] = []
     total = 0
     for spec in rel_specs:
-        if not _is_tests_folder_executable_spec(spec):
+        if not _is_tests_folder_executable_spec(spec, root=root):
             continue
         item = _discover_test_cases_in_spec(root, spec)
         items.append(item)
@@ -455,6 +708,12 @@ def _candidate_files_for_import_or_path(root: Path, raw_value: str, base_file: P
         return []
 
     candidates: list[Path] = []
+    alias_summary = tsconfig_alias_summary(root)
+    base_url = str(alias_summary.get("base_url") or ".").replace("\\", "/").strip().strip("/") or "."
+    try:
+        ts_base_root = (root / base_url).resolve() if base_url != "." else root.resolve()
+    except Exception:
+        ts_base_root = root.resolve()
 
     def add_base(path_like: str | Path) -> None:
         s = str(path_like).replace("\\", "/")
@@ -466,9 +725,14 @@ def _candidate_files_for_import_or_path(root: Path, raw_value: str, base_file: P
         if base_file is not None and (s.startswith("./") or s.startswith("../") or raw_value.startswith(".")):
             bases.append((base_file.parent / s))
         bases.append(root / s)
+        if ts_base_root != root.resolve() and not Path(s).is_absolute():
+            bases.append(ts_base_root / s)
         for base in bases:
             candidates.append(base)
-            if base.suffix:
+            # Imports like @pages/foo.page have a semantic suffix (.page) but
+            # still need .ts/.js materialization. Treat only real code suffixes
+            # as complete file extensions.
+            if base.suffix.lower() in {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json"}:
                 continue
             for suffix in [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]:
                 candidates.append(Path(str(base) + suffix))
@@ -514,7 +778,13 @@ def _candidate_files_for_import_or_path(root: Path, raw_value: str, base_file: P
             "objects": ["pageObjects", "pageobjects", "objects", "src/pageObjects", "src/objects"],
             "utils": ["utils", "src/utils", "test-utils", "tests/utils"],
             "helpers": ["helpers", "src/helpers", "utils", "src/utils"],
-            "fixtures": ["fixtures", "tests/fixtures", "src/fixtures"],
+            "fixtures": ["fixtures", "tests/fixtures", "src/fixtures", "src/test/resources/fixtures"],
+            "config": ["config", "src/config", "src/main/config", "tests/config", "src/test/config"],
+            "api": ["api", "src/api", "src/main/api"],
+            "base": ["base", "src/base", "src/main/ui_base", "src/ui_base"],
+            "dataloader": ["data-loader", "dataLoader", "src/test/resources/data-loader", "tests/data-loader"],
+            "testdata": ["testData", "test-data", "src/test/resources/testData", "tests/testData"],
+            "reporters": ["reporters", "src/test/resources/reporters", "tests/reporters"],
             "components": ["components", "src/components"],
             "pom": ["pages", "pageObjects", "src/pages", "src/pageObjects"],
         }
@@ -526,23 +796,18 @@ def _candidate_files_for_import_or_path(root: Path, raw_value: str, base_file: P
     for variant in alias_variants:
         add_base(variant)
 
-    # tsconfig path aliases such as @app/* => src/*.
-    tsconfig = root / "tsconfig.json"
-    if tsconfig.exists():
-        try:
-            data = json.loads(tsconfig.read_text(encoding="utf-8", errors="replace"))
-            paths = ((data.get("compilerOptions") or {}).get("paths") or {})
-            for key, mapped_values in paths.items():
-                key_regex = "^" + re.escape(key).replace("\\*", "(.+)") + "$"
-                match = re.match(key_regex, value)
-                if not match:
-                    continue
-                wildcard = match.group(1) if match.groups() else ""
-                for mapped in mapped_values if isinstance(mapped_values, list) else [mapped_values]:
-                    mapped_str = str(mapped).replace("*", wildcard)
-                    add_base(mapped_str)
-        except Exception:
-            pass
+    # tsconfig/jsconfig path aliases such as @config/* => src/main/config/*.
+    # JSONC comments/trailing commas are supported because enterprise tsconfig
+    # files commonly contain comments.
+    for key, mapped_values in (alias_summary.get("paths") or {}).items():
+        key_regex = "^" + re.escape(str(key)).replace("\\*", "(.+)") + "$"
+        match = re.match(key_regex, value)
+        if not match:
+            continue
+        wildcard = match.group(1) if match.groups() else ""
+        for mapped in mapped_values if isinstance(mapped_values, list) else [mapped_values]:
+            mapped_str = str(mapped).replace("*", wildcard)
+            add_base(mapped_str)
 
     resolved: list[Path] = []
     seen: set[str] = set()
@@ -594,6 +859,68 @@ def _import_graph_for_specs(root: Path, spec_files: list[Path]) -> dict[str, Any
                 resolved.append(_rel_to(found, root))
         graph[_rel_to(spec, root)] = sorted(dict.fromkeys(resolved))
     return graph
+
+
+
+def _tsconfig_alias_import_audit(root: Path, code_files: list[Path], limit: int = 1200) -> dict[str, Any]:
+    """Audit TypeScript path aliases and unresolved internal alias imports.
+
+    This specifically catches failures like "Cannot find module '@config/environment'"
+    before RCA mislabels them as locator/DOM problems.
+    """
+    summary = tsconfig_alias_summary(root)
+    alias_imports: list[dict[str, Any]] = []
+    unresolved: list[dict[str, Any]] = []
+    resolved_count = 0
+    alias_keys = list((summary.get("paths") or {}).keys())
+
+    def is_internal_alias(value: str) -> bool:
+        if not value or not value.startswith(("@", "~", "#")):
+            return False
+        if value.startswith(("@playwright/", "@types/", "@babel/", "@jest/", "@testing-library/", "@cucumber/")):
+            return False
+        if alias_keys:
+            for key in alias_keys:
+                regex = "^" + re.escape(str(key)).replace("\\*", "(.+)") + "$"
+                if re.match(regex, value):
+                    return True
+        # Keep common enterprise aliases even when tsconfig parse failed/missing.
+        return bool(re.match(r"^@(pages|pageobjects|objects|fixtures|config|api|base|dataloader|testdata|reporters|utils|helpers|components|pom)(/|$)", value, flags=re.I))
+
+    for file in code_files[:limit]:
+        if not file.exists() or file.suffix.lower() not in TS_SUFFIXES:
+            continue
+        rel = _rel_to(file, root)
+        for imp in _extract_import_paths(_read(file, limit=120000)):
+            if not is_internal_alias(str(imp)):
+                continue
+            found = _resolve_import(file, str(imp), root)
+            rec = {"file": rel, "import": str(imp), "resolved": _rel_to(found, root) if found else ""}
+            alias_imports.append(rec)
+            if found:
+                resolved_count += 1
+            else:
+                unresolved.append(rec)
+            if len(alias_imports) >= 300:
+                break
+        if len(alias_imports) >= 300:
+            break
+    runtime_required = bool(alias_imports and summary.get("alias_count"))
+    return {
+        "ok": True,
+        "tsconfig": summary,
+        "runtime_alias_resolver_recommended": runtime_required,
+        "alias_import_count_sampled": len(alias_imports),
+        "resolved_alias_import_count_sampled": resolved_count,
+        "unresolved_alias_import_count_sampled": len(unresolved),
+        "sample_alias_imports": alias_imports[:80],
+        "unresolved_alias_imports": unresolved[:80],
+        "message": (
+            "TypeScript path aliases detected. AstraHeal will preload a runtime alias resolver for Playwright execution and RCA scope resolution."
+            if runtime_required else
+            "No internal TypeScript path alias runtime resolver requirement was detected from sampled files."
+        ),
+    }
 
 
 def _inline_locator_findings(root: Path, spec_files: list[Path]) -> list[dict[str, Any]]:
@@ -656,10 +983,12 @@ def _playwright_alignment_plan(root: Path, inventory: dict[str, Any], package_js
         issue("high", "Playwright config not detected", "No playwright.config.ts/js/mjs/cjs file was found at the framework root.", "Create a minimal Playwright config with reports/traces/screenshots through approved self-healing.")
     if specs_suffix_count and has_pw_config and not has_test_match_for_specs:
         issue("medium", ".specs.* files may not be matched by default config", f"Detected {specs_suffix_count} .specs.* files. Default Playwright testMatch often does not include .specs.* unless configured.", "Add testMatch for **/*.specs.ts/js or rename files through a reviewed change.")
-    if not (root / "tests").exists():
-        issue("medium", "tests/** folder not found", "The GUI executable discovery intentionally uses tests/**. Specs outside tests/** are not selected for this workflow.", "Move executable specs under tests/** or update the approved discovery policy.")
-    if not spec_files:
-        issue("blocker", "No executable Playwright spec/test files found", "Expected tests/**/*.spec.ts, tests/**/*.specs.ts or tests/**/*.test.ts style files.", "Generate/add executable Playwright tests under tests/** before execution.")
+    executable_spec_files = [p for p in spec_files if p.name.lower().endswith(EXECUTABLE_SPEC_SUFFIXES) and _is_tests_folder_executable_spec(_rel_to(p, root), root=root)]
+    executable_roots = _discover_executable_test_roots(root, [_rel_to(p, root) for p in executable_spec_files])
+    if not executable_roots:
+        issue("medium", "Playwright executable test location not proven", "AstraHeal recursively checks configured testDir, nested enterprise roots such as src/test/specs/**, monorepo test folders, and executable Playwright content. No runnable location was proven.", "Use the correct framework root, confirm Playwright testDir/testMatch, or place executable tests in the intended framework test location.")
+    if not executable_spec_files:
+        issue("blocker", "No executable Playwright spec/test files found", "Recursive discovery checked configured testDir, conventional and nested test folders, and executable Playwright test content.", "Use Deep Learn/AI full-control fix to identify the actual test layout or repair Playwright testDir/testMatch/import configuration.")
     if not dirs.get("page_dirs"):
         issue("medium", "Page class folder not detected", "Specs may be interacting directly with the page instead of calling reusable page methods.", "Create/use pages/<PageName>.ts and move business actions there during approved fixes.")
     if not dirs.get("page_object_dirs"):
@@ -765,13 +1094,18 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
     root = _resolve_framework_path(framework_path)
     log_event("existing_framework", f"Analyzing existing Playwright framework: {root}", progress=8, details={"framework_path": str(root)})
     package_json = _load_package_json(root)
-    spec_files = _find_files(root, SPEC_SUFFIXES, limit=1500)
-    ts_files = _find_files(root, TS_SUFFIXES, limit=3000)
+    structure_profile = build_structure_profile(root, limit=5000)
+    spec_files = _find_files(root, SPEC_SUFFIXES, limit=5000)
+    executable_rel_specs = list(structure_profile.get("executable_specs") or [])
+    executable_spec_files = [root / rel for rel in executable_rel_specs]
+    executable_test_roots = list(structure_profile.get("discovered_test_roots") or _discover_executable_test_roots(root, executable_rel_specs))
+    ts_files = _find_files(root, TS_SUFFIXES, limit=5000)
     dirs = _likely_dirs(root)
     inline = _inline_locator_findings(root, spec_files)
     scripts = package_json.get("scripts", {}) if isinstance(package_json, dict) else {}
     playwright_scripts = {k: v for k, v in scripts.items() if "playwright" in str(v).lower() or "e2e" in k.lower() or "test" == k.lower()}
     import_graph = _import_graph_for_specs(root, spec_files)
+    path_alias_audit = _tsconfig_alias_import_audit(root, ts_files)
     inventory: dict[str, Any] = {
         "ok": True,
         "stage": "existing_framework_understood",
@@ -784,9 +1118,14 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
         "playwright_scripts": playwright_scripts,
         "total_code_files_seen": len(ts_files),
         "spec_count": len(spec_files),
+        "executable_spec_count": len(executable_spec_files),
+        "executable_test_roots": executable_test_roots,
+        "structure_discovery": structure_profile,
         "sample_specs": [_rel_to(p, root) for p in spec_files[:60]],
+        "sample_executable_specs": executable_rel_specs[:80],
         "directory_model": dirs,
         "spec_import_graph_sample": import_graph,
+        "tsconfig_path_alias_audit": path_alias_audit,
         "inline_locator_findings_in_specs": inline,
         "pom_compliance": _pom_score(dirs, inline, len(spec_files)),
         "execution_recommendation": {
@@ -800,6 +1139,7 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
             "Execute the framework in-place from the provided folder.",
             "RCA and self-healing must use failed-tests inventory only.",
             "Patch failed specs and their imported page/pageObject/helper files only.",
+            "Treat Cannot find module / MODULE_NOT_FOUND for @aliases as a TypeScript path-alias/runtime configuration issue, not a locator/DOM failure.",
             "Prefer PageObjects first, then page methods/BasePage/helpers; avoid raw locator fixes inside specs.",
             "Robust RCA uses five signals before patching: DOM diff, trace timing, HAR diff, fixture/seed diff, and cross-run flakiness frequency.",
             "Assertion updates are blocked unless the assertion drift classifier marks the change as cosmetic and above semantic threshold.",
@@ -829,7 +1169,7 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
         inventory["framework_intelligence_v2"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Framework intelligence v2 failed safely; base analysis is still available."}
     EXISTING_INTELLIGENCE_JSON.write_text(json.dumps(inventory, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     EXISTING_INTELLIGENCE_MD.write_text(_render_framework_markdown(inventory), encoding="utf-8")
-    log_event("existing_framework", "Existing framework understanding completed. GUI can now execute existing specs without generating new testcases.", status="done", progress=100, details={"spec_count": len(spec_files), "pom_score": inventory["pom_compliance"]["score"]})
+    log_event("existing_framework", "Existing framework understanding completed. GUI can now execute existing specs without generating new testcases.", status="done", progress=100, details={"spec_count": len(spec_files), "executable_spec_count": len(executable_spec_files), "executable_test_roots": executable_test_roots, "pom_score": inventory["pom_compliance"]["score"]})
     return inventory
 
 
@@ -953,26 +1293,27 @@ def _ensure_headed_args(cmd: list[str]) -> list[str]:
 def _discover_playwright_test_targets(root: Path) -> dict[str, Any]:
     """Discover executable Playwright test scripts for default GUI execution.
 
-    The normal Run & Fix workflow intentionally discovers only TypeScript/
-    JavaScript Playwright spec/test files under tests/**.  Feature files under
-    features/** are requirements/BDD assets, not executable Playwright Test
-    scripts for this workflow, so they are skipped and reported separately.
+    The normal Run & Fix workflow discovers TypeScript/JavaScript Playwright
+    spec/test files from recursively proven test locations. Root tests/** remains supported,
+    and nested enterprise layouts such as src/test/specs/** are now supported.
+    Feature files are requirements/BDD assets and are skipped here.
     """
-    spec_files = _find_executable_tests_under_tests(root, limit=5000)
-    rel_specs = [_rel_to(p, root) for p in spec_files]
+    structure_profile = build_structure_profile(root, limit=5000)
+    rel_specs = list(structure_profile.get("executable_specs") or [])
+    spec_files = [root / rel for rel in rel_specs]
+    executable_roots = list(structure_profile.get("discovered_test_roots") or _discover_executable_test_roots(root, rel_specs))
+    test_root_label = ", ".join(executable_roots[:8]) if executable_roots else "recursively proven Playwright test locations"
     skipped_feature_files = [_rel_to(p, root) for p in _find_files(root, FEATURE_SUFFIXES, limit=5000)]
-    skipped_outside_tests = [
-        _rel_to(p, root) for p in _find_files(root, EXECUTABLE_SPEC_SUFFIXES, limit=5000)
-        if not _is_tests_folder_executable_spec(_rel_to(p, root))
-    ]
-    all_named_specs = [s for s in rel_specs if re.search(r"(^|/)ALL.*\.(spec|specs|test)\.(ts|js|mjs|cjs)$", s, flags=re.I)]
-    plural_specs = [s for s in rel_specs if re.search(r"\.specs\.(ts|js|mjs|cjs)$", s, flags=re.I)]
+    skipped_outside_tests = [str(x.get("path") or "") for x in (structure_profile.get("rejected_spec_candidates") or []) if x.get("path")]
+    all_named_specs = [s for s in rel_specs if re.search(r"(^|/)ALL.*\.(spec|specs|test)\.(ts|tsx|js|jsx|mjs|cjs)$", s, flags=re.I)]
+    plural_specs = [s for s in rel_specs if re.search(r"\.specs\.(ts|tsx|js|jsx|mjs|cjs)$", s, flags=re.I)]
 
     if not rel_specs:
         return {
             "ok": False,
-            "strategy": "no_executable_tests_found_under_tests_folder",
-            "test_root": "tests",
+            "strategy": "no_executable_tests_found_by_recursive_structure_scan",
+            "test_root": test_root_label,
+            "executable_test_roots": executable_roots,
             "targets": [],
             "spec_count": 0,
             "total_discovered_spec_count": 0,
@@ -982,7 +1323,8 @@ def _discover_playwright_test_targets(root: Path) -> dict[str, Any]:
             "plural_specs": [],
             "skipped_feature_files": skipped_feature_files[:500],
             "skipped_outside_tests_folder": skipped_outside_tests[:500],
-            "message": "No executable Playwright spec/test files were found under tests/**. Expected patterns include tests/**/*.spec.ts, tests/**/*.specs.ts and tests/**/*.test.ts. Feature files under features/** are intentionally not selected in this workflow.",
+            "structure_discovery": structure_profile,
+            "message": "No executable Playwright spec/test files were proven by recursive scan. AstraHeal checked Playwright testDir configuration, conventional/nested test folders, and executable Playwright test content. Feature files remain excluded from this workflow.",
         }
 
     # Prefer explicit paths whenever practical. This avoids missing non-standard
@@ -990,8 +1332,9 @@ def _discover_playwright_test_targets(root: Path) -> dict[str, Any]:
     if len(rel_specs) <= 250:
         return {
             "ok": True,
-            "strategy": "explicit_tests_folder_executable_specs_only",
-            "test_root": "tests",
+            "strategy": "explicit_discovered_playwright_specs",
+            "test_root": test_root_label,
+            "executable_test_roots": executable_roots,
             "targets": rel_specs,
             "spec_count": len(rel_specs),
             "total_discovered_spec_count": len(rel_specs),
@@ -1001,7 +1344,8 @@ def _discover_playwright_test_targets(root: Path) -> dict[str, Any]:
             "plural_specs": plural_specs[:200],
             "skipped_feature_files": skipped_feature_files[:500],
             "skipped_outside_tests_folder": skipped_outside_tests[:500],
-            "message": "Executing every executable Playwright spec/test file found under tests/** explicitly. Feature files are skipped by design.",
+            "structure_discovery": structure_profile,
+            "message": f"Executing every executable Playwright spec/test file found under {test_root_label} explicitly. Feature files are skipped by design.",
         }
 
     def dir_has_specs(rel_dir: str) -> tuple[bool, list[str]]:
@@ -1010,7 +1354,7 @@ def _discover_playwright_test_targets(root: Path) -> dict[str, Any]:
         matches = [s for s in rel_specs if s.lower().startswith(prefix)]
         return p.exists() and p.is_dir() and bool(matches), matches
 
-    for rel_dir in ["tests/specs", "tests/e2e", "tests/integration", "tests"]:
+    for rel_dir in [*executable_roots, "tests/specs", "tests/e2e", "tests/integration", "tests", "src/test/specs"]:
         ok, matches = dir_has_specs(rel_dir)
         if ok:
             msg = f"Large suite detected. Executing folder '{rel_dir}' to avoid Windows command length limits. Selected executable specs are shown in preview."
@@ -1018,7 +1362,7 @@ def _discover_playwright_test_targets(root: Path) -> dict[str, Any]:
                 msg += " This folder contains .specs.ts files; ensure your playwright.config testMatch supports them, or run selected files explicitly in smaller batches."
             return {
                 "ok": True,
-                "strategy": "large_suite_tests_folder_scope",
+                "strategy": "large_suite_discovered_test_root_scope",
                 "test_root": rel_dir,
                 "targets": [rel_dir],
                 "spec_count": len(matches),
@@ -1029,13 +1373,15 @@ def _discover_playwright_test_targets(root: Path) -> dict[str, Any]:
                 "plural_specs": [s for s in plural_specs if s in matches][:200],
                 "skipped_feature_files": skipped_feature_files[:500],
                 "skipped_outside_tests_folder": skipped_outside_tests[:500],
+                "structure_discovery": structure_profile,
                 "message": msg,
             }
 
     return {
         "ok": True,
-        "strategy": "large_suite_explicit_tests_folder_specs",
-        "test_root": "tests",
+        "strategy": "large_suite_explicit_discovered_specs",
+        "test_root": test_root_label,
+        "executable_test_roots": executable_roots,
         "targets": rel_specs[:250],
         "spec_count": len(rel_specs),
         "total_discovered_spec_count": len(rel_specs),
@@ -1045,7 +1391,8 @@ def _discover_playwright_test_targets(root: Path) -> dict[str, Any]:
         "plural_specs": plural_specs[:200],
         "skipped_feature_files": skipped_feature_files[:500],
         "skipped_outside_tests_folder": skipped_outside_tests[:500],
-        "message": "Large tests/** suite detected. Preview shows all executable tests; default run scope is capped to explicit files to avoid command-length problems. Use module/include filters for exact batches.",
+        "structure_discovery": structure_profile,
+        "message": f"Large Playwright suite detected under {test_root_label}. Preview shows all executable tests; default run scope is capped to explicit files to avoid command-length problems. Use module/include filters for exact batches.",
     }
 
 
@@ -1053,7 +1400,14 @@ def preview_existing_framework_tests(framework_path: str) -> dict[str, Any]:
     """Return exactly what the GUI will execute before running Playwright."""
     _ensure_dirs()
     root = _resolve_framework_path(framework_path)
-    intelligence = analyze_existing_framework(str(root), provider="deterministic", base_url="")
+    structure_profile = build_structure_profile(root, limit=5000)
+    intelligence = {
+        "ok": bool(structure_profile.get("executable_specs")),
+        "stage": "lightweight_recursive_structure_discovery",
+        "framework_path": str(root),
+        "structure_discovery": structure_profile,
+        "message": "Find Scripts uses deterministic recursive discovery only. Full AI/RAG learning runs from Deep learn this framework with AI or AI full-control framework fix.",
+    }
     discovered_scope = _discover_playwright_test_targets(root)
     log_event(
         "module2_existing_framework",
@@ -1131,7 +1485,14 @@ def preview_existing_framework_tests_for_selection(
     """
     _ensure_dirs()
     root = _resolve_framework_path(framework_path)
-    intelligence = analyze_existing_framework(str(root), provider="deterministic", base_url="")
+    structure_profile = build_structure_profile(root, limit=5000)
+    intelligence = {
+        "ok": bool(structure_profile.get("executable_specs")),
+        "stage": "lightweight_recursive_structure_discovery",
+        "framework_path": str(root),
+        "structure_discovery": structure_profile,
+        "message": "Find Scripts uses deterministic recursive discovery only. Full AI/RAG learning runs from Deep learn this framework with AI or AI full-control framework fix.",
+    }
     discovered_scope = _discover_playwright_test_targets(root)
     all_specs = list(discovered_scope.get("selected_specs") or discovered_scope.get("targets") or [])
     # If the selected scope is folder based, use a fresh full file scan so the GUI
@@ -1140,7 +1501,7 @@ def preview_existing_framework_tests_for_selection(
         all_specs = [_rel_to(p, root) for p in _find_executable_tests_under_tests(root, limit=5000)]
     all_specs = sorted(dict.fromkeys(
         str(s).replace("\\", "/") for s in all_specs
-        if str(s).strip() and _is_tests_folder_executable_spec(str(s))
+        if str(s).strip() and _is_tests_folder_executable_spec(str(s), root=root)
     ))
     filtered = _apply_test_selection_filters(all_specs, module_folder=module_folder, include_text=include_text, exclude_text=exclude_text)
     test_case_inventory = _build_test_case_inventory(root, filtered["selected_specs"])
@@ -1177,7 +1538,7 @@ def preview_existing_framework_tests_for_selection(
             "message": "User can expand each spec, see contained Playwright test cases, and select either whole specs or individual test cases before execution.",
         },
         "framework_intelligence": intelligence,
-        "message": "Test selection is ready. Only executable Playwright spec/test files under tests/** are shown. Select the scripts you want to run, then click Run chosen tests.",
+        "message": "Test selection is ready. Only executable Playwright spec/test files proven by recursive configuration, path, or code evidence are shown. Select the scripts you want to run, then click Run chosen tests.",
     }
     sel_path = EXISTING_CACHE_DIR / "latest-user-test-selection.json"
     sel_path.write_text(json.dumps(selection, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -1215,7 +1576,7 @@ def execute_selected_existing_framework_tests(
         log_event("existing_framework_selected_run", payload["message"], status="error", progress=100, details=payload)
         return payload
     invalid = [s for s in chosen if not (root / _strip_playwright_line_selector(s)).exists()]
-    non_executable_or_outside_tests = [s for s in chosen if not _is_tests_folder_executable_spec(s)]
+    non_executable_or_outside_tests = [s for s in chosen if not _is_tests_folder_executable_spec(s, root=root)]
     if invalid or non_executable_or_outside_tests:
         payload = {
             "ok": False,
@@ -1224,7 +1585,7 @@ def execute_selected_existing_framework_tests(
             "invalid_tests": invalid,
             "non_executable_or_outside_tests_folder": non_executable_or_outside_tests,
             "selected_tests": chosen,
-            "message": "Some selected items are not executable Playwright spec/test files under tests/** or do not exist. Refresh the test list; feature files are intentionally skipped.",
+            "message": "Some selected items do not exist or were not proven as executable Playwright spec/test files by the recursive structure scan. Refresh the test list; feature files are intentionally skipped.",
         }
         log_event("existing_framework_selected_run", payload["message"], status="error", progress=100, details=payload)
         return payload
@@ -1322,6 +1683,60 @@ def _resolve_first_arg(args: list[str]) -> tuple[list[str], str | None]:
     return [resolved, *args[1:]], None
 
 
+def _alias_runtime_env_summary(env: dict[str, str]) -> dict[str, Any]:
+    register = str((env or {}).get("ASTRAHEAL_TSCONFIG_ALIAS_REGISTER") or "").strip()
+    node_options = str((env or {}).get("NODE_OPTIONS") or "").strip()
+    return {
+        "enabled": bool(register and register in node_options),
+        "register_file": register,
+        "node_options_preload_present": bool(register and register in node_options),
+        "framework_root": str((env or {}).get("ASTRAHEAL_FRAMEWORK_ROOT") or ""),
+        "purpose": "Preload dependency-free tsconfig path alias resolver for Playwright/Node runtime.",
+    }
+
+
+def _launcher_env_lines(env: dict[str, str], windows: bool) -> str:
+    keys = ["NODE_OPTIONS", "ASTRAHEAL_FRAMEWORK_ROOT", "ASTRAHEAL_TSCONFIG_ALIAS_REGISTER"]
+    lines: list[str] = []
+    for key in keys:
+        value = str((env or {}).get(key) or "").strip()
+        if not value:
+            continue
+        if windows:
+            # SET syntax intentionally keeps spaces in NODE_OPTIONS and works in cmd.exe.
+            lines.append(f"set \"{key}={value}\"")
+        else:
+            import shlex as _shlex
+            lines.append(f"export {key}={_shlex.quote(value)}")
+    if not lines:
+        return ""
+    return ("\r\n" if windows else "\n").join(lines) + ("\r\n" if windows else "\n")
+
+
+def _is_module_resolution_failure(text: str) -> bool:
+    low = (text or "").lower()
+    return any(x in low for x in [
+        "cannot find module", "module_not_found", "err_module_not_found", "require stack",
+        "tsconfig-paths", "path alias", "path aliases", "failed to resolve import",
+        "cannot resolve module", "could not resolve module",
+    ])
+
+
+def _extract_missing_module_name(text: str) -> str:
+    raw = text or ""
+    patterns = [
+        r"Cannot find module ['\"]([^'\"]+)['\"]",
+        r"Error: Cannot find module ['\"]([^'\"]+)['\"]",
+        r"ERR_MODULE_NOT_FOUND[^\n]*['\"]([^'\"]+)['\"]",
+        r"Cannot resolve module ['\"]([^'\"]+)['\"]",
+    ]
+    for pat in patterns:
+        m = re.search(pat, raw, flags=re.I)
+        if m:
+            return m.group(1)[:180]
+    return ""
+
+
 def _write_execution_launcher(root: Path, args: list[str], env: dict[str, str], title: str) -> Path:
     """Write a debuggable launcher script beside the external framework reports."""
     run_dir = root / "reports" / "existing-framework"
@@ -1329,6 +1744,7 @@ def _write_execution_launcher(root: Path, args: list[str], env: dict[str, str], 
     if os.name == "nt":
         script = run_dir / "RUN_EXISTING_PLAYWRIGHT_HEADED.cmd"
         cmdline = subprocess.list2cmdline(args)
+        env_lines = _launcher_env_lines(env, windows=True)
         script.write_text(
             "@echo off\r\n"
             "setlocal enableextensions\r\n"
@@ -1341,6 +1757,7 @@ def _write_execution_launcher(root: Path, args: list[str], env: dict[str, str], 
             "where npx\r\n"
             "echo.\r\n"
             f"cd /d {subprocess.list2cmdline([str(root)])}\r\n"
+            f"{env_lines}"
             f"echo Command: {cmdline}\r\n"
             f"{cmdline}\r\n"
             "set EXITCODE=%ERRORLEVEL%\r\n"
@@ -1353,12 +1770,14 @@ def _write_execution_launcher(root: Path, args: list[str], env: dict[str, str], 
         import shlex
         script = run_dir / "run_existing_playwright_headed.sh"
         cmdline = " ".join(shlex.quote(x) for x in args)
+        env_lines = _launcher_env_lines(env, windows=False)
         script.write_text(
             "#!/usr/bin/env bash\nset -o pipefail\n"
             f"echo '[{title}] Starting'\n"
             f"echo 'Framework folder: {root}'\n"
             "command -v node || true\ncommand -v npm || true\ncommand -v npx || true\n"
             f"cd {shlex.quote(str(root))}\n"
+            f"{env_lines}"
             f"echo 'Command: {cmdline}'\n"
             f"{cmdline}\n"
             "code=$?\necho \"Playwright command exited with code $code\"\nexit $code\n",
@@ -1576,33 +1995,43 @@ def _mark_playwright_report_in_progress(root: Path, title: str, details: dict[st
 def _normalize_existing_spec_path(value: Any, root: Path | None = None) -> str:
     """Return a stable project-relative spec path for reporting/comparison.
 
-    Playwright JSON sometimes reports files relative to ``testDir`` (for example
-    ``ui/login.spec.ts``) while user selections and failed inventory usually use
-    ``tests/ui/login.spec.ts``.  Without this normalization the combined
-    first-run/rerun matrix shows duplicate rows and wrong totals.
+    Playwright JSON can report files relative to the configured testDir.  For
+    example, with ``testDir: './src/test/specs'`` it may report
+    ``account/foo.spec.ts`` while the GUI selection uses
+    ``src/test/specs/account/foo.spec.ts``.  This function maps such paths back
+    to the real project-relative path so first-run, rerun, RCA and combined
+    reports do not split the same test into duplicate rows.
     """
     v = str(value or "").replace("\\", "/").strip().strip('"\'`')
     if not v:
         return ""
     # Remove line/column suffixes only when they appear after a spec filename.
     v = re.sub(r"(\.(?:specs|spec|test)\.(?:ts|tsx|js|jsx|mjs|cjs))(?::\d+){1,2}$", r"\1", v, flags=re.I)
+    relative_resolved = False
     try:
         if root and Path(v).is_absolute():
             v = str(Path(v).resolve().relative_to(root.resolve())).replace("\\", "/")
+            relative_resolved = True
     except Exception:
-        pass
-    # Trim any absolute prefix before the project tests folder.
+        relative_resolved = False
     low = v.lower()
-    idx = low.find("/tests/")
-    if idx >= 0:
-        v = v[idx + 1:]
-    v = re.sub(r"^\./+", "", v).replace("//", "/")
-    # If Playwright reported a file relative to testDir, map it back to tests/...
-    # when that file exists.  This keeps display paths and matching consistent.
-    if root and v and not v.lower().startswith("tests/"):
+    # Trim any absolute prefix before common project test roots only when we did
+    # not already make the path project-relative.  This avoids converting
+    # src/test/specs/foo.spec.ts into test/specs/foo.spec.ts.
+    if not relative_resolved:
+        for marker in ["/src/test/specs/", "/src/test/", "/tests/", "/test/specs/", "/specs/", "/e2e/"]:
+            idx = low.find(marker)
+            if idx >= 0:
+                v = v[idx + 1:]
+                break
+    v = re.sub(r"^\./+", "", v).replace("//", "/").strip("/")
+    if root and v and not _is_tests_folder_executable_spec(v, root=root):
         try:
-            if (root / "tests" / v).exists():
-                v = "tests/" + v
+            for test_dir in _configured_playwright_test_dirs(root):
+                candidate = test_dir.strip("/") + "/" + v
+                if (root / candidate).exists() and _is_tests_folder_executable_spec(candidate, root=root):
+                    v = candidate
+                    break
         except Exception:
             pass
     return v
@@ -1610,10 +2039,10 @@ def _normalize_existing_spec_path(value: Any, root: Path | None = None) -> str:
 
 def _spec_compare_key(value: Any) -> str:
     v = _normalize_existing_spec_path(value).lower().strip("/")
-    if v.startswith("tests/"):
-        v = v[len("tests/"):]
+    for prefix in ["tests/", "src/test/specs/", "src/test/", "src/tests/", "test/specs/", "test/", "specs/", "e2e/", "integration/"]:
+        if v.startswith(prefix):
+            return v[len(prefix):]
     return v
-
 
 def _test_title_text(parts: list[Any] | tuple[Any, ...] | None, title: Any = "") -> str:
     values = [str(x).strip() for x in (parts or []) if str(x).strip()]
@@ -1818,9 +2247,9 @@ def _extract_failed_specs_from_stdout(text: str, root: Path) -> list[str]:
             if not value or any(part.lower() in ignored_prefixes for part in Path(value).parts):
                 continue
             if value.lower().endswith(SPEC_SUFFIXES):
-                if not (root / value).exists() and not value.lower().startswith("tests/") and (root / "tests" / value).exists():
-                    value = "tests/" + value
-                found.add(value)
+                value = _normalize_existing_spec_path(value, root=root)
+                if value and _is_tests_folder_executable_spec(value, root=root):
+                    found.add(value)
     # As another fallback, scan generated test-results folders; Playwright often
     # creates folders whose names include the spec filename when a test fails.
     for base in [root / "test-results", root / "reports" / "existing-framework" / "test-results"]:
@@ -1830,9 +2259,9 @@ def _extract_failed_specs_from_stdout(text: str, root: Path) -> list[str]:
             name = str(path).replace("\\", "/")
             for m in re.finditer(r"((?:tests|specs|e2e|src)/[^\s]+?\.(?:specs|spec|test)\.(?:ts|tsx|js|jsx|mjs|cjs))", name, flags=re.I):
                 value = m.group(1)
-                if not (root / value).exists() and not value.lower().startswith("tests/") and (root / "tests" / value).exists():
-                    value = "tests/" + value
-                found.add(value)
+                value = _normalize_existing_spec_path(value, root=root)
+                if value and _is_tests_folder_executable_spec(value, root=root):
+                    found.add(value)
     return sorted(found)
 
 
@@ -1860,7 +2289,7 @@ def _write_failed_inventory(root: Path, execution: dict[str, Any], targets: list
     # For large full-suite runs we avoid marking every spec failed unless there
     # is no other evidence and the target set is small enough to be reviewable.
     if not failed_specs and not execution.get("ok"):
-        explicit_targets = [_strip_playwright_line_selector(t) for t in (targets or []) if _is_tests_folder_executable_spec(str(t))]
+        explicit_targets = [_strip_playwright_line_selector(t) for t in (targets or []) if _is_tests_folder_executable_spec(str(t), root=root)]
         if 1 <= len(explicit_targets) <= 50:
             failed_specs = explicit_targets
             extraction_note = (
@@ -1995,6 +2424,15 @@ def execute_existing_framework(
     if effective_base_url:
         env["BASE_URL"] = effective_base_url
         env["TEST_BASE_URL"] = effective_base_url
+    alias_env = runtime_env_for_tsconfig_aliases(root, output_dir=root / "reports" / "existing-framework", base_env=env)
+    if alias_env:
+        env.update(alias_env)
+        log_event(
+            "existing_framework",
+            "TypeScript path-alias runtime resolver prepared for Playwright execution.",
+            progress=26,
+            details=_alias_runtime_env_summary(env),
+        )
     args = _build_command(root, project, headed, target_args, test_command=test_command)
     mode = (execution_mode or "sequential").strip().lower()
     if mode == "distributed" and not test_command.strip():
@@ -2004,14 +2442,14 @@ def execute_existing_framework(
         log_event("existing_framework", "Distributed was requested for existing-framework mode; running the complete selected scope sequentially to avoid partial shard execution.", status="warning", progress=27, details={"requested_shards": shards})
         mode = "sequential_safe_fallback"
     if not target_args and not test_command.strip():
-        msg = "No executable Playwright spec/test files were discovered under tests/**. Please verify the framework path contains tests/**/*.spec.ts, tests/**/*.specs.ts or tests/**/*.test.ts. Feature files under features/** are intentionally skipped in the Run & Fix workflow."
+        msg = "No executable Playwright spec/test files were discovered. AstraHeal recursively checked Playwright testDir, nested test folders such as tests/** and src/test/specs/**, monorepo paths, and executable Playwright code evidence. Feature files under features/** are intentionally skipped in the Run & Fix workflow."
         details = {"message": msg, "framework_path": str(root), "discovered_scope": discovered_scope}
         _write_fallback_html("Existing framework spec discovery failed", details)
         report = {"ok": False, "stage": "existing_framework_no_specs_found", "framework_path": str(root), "discovered_test_scope": discovered_scope, "error": msg, "message": msg}
         _persist_execution_report(report)
         log_event("existing_framework", msg, status="error", progress=100, details=details)
         return report
-    log_event("existing_framework", "Executing existing Playwright framework in-place with discovered spec scope. Requirement/testcase/codegen phases are bypassed.", progress=28, details={"framework_path": str(root), "targets": target_args, "headed": headed, "project": _normalize_project(project) or "auto/all", "discovery_strategy": discovered_scope.get("strategy"), "max_wait_ms": _astraheal_max_wait_ms(), "timeout_policy": "Default Playwright test/action/navigation waits are capped at 30000ms by AstraHeal where the runner/config is under AstraHeal control."})
+    log_event("existing_framework", "Executing existing Playwright framework in-place with discovered spec scope. Requirement/testcase/codegen phases are bypassed.", progress=28, details={"framework_path": str(root), "targets": target_args, "headed": headed, "project": _normalize_project(project) or "auto/all", "discovery_strategy": discovered_scope.get("strategy"), "max_wait_ms": _astraheal_max_wait_ms(), "tsconfig_path_alias_runtime": _alias_runtime_env_summary(env), "timeout_policy": "Default Playwright test/action/navigation waits are capped at 30000ms by AstraHeal where the runner/config is under AstraHeal control."})
     result = _run_streaming(args, root, env, "Existing framework execution", 32, 92)
     evidence = _playwright_execution_evidence(root, result)
     # If Playwright exits without any sign of test execution/report creation, mark
@@ -2050,6 +2488,7 @@ def execute_existing_framework(
         "mcp_assist": mcp_readiness,
         "framework_intelligence": intelligence,
         "execution": result,
+        "tsconfig_path_alias_runtime": _alias_runtime_env_summary(env),
         "timeout_policy": {"max_wait_ms": _astraheal_max_wait_ms(), "cli_timeout_applied": True, "note": "AstraHeal default runner passes --timeout=max_wait_ms. Generated scripts/config also cap action/navigation waits to 30000ms or less."},
         "execution_start_evidence": evidence,
         "artifact_normalization": artifacts,
@@ -2218,20 +2657,33 @@ def _scope_from_failed_specs(root: Path, failed_specs: list[str]) -> dict[str, A
     scoped: set[Path] = set()
     queue: list[Path] = []
     resolution_details: list[dict[str, Any]] = []
+    provenance: dict[str, set[str]] = {}
+
+    def add(path: Path, reason: str, *, enqueue: bool = False) -> None:
+        try:
+            resolved = path.resolve()
+        except Exception:
+            return
+        if not resolved.exists() or not resolved.is_file() or _is_ignored(resolved, root):
+            return
+        scoped.add(resolved)
+        rel = _rel_to(resolved, root)
+        provenance.setdefault(rel, set()).add(reason)
+        if enqueue and resolved not in queue:
+            queue.append(resolved)
 
     for spec in failed_specs:
         resolved_candidates = _candidate_files_for_import_or_path(root, spec)
         spec_candidates = [p for p in resolved_candidates if p.name.lower().endswith(SPEC_SUFFIXES)] or resolved_candidates
         if spec_candidates:
             chosen = spec_candidates[0].resolve()
-            scoped.add(chosen)
-            queue.append(chosen)
+            add(chosen, "failed_spec", enqueue=True)
             resolution_details.append({"input": spec, "resolved": _rel_to(chosen, root), "candidate_count": len(spec_candidates)})
         else:
             resolution_details.append({"input": spec, "resolved": None, "candidate_count": 0, "warning": "Spec path could not be resolved under framework root."})
 
-    # Walk local/alias imports up to 5 levels.  This usually catches
-    # spec -> pages -> pageObjects -> utils/BasePage, even with tsconfig aliases.
+    # Walk local/alias imports up to five levels. This is the primary,
+    # explainable write scope: failed spec -> page -> locator/object -> helper.
     seen: set[Path] = set()
     depth = 0
     while queue and depth < 5:
@@ -2245,14 +2697,25 @@ def _scope_from_failed_specs(root: Path, failed_specs: list[str]) -> dict[str, A
                 found = _resolve_import(file, imp, root)
                 if found and found.suffix.lower() in TS_SUFFIXES:
                     found = found.resolve()
-                    if found not in scoped:
-                        scoped.add(found)
+                    was_new = found not in scoped
+                    add(found, f"imported_dependency_level_{depth + 1}")
+                    if was_new:
                         next_queue.append(found)
         queue = next_queue
         depth += 1
 
-    # Add common base/helper files only when present; Codex still receives
-    # guardrail to patch only when necessary.
+    # Config files are candidates only when they exist. They stay visible in the
+    # approval scope because module-resolution/runtime failures may require them.
+    for name in [
+        "playwright.config.ts", "playwright.config.js", "playwright.config.mjs", "playwright.config.cjs",
+        "tsconfig.json", "jsconfig.json", "package.json", "package-lock.json", "pnpm-lock.yaml", "yarn.lock",
+    ]:
+        p = root / name
+        if p.is_file() and not _is_ignored(p, root):
+            add(p, "runtime_or_configuration_candidate")
+
+    # Shared helper files are included only when actually present. Their reason is
+    # shown separately so the user can remove them from the approval textarea.
     for pattern in [
         "**/BasePage.ts", "**/base.page.ts", "**/basePage.ts", "**/BasePage.js",
         "**/locatorFactory.ts", "**/locators.ts", "**/SmartLocator.ts",
@@ -2260,36 +2723,45 @@ def _scope_from_failed_specs(root: Path, failed_specs: list[str]) -> dict[str, A
     ]:
         for p in root.glob(pattern):
             if p.is_file() and not _is_ignored(p, root):
-                scoped.add(p.resolve())
+                add(p, "shared_framework_helper_candidate")
 
-    # If imports are alias-heavy or dynamically wired, add a limited set of
-    # conventional POM/helper files related to failed-spec tokens.
     heuristic_hits = _heuristic_related_files(root, [p for p in scoped if p.name.lower().endswith(SPEC_SUFFIXES)], failed_specs)
     for p in heuristic_hits:
-        scoped.add(p.resolve())
+        add(p, "token_matched_fallback_candidate")
 
     rel = sorted(_rel_to(p, root) for p in scoped if p.exists())
     scope_mode = "import_graph"
     if heuristic_hits:
-        scope_mode = "import_graph_plus_conventional_pom_heuristics"
+        scope_mode = "import_graph_plus_token_matched_fallback"
     if not rel and failed_specs:
         scope_mode = "blocked_unresolved_failed_specs"
+
+    groups = {
+        "failed_spec_files": sorted(k for k, reasons in provenance.items() if "failed_spec" in reasons),
+        "imported_dependency_files": sorted(k for k, reasons in provenance.items() if any(r.startswith("imported_dependency_level_") for r in reasons)),
+        "runtime_config_candidates": sorted(k for k, reasons in provenance.items() if "runtime_or_configuration_candidate" in reasons),
+        "shared_helper_candidates": sorted(k for k, reasons in provenance.items() if "shared_framework_helper_candidate" in reasons),
+        "heuristic_fallback_candidates": sorted(k for k, reasons in provenance.items() if "token_matched_fallback_candidate" in reasons),
+    }
+    recommended = sorted(dict.fromkeys([*groups["imported_dependency_files"], *groups["shared_helper_candidates"], *groups["runtime_config_candidates"], *groups["failed_spec_files"]]))
 
     return {
         "ok": bool(rel),
         "framework_path": str(root),
         "failed_specs": failed_specs,
         "allowed_files": rel,
+        "recommended_patch_files": recommended,
+        "scope_groups": groups,
+        "file_reasons": {k: sorted(v) for k, v in sorted(provenance.items())},
         "resolution_details": resolution_details,
         "scope_mode": scope_mode,
-        "heuristic_related_files": sorted(_rel_to(p, root) for p in heuristic_hits),
+        "heuristic_related_files": groups["heuristic_fallback_candidates"],
         "message": (
-            "Patch scope is restricted to resolved failed specs, their imported page/pageObject/helper files, common BasePage/locator helpers, and a limited set of token-matched conventional POM files."
+            "Write approval is restricted to failed specs, their resolved import graph, existing runtime/config files, and clearly identified shared helper candidates. Whole-workspace expansion is not automatic."
             if rel else
             "No scoped files could be resolved from failed specs. Confirm failed spec paths are under the selected framework root."
         ),
     }
-
 
 
 def _html_attr(value: Any) -> str:
@@ -2383,7 +2855,7 @@ def _static_dom_evidence_files(root: Path, limit: int = 450) -> list[Path]:
             parts = {p.lower() for p in path.relative_to(root).parts}
         except Exception:
             parts = {p.lower() for p in path.parts}
-        if parts.intersection({"node_modules", ".git", "dist", "build", ".next"}):
+        if parts.intersection({"node_modules", ".git", "dist", "build", ".next", "%appdata%", "%AppData%", ".npm", "npm-cache"}):
             continue
         if path.suffix.lower() in suffixes or path.name.lower() in {"error-context.md", "dom-snapshot.html", "aria-snapshot.yml"}:
             out.append(path)
@@ -2519,19 +2991,21 @@ def _build_auditable_rca_reasoning_checklist(root: Path, failed_specs: list[str]
     def state(keys: list[str], positive: str, neutral: str = "Needs evidence") -> str:
         return positive if any(k in low for k in keys) else neutral
 
+    module_name = _extract_missing_module_name(failure_text)
     checklist = [
         {"order": 1, "check": "Confirm failure belongs to selected failed specs only", "status": "done" if failed_specs else "blocked", "observable_evidence": failed_specs[:20], "fix_decision": "RCA/self-healing scope is restricted to failed specs and imported files only."},
-        {"order": 2, "check": "Check whether failed locator or expected element exists in DOM/accessibility snapshot", "status": state(["locator", "getby", "tobevisible", "element(s) not found", "not found", "waiting for"], "locator_or_dom_evidence_found"), "observable_evidence": (mcp_locator_rca.get("failed_locator_or_action_candidates") or [])[:10], "fix_decision": "If absent, update pageObject locator or treat as product/data/environment issue before patching assertions."},
-        {"order": 3, "check": "Validate locator strategy/address correctness", "status": state(["strict mode violation", "resolved to", "nth(", "aria-label", "xpath", "filter({ hastext"], "locator_strategy_needs_review"), "observable_evidence": "Look for strict-mode ambiguity, brittle nth selectors, stale text, role/name mismatch, data-testid changes, iframe/shadow DOM.", "fix_decision": "Prefer stable getByRole/getByTestId/getByLabel in pageObjects; keep framework style."},
-        {"order": 4, "check": "Check interactability: visible, enabled, stable, not detached", "status": state(["not attached to the dom", "element is not attached", "not visible", "not enabled", "detached", "stable", "timeout", "locator.click"], "actionability_needs_review"), "observable_evidence": "Playwright actionability logs, trace, screenshot, video, error-context.md.", "fix_decision": "If locator is detached/not attached to DOM, use Playwright MCP/codegen/live DOM snapshot to generate a current locator, then patch pageObject or page method to re-query after DOM settles. Do not add blind waitForTimeout."},
-        {"order": 5, "check": "Check viewport/page-size/scroll issue", "status": state(["outside of the viewport", "scrolling into view", "done scrolling", "footer", "mobile", "hamburger"], "viewport_or_scroll_signal_found"), "observable_evidence": "Element may exist lower on page, behind footer/header, or in mobile drawer based on screen size.", "fix_decision": "Use scrollIntoViewIfNeeded, viewport-aware helper, responsive locator, or mobile-specific page method."},
-        {"order": 6, "check": "Check overlay, popup, permission dialog, modal interception", "status": state(["intercepts pointer events", "chakra-modal", "popup", "permission", "cookie", "geolocation", "modal", "dialog"], "overlay_or_popup_signal_found"), "observable_evidence": "Pointer-event interception logs, modal/header/body identifiers, screenshots/videos.", "fix_decision": "Dismiss/handle overlay in shared helper before click; avoid force:true by default."},
-        {"order": 7, "check": "Check navigation/state synchronization", "status": state(["tohaveurl", "waitforurl", "navigation", "networkidle", "domcontentloaded", "received string"], "navigation_or_state_signal_found"), "observable_evidence": "URL mismatch, repeated same URL, skipped navigation, timeout waiting for state.", "fix_decision": "Patch page navigation helper with deterministic state/URL waits; avoid blind sleeps."},
-        {"order": 8, "check": "Check test data, auth/session, API/backend, VPN/proxy/environment", "status": state(["login", "auth", "401", "403", "500", "econn", "net::", "ssl", "certificate", "vpn", "timed_out"], "environment_or_data_signal_found"), "observable_evidence": "Network/API errors, login not visible, account feature not available, blocked endpoints, timeout.", "fix_decision": "Do not fake pass. Validate environment/data first; patch only if framework wait/login helper is unstable."},
-        {"order": 9, "check": "Check assertion/product behavior drift", "status": state(["expect(", "expected", "received", "assert", "should be visible"], "assertion_or_behavior_signal_found"), "observable_evidence": "Expected vs received mismatch and screenshots.", "fix_decision": "Only update assertions after confirming product behavior changed and human/business review allows it."},
-        {"order": 10, "check": "Select safest self-healing patch location", "status": "done", "observable_evidence": scope.get("allowed_files", [])[:30], "fix_decision": "Patch locator/pageObjects first, then page methods/BasePage helpers; avoid spec edits unless no reusable layer exists."},
+        {"order": 2, "check": "Check Playwright/Node module resolution and TypeScript path aliases", "status": "module_resolution_failure_found" if _is_module_resolution_failure(failure_text) else "No module-resolution evidence", "observable_evidence": {"missing_module": module_name, "tsconfig_alias_runtime_needed": module_name.startswith("@") if module_name else False}, "fix_decision": "If present, fix tsconfig paths/package/Playwright runtime preload first. Do not run DOM locator MCP as the primary RCA for Cannot find module errors."},
+        {"order": 3, "check": "Check whether failed locator or expected element exists in DOM/accessibility snapshot", "status": state(["locator", "getby", "tobevisible", "element(s) not found", "waiting for locator", "waiting for"], "locator_or_dom_evidence_found"), "observable_evidence": (mcp_locator_rca.get("failed_locator_or_action_candidates") or [])[:10], "fix_decision": "If absent, update pageObject locator or treat as product/data/environment issue before patching assertions."},
+        {"order": 4, "check": "Validate locator strategy/address correctness", "status": state(["strict mode violation", "resolved to", "nth(", "aria-label", "xpath", "filter({ hastext"], "locator_strategy_needs_review"), "observable_evidence": "Look for strict-mode ambiguity, brittle nth selectors, stale text, role/name mismatch, data-testid changes, iframe/shadow DOM.", "fix_decision": "Prefer stable getByRole/getByTestId/getByLabel in pageObjects; keep framework style."},
+        {"order": 5, "check": "Check interactability: visible, enabled, stable, not detached", "status": state(["not attached to the dom", "element is not attached", "not visible", "not enabled", "detached", "stable", "timeout", "locator.click"], "actionability_needs_review"), "observable_evidence": "Playwright actionability logs, trace, screenshot, video, error-context.md.", "fix_decision": "If locator is detached/not attached to DOM, use Playwright MCP/codegen/live DOM snapshot to generate a current locator, then patch pageObject or page method to re-query after DOM settles. Do not add blind waitForTimeout."},
+        {"order": 6, "check": "Check viewport/page-size/scroll issue", "status": state(["outside of the viewport", "scrolling into view", "done scrolling", "footer", "mobile", "hamburger"], "viewport_or_scroll_signal_found"), "observable_evidence": "Element may exist lower on page, behind footer/header, or in mobile drawer based on screen size.", "fix_decision": "Use scrollIntoViewIfNeeded, viewport-aware helper, responsive locator, or mobile-specific page method."},
+        {"order": 7, "check": "Check overlay, popup, permission dialog, modal interception", "status": state(["intercepts pointer events", "chakra-modal", "popup", "permission", "cookie", "geolocation", "modal", "dialog"], "overlay_or_popup_signal_found"), "observable_evidence": "Pointer-event interception logs, modal/header/body identifiers, screenshots/videos.", "fix_decision": "Dismiss/handle overlay in shared helper before click; avoid force:true by default."},
+        {"order": 8, "check": "Check navigation/state synchronization", "status": state(["tohaveurl", "waitforurl", "navigation", "networkidle", "domcontentloaded", "received string"], "navigation_or_state_signal_found"), "observable_evidence": "URL mismatch, repeated same URL, skipped navigation, timeout waiting for state.", "fix_decision": "Patch page navigation helper with deterministic state/URL waits; avoid blind sleeps."},
+        {"order": 9, "check": "Check test data, auth/session, API/backend, VPN/proxy/environment", "status": state(["login", "auth", "401", "403", "500", "econn", "net::", "ssl", "certificate", "vpn", "timed_out"], "environment_or_data_signal_found"), "observable_evidence": "Network/API errors, login not visible, account feature not available, blocked endpoints, timeout.", "fix_decision": "Do not fake pass. Validate environment/data first; patch only if framework wait/login helper is unstable."},
+        {"order": 10, "check": "Check assertion/product behavior drift", "status": state(["expect(", "expected", "received", "assert", "should be visible"], "assertion_or_behavior_signal_found"), "observable_evidence": "Expected vs received mismatch and screenshots.", "fix_decision": "Only update assertions after confirming product behavior changed and human/business review allows it."},
+        {"order": 11, "check": "Select safest self-healing patch location", "status": "done", "observable_evidence": scope.get("allowed_files", [])[:30], "fix_decision": "Patch config/package/runtime alias setup for module-resolution failures; patch locator/pageObjects only for browser DOM failures."},
     ]
-    return {"ok": True, "generated_at": datetime.now().isoformat(timespec="seconds"), "name": "Auditable RCA reasoning checklist", "privacy_note": "This is a human-readable checklist of observable evidence and decisions, not hidden chain-of-thought.", "failed_specs": failed_specs, "checks": checklist, "summary": "RCA checks locator existence, locator strategy, interactability, viewport/scroll, overlays/popups, navigation, environment/data, and assertion drift before recommending a patch."}
+    return {"ok": True, "generated_at": datetime.now().isoformat(timespec="seconds"), "name": "Auditable RCA reasoning checklist", "privacy_note": "This is a human-readable checklist of observable evidence and decisions, not hidden chain-of-thought.", "failed_specs": failed_specs, "checks": checklist, "summary": "RCA first checks Playwright/Node module resolution and tsconfig aliases, then locator existence, locator strategy, interactability, viewport/scroll, overlays/popups, navigation, environment/data, and assertion drift before recommending a patch."}
 
 
 def _write_existing_rca_html(payload: dict[str, Any]) -> Path:
@@ -2578,7 +3052,7 @@ def analyze_existing_failure(framework_path: str = "", provider: str = "determin
         EXISTING_RCA_JSON.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         return payload
     raw_failed_specs = [str(s).replace("\\", "/") for s in (inventory.get("failed_specs") or []) if str(s).strip()]
-    failed_specs = [s for s in raw_failed_specs if _is_tests_folder_executable_spec(s)]
+    failed_specs = [s for s in raw_failed_specs if _is_tests_folder_executable_spec(s, root=root)]
     if not failed_specs:
         payload = {"ok": True, "stage": "existing_framework_rca_no_failures", "message": "No failed specs were found. RCA/self-healing is not required.", "failed_inventory": inventory}
         EXISTING_RCA_JSON.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -2667,261 +3141,228 @@ def analyze_existing_failure(framework_path: str = "", provider: str = "determin
 
 
 
+def _recommended_files_for_failure_category(scope: dict[str, Any], category: str, max_files: int = 12) -> list[str]:
+    groups = scope.get("scope_groups") or {}
+    failed = list(groups.get("failed_spec_files") or [])
+    imported = list(groups.get("imported_dependency_files") or [])
+    config = list(groups.get("runtime_config_candidates") or [])
+    shared = list(groups.get("shared_helper_candidates") or [])
+    heuristic = list(groups.get("heuristic_fallback_candidates") or [])
+    if category == "typescript_module_resolution":
+        ordered = [*config, *imported, *failed]
+    elif category in {"ambiguous_locator", "overlay_or_blocker", "detached_or_rerendered_element", "locator_missing_or_wrong_page_state"}:
+        ordered = [*imported, *shared, *heuristic, *failed]
+    elif category == "navigation_or_redirect":
+        ordered = [*imported, *config, *shared, *failed]
+    elif category in {"authentication_or_authorization", "browser_or_runtime_crash", "assertion_or_product_behavior_mismatch", "timeout_or_unfinished_state", "unknown_or_insufficient_evidence"}:
+        ordered = []
+    else:
+        ordered = [*imported, *shared, *failed]
+    return list(dict.fromkeys(ordered))[:max(0, int(max_files or 0))]
+
+
+def _explain_failed_case(rec: dict[str, Any], root: Path | None = None) -> dict[str, Any]:
+    """Create evidence-based, category-specific RCA and safe-fix guidance."""
+    error_text = "\n".join(str(x) for x in (rec.get("errors") or []))
+    if not error_text:
+        error_text = json.dumps(rec, ensure_ascii=False)
+    low = error_text.lower()
+    reason = _failure_reason_from_case(rec)
+    category = "unknown_or_insufficient_evidence"
+    confidence = 0.35
+    layer = "trace/screenshot/manual review"
+    action = "Collect trace, screenshot, video and DOM evidence before changing framework code."
+    validation = "Rerun the exact failed test with trace, screenshot and video enabled; do not patch until the same failure is reproducible."
+    evidence: list[str] = []
+    safety = "manual_review_required"
+
+    def has(*terms: str) -> bool:
+        return any(t in low for t in terms)
+
+    if _is_module_resolution_failure(error_text):
+        category, confidence, layer = "typescript_module_resolution", 0.97, "playwright.config / tsconfig / package runtime bootstrap"
+        action = "Correct the alias/runtime resolver or import path. Do not edit locators because the browser step was never reached."
+        validation = "Run Playwright --list first, then rerun the failed spec and confirm the module loads before browser actions start."
+        evidence.append("Node/Playwright reported an unresolved module, path alias, or require/import stack.")
+        safety = "safe_with_config_scope_and_backup"
+    elif has("strict mode violation", "resolved to ") and has("locator"):
+        category, confidence, layer = "ambiguous_locator", 0.92, "page object / locator repository"
+        action = "Replace the ambiguous selector with a unique role/test-id/label locator in the reusable page object; avoid nth() unless business order is stable."
+        validation = "Use MCP/codegen or locator inspector to prove the selector resolves to exactly one intended element, then rerun the failed test."
+        evidence.append("Playwright strict mode indicates that one locator matched multiple elements.")
+        safety = "safe_after_live_dom_verification"
+    elif has("intercepts pointer events", "receives pointer events", "another element would receive"):
+        category, confidence, layer = "overlay_or_blocker", 0.93, "shared BasePage/blocker handler or page method"
+        action = "Identify the blocking modal, cookie banner, spinner or overlay and handle it in a reusable page/blocker method before the click."
+        validation = "Capture screenshot/trace at the failed click, verify the blocker disappears, and rerun without force-click or hard waits."
+        evidence.append("The error states that another element intercepted the pointer event.")
+        safety = "safe_after_overlay_identity_is_proven"
+    elif has("not attached to the dom", "element is detached", "detached from"):
+        category, confidence, layer = "detached_or_rerendered_element", 0.90, "page method / locator re-query logic"
+        action = "Re-query the locator after the UI rerender and wait for the business state, not a fixed delay. Keep the locator in the reusable page layer."
+        validation = "Use trace DOM snapshots to confirm rerender timing, then rerun the failed test repeatedly to check stability."
+        evidence.append("Playwright reported that the previously resolved element was detached or replaced.")
+        safety = "safe_after_trace_timing_review"
+    elif has("waiting for locator", "element(s) not found", "to be visible", "locator("):
+        category, confidence, layer = "locator_missing_or_wrong_page_state", 0.82, "page object / locator repository or navigation method"
+        action = "First prove the current page/state and live DOM. If the element exists with a changed attribute, update the reusable locator; if navigation/state is wrong, fix the page flow instead."
+        validation = "Open trace/screenshot, verify URL and DOM, test the candidate locator with MCP/codegen, then rerun only the failed test."
+        evidence.append("The failure contains locator visibility/availability waiting evidence.")
+        safety = "requires_live_dom_or_trace_evidence"
+    elif has("tohaveurl", "url did not match", "navigation", "page.goto"):
+        category, confidence, layer = "navigation_or_redirect", 0.82, "navigation/page workflow or environment URL configuration"
+        action = "Compare expected and actual URL/redirect chain. Fix reusable navigation or environment configuration; change the assertion only when the product requirement changed."
+        validation = "Record redirect/network trace and confirm final URL and authentication state before rerun."
+        evidence.append("The failed assertion/action relates to URL, redirect or navigation state.")
+        safety = "manual_requirement_check_before_assertion_change"
+    elif has("expect(", "expected", "received", "toequal", "tocontain", "tohavetext"):
+        category, confidence, layer = "assertion_or_product_behavior_mismatch", 0.72, "requirement/test data/AUT verification before test code"
+        action = "Compare expected value with requirement and actual AUT data. Update test data or reusable assertion only after confirming the intended product behavior."
+        validation = "Capture actual value and requirement reference, then rerun with controlled test data."
+        evidence.append("Playwright assertion output shows expected-versus-received mismatch.")
+        safety = "human_review_required_before_assertion_change"
+    elif has("timeout", "timed out"):
+        category, confidence, layer = "timeout_or_unfinished_state", 0.62, "workflow synchronization, navigation, network or locator layer"
+        action = "Use trace timing to identify the exact unfinished action. Add a condition-based wait in the reusable flow only when the expected state is proven; do not add waitForTimeout."
+        validation = "Review the final trace action, network and screenshot, then rerun with the same 30-second guard."
+        evidence.append("The test/action exceeded its timeout without enough evidence to assume a locator-only problem.")
+        safety = "manual_trace_review_required"
+    elif has("browser has been closed", "target page, context or browser has been closed", "browser disconnected"):
+        category, confidence, layer = "browser_or_runtime_crash", 0.88, "runner/browser infrastructure or fixture lifecycle"
+        action = "Inspect browser launch, fixture teardown, worker memory and crash logs. Do not modify page locators for a closed browser/context."
+        validation = "Run one worker with browser logs and verify fixture lifecycle before rerunning failed tests."
+        evidence.append("Playwright reported a closed/disconnected browser, page or context.")
+        safety = "infrastructure_review_required"
+    elif has("401", "403", "unauthorized", "forbidden"):
+        category, confidence, layer = "authentication_or_authorization", 0.90, "environment/session/credential fixture"
+        action = "Validate credentials, role, session state, VPN and auth fixture. Do not self-heal selectors until authorization is restored."
+        validation = "Confirm login/session setup independently, then rerun the failed test without code changes."
+        evidence.append("Failure evidence indicates an authorization/session problem.")
+        safety = "do_not_auto_patch"
+
+    recommended_files: list[str] = []
+    spec = str(rec.get("spec") or "")
+    if root is not None and spec:
+        try:
+            scoped = _scope_from_failed_specs(root, [spec])
+            recommended_files = _recommended_files_for_failure_category(scoped, category, max_files=8)
+        except Exception:
+            recommended_files = []
+
+    return {
+        "failure_category": category,
+        "confidence": confidence,
+        "plain_english_reason": reason,
+        "observed_evidence": evidence or ["The available result does not contain a decisive error signature; trace/screenshot review is required."],
+        "likely_fix_layer": layer,
+        "suggested_fix_area": action,
+        "recommended_files": recommended_files,
+        "validation_steps": validation,
+        "self_healing_safety": safety,
+    }
+
+
 def _build_exact_plain_english_failure_report(inventory: dict[str, Any], root: Path | None = None) -> dict[str, Any]:
     cases = _dedupe_case_records(_inventory_test_cases(inventory or {}, root=root))
     outcomes = []
     failed = 0
     passed = 0
-    category_counter: Counter[str] = Counter()
+    category_counts: Counter[str] = Counter()
     for rec in cases:
         status_raw = str(rec.get("status") or "unknown").lower()
         is_bad = status_raw in {"failed", "timedout", "interrupted"}
         if is_bad:
             failed += 1
+            explanation = _explain_failed_case(rec, root=root)
+            category_counts[explanation["failure_category"]] += 1
         elif status_raw in {"passed", "skipped", "expected", "flaky"}:
             passed += 1
-        reason = _failure_reason_from_case(rec) if is_bad else "passed"
-        repair = _repair_strategy_for_case(rec, reason, root=root) if is_bad else {
-            "failure_category": "passed",
-            "target_patch_layer": "No fix required",
-            "suggested_fix_area": "No fix required",
-            "mcp_codegen_action": "Not required",
-            "fix_steps": [],
-            "approval_summary": "No framework change required.",
-        }
-        if is_bad:
-            category_counter[repair.get("failure_category") or "unknown"] += 1
+            explanation = {
+                "failure_category": "not_applicable",
+                "confidence": 1.0,
+                "plain_english_reason": "passed",
+                "observed_evidence": ["Playwright reported the test as passed/expected/flaky/skipped in the latest inventory."],
+                "likely_fix_layer": "No fix required",
+                "suggested_fix_area": "No fix required",
+                "recommended_files": [],
+                "validation_steps": "No failed-test validation is required for this test.",
+                "self_healing_safety": "not_applicable",
+            }
+        else:
+            explanation = {
+                "failure_category": "unknown_status",
+                "confidence": 0.2,
+                "plain_english_reason": f"Playwright status is {status_raw}; the result is not safely classified as passed or failed.",
+                "observed_evidence": ["The latest result contains an unrecognized or incomplete status."],
+                "likely_fix_layer": "report/inventory review",
+                "suggested_fix_area": "Regenerate the Playwright JSON/HTML report before changing code.",
+                "recommended_files": [],
+                "validation_steps": "Run the exact test again with JSON and HTML reporters enabled.",
+                "self_healing_safety": "do_not_auto_patch",
+            }
         outcomes.append({
             "spec": rec.get("spec"),
             "line": rec.get("line"),
             "test": rec.get("title") or "(whole spec fallback)",
             "status": "failed" if is_bad else ("passed" if status_raw in {"passed", "skipped", "expected", "flaky"} else status_raw),
-            "plain_english_reason": reason,
-            "failure_category": repair.get("failure_category"),
-            "target_patch_layer": repair.get("target_patch_layer"),
-            "suggested_fix_area": repair.get("suggested_fix_area"),
-            "mcp_codegen_action": repair.get("mcp_codegen_action"),
-            "fix_steps": repair.get("fix_steps") or [],
-            "recommended_files_or_folders": repair.get("recommended_files_or_folders") or [],
-            "approval_summary": repair.get("approval_summary"),
+            **explanation,
             "errors": rec.get("errors") or [],
         })
     return {
         "ok": True,
-        "source": "AstraHeal exact Playwright inventory",
+        "source": "AstraHeal exact Playwright inventory plus deterministic error classification",
         "summary": f"{len(cases)} test case(s) analysed: {passed} passed, {failed} failed.",
         "total_test_cases": len(cases),
         "passed_test_cases": passed,
         "failed_test_cases": failed,
-        "failure_category_counts": dict(category_counter),
+        "failure_category_counts": dict(category_counts),
+        "framework_path": str(root) if root is not None else "",
+        "local_storage_locations": existing_framework_artifact_locations(str(root) if root is not None else ""),
         "test_case_outcomes": outcomes,
-        "message": "Test-level RCA generated from the latest failed inventory. Failed tests include reason, MCP/codegen action, target patch layer, and safe fix steps. This is an auditable RCA checklist, not hidden chain-of-thought."
+        "message": "Each failed test now shows the observed evidence, failure category/confidence, likely fix layer, recommended files, safe action, validation steps and self-healing safety decision."
     }
 
-
-
-def _case_error_text(rec: dict[str, Any], limit: int = 9000) -> str:
-    """Return compact observable failure evidence for one test case."""
-    try:
-        return json.dumps(rec.get("errors") or rec, ensure_ascii=False)[-limit:]
-    except Exception:
-        return str(rec)[-limit:]
-
-
-def _failure_category_from_reason(reason: str, evidence: str = "") -> str:
-    low = ((reason or "") + "\n" + (evidence or "")).lower()
-    if any(x in low for x in ["locator is missing", "not available in dom", "element(s) not found", "waiting for locator", "expected: visible", "to be visible"]):
-        return "locator_missing_hidden_or_wrong_page_state"
-    if any(x in low for x in ["not attached to the dom", "detached"]):
-        return "locator_detached_or_stale_after_rerender"
-    if any(x in low for x in ["intercepts pointer events", "overlay", "modal", "cookie", "permission", "geolocation"]):
-        return "blocked_by_overlay_or_browser_permission"
-    if any(x in low for x in ["test timed out", "timeout", "slow aut", "navigation/state wait", "navigation", "waitforurl", "tohaveurl", "networkidle"]):
-        return "slow_aut_navigation_or_blocked_action"
-    if any(x in low for x in ["trace/screenshot review", "native playwright shard report", "insufficient", "unknown"]):
-        return "requires_trace_screenshot_review"
-    if any(x in low for x in ["payment option", "test data", "auth", "401", "403", "500"]):
-        return "environment_or_test_data"
-    return "requires_trace_screenshot_review"
-
-
-def _recommended_patch_files_for_case(root: Path | None, spec: str | None) -> list[str]:
-    """Best-effort file candidates. It never invents absolute paths outside the selected framework."""
-    if not root:
-        return []
-    spec_norm = str(spec or "").replace("\\", "/").lstrip("./")
-    candidates: list[str] = []
-    seen: set[str] = set()
-
-    def add(rel: str) -> None:
-        rel = str(rel or "").replace("\\", "/").lstrip("./")
-        if rel and rel not in seen and (root / rel).exists():
-            seen.add(rel)
-            candidates.append(rel)
-
-    add(spec_norm)
-    stem = Path(spec_norm).stem.replace(".spec", "").replace(".test", "")
-    fragments = [stem]
-    if "/" in spec_norm:
-        fragments.append(Path(spec_norm).parent.name)
-    preferred_roots = ["pageObjects", "page-objects", "objects", "locators", "selectors", "pages", "src/pages", "src/pageObjects", "utils", "helpers", "support"]
-    suffixes = tuple(TS_SUFFIXES)
-    for base in preferred_roots:
-        folder = root / base
-        if not folder.exists() or not folder.is_dir():
-            continue
-        for path in folder.rglob("*"):
-            if len(candidates) >= 12:
-                return candidates
-            if not path.is_file() or not path.name.lower().endswith(suffixes) or _is_ignored(path, root):
-                continue
-            rel = _rel_to(path, root)
-            low = rel.lower()
-            if any(f and f.lower().replace("-", "") in low.replace("-", "") for f in fragments):
-                add(rel)
-    # Include shared helper candidates because slow AUT/actionability failures often belong there.
-    for rel in [
-        "pages/base-page.ts", "pages/BasePage.ts", "src/pages/base-page.ts", "src/pages/BasePage.ts",
-        "pages/mobile/mobile-base-page.ts", "utils/safeActions.ts", "utils/safe-actions.ts",
-        "helpers/safeActions.ts", "support/actionability.ts",
-    ]:
-        if len(candidates) >= 16:
-            break
-        add(rel)
-    return candidates[:16]
-
-
-def _repair_strategy_for_case(rec: dict[str, Any], reason: str, root: Path | None = None) -> dict[str, Any]:
-    """Build an auditable, test-level repair strategy.
-
-    This is the visible RCA breakdown the user asked for. It does not expose hidden
-    model chain-of-thought. It shows observable checks and deterministic next
-    actions that Codex/MCP/codegen should follow before changing files.
-    """
-    evidence = _case_error_text(rec)
-    category = _failure_category_from_reason(reason, evidence)
-    spec = str(rec.get("spec") or "")
-    files = _recommended_patch_files_for_case(root, spec)
-
-    if category in {"locator_missing_hidden_or_wrong_page_state", "locator_detached_or_stale_after_rerender"}:
-        steps = [
-            "Open the failed shard trace/screenshot and reproduce the exact failed page state.",
-            "Use Playwright MCP accessibility snapshot/codegen to check whether the intended element exists in the live DOM for that page state.",
-            "If the element exists, capture the stable role/name/testId/label locator and compare it with the existing locator repository/pageObject locator.",
-            "Update the locator in the object repository/pageObject file first; then update the page method only when the call flow must re-query after DOM re-render.",
-            "If the element does not exist, classify as wrong route/state/test-data/environment and do not weaken assertions or add hard waits.",
-            "Rerun only this failed test target or the failed-only distributed subset and update the combined report.",
-        ]
-        if category == "locator_detached_or_stale_after_rerender":
-            steps.insert(3, "Avoid storing ElementHandle or stale resolved element. Keep Playwright Locator lazy and re-query immediately before action/assertion.")
-        return {
-            "failure_category": category,
-            "target_patch_layer": "pageObjects/locator repository first, then page method/BasePage only if DOM re-render or actionability needs a reusable helper",
-            "suggested_fix_area": "Use MCP/codegen/live DOM evidence to generate the correct locator and place it in the respective pageObject/locator repository file. Do not add blind waits.",
-            "mcp_codegen_action": "Run MCP snapshot/codegen on the failed page state and capture role/name/testId/label. Patch only the mapped pageObject/page method files.",
-            "fix_steps": steps,
-            "recommended_files_or_folders": files,
-            "approval_summary": f"Approve patch only for locator/pageObject/page method files related to {spec}; expected change is locator replacement/addition or safe re-query helper.",
-        }
-
-    if category == "slow_aut_navigation_or_blocked_action":
-        steps = [
-            "Open the shard native Playwright report and inspect the failed test trace/video around the timeout timestamp.",
-            "Classify the timeout: slow AUT response, navigation/state wait mismatch, hidden/blocking locator, overlay/permission popup, or network/API delay.",
-            "If the UI is blocked by cookie/location/permission/modal, patch the shared browser blocker/action helper before clicking.",
-            "If navigation state is late, patch the reusable page navigation/wait helper with bounded domcontentloaded/URL/business-state checks; avoid networkidle-only waits.",
-            "If the AUT/VM is slow but eventually correct, recommend VM Stable Mode/BrowserStack execution and reduce shards; do not edit business assertions.",
-            "Rerun failed-only targets and compare first-run vs rerun timing in the combined report.",
-        ]
-        return {
-            "failure_category": category,
-            "target_patch_layer": "shared page/action/navigation helper, blocker guard, or environment execution profile; not raw spec sleeps",
-            "suggested_fix_area": "Diagnose trace timing, then patch reusable wait/navigation/blocker handling. Keep explicit waits <= 30 seconds unless VM profile is intentionally configured.",
-            "mcp_codegen_action": "Use MCP trace/snapshot to prove whether the element is blocked or navigation is incomplete before patching helpers.",
-            "fix_steps": steps,
-            "recommended_files_or_folders": files,
-            "approval_summary": f"Approve only reusable stability helper/page method changes related to {spec}; do not approve hard waits, force:true by default, or assertion weakening.",
-        }
-
-    if category == "blocked_by_overlay_or_browser_permission":
-        steps = [
-            "Inspect screenshot/video for cookie banner, geolocation prompt, permission dialog, modal, header/body overlay, or iframe blocker.",
-            "Use MCP snapshot to identify the blocker role/text and close/dismiss it through a reusable blocker guard.",
-            "Patch shared popup/browser-blocker helper or BasePage action method before the target action.",
-            "Rerun failed-only target to confirm the target receives pointer events without force:true by default.",
-        ]
-        return {
-            "failure_category": category,
-            "target_patch_layer": "shared blocker guard / BasePage click helper / page method",
-            "suggested_fix_area": "Patch blocker handling before the action. Do not hide the problem with force click unless explicitly approved and reported.",
-            "mcp_codegen_action": "Use MCP snapshot to identify blocker text/role and target locator, then patch blocker guard.",
-            "fix_steps": steps,
-            "recommended_files_or_folders": files,
-            "approval_summary": f"Approve patch to blocker guard/action helper files for {spec}.",
-        }
-
-    if category == "environment_or_test_data":
-        steps = [
-            "Check whether the data, account, feature flag, API response, auth session, VPN/proxy, or test environment is different from the passing machine.",
-            "Do not self-heal by weakening assertions until product/data owner confirms expected behavior.",
-            "If only framework setup is unstable, patch login/data fixture/helper; otherwise mark for manual environment review.",
-        ]
-        return {
-            "failure_category": category,
-            "target_patch_layer": "test data/fixture/env configuration only after evidence; product behavior requires manual review",
-            "suggested_fix_area": "Validate data/environment first; patch reusable fixture/helper only if the framework setup is wrong.",
-            "mcp_codegen_action": "MCP/codegen is secondary here; first verify API/auth/data evidence.",
-            "fix_steps": steps,
-            "recommended_files_or_folders": files,
-            "approval_summary": f"Approve only fixture/config/helper changes for {spec} after environment evidence is captured.",
-        }
-
-    steps = [
-        "Open the exact native Playwright shard report, trace.zip, screenshot, video, and error-context.md for this failed test.",
-        "Run MCP failed element check again after evidence is available to classify locator, blocker, navigation, data, or product behavior.",
-        "Do not auto-patch until the failed element/state is identified. Save human update if a product/environment reason is found.",
-    ]
-    return {
-        "failure_category": "requires_trace_screenshot_review",
-        "target_patch_layer": "evidence collection first; no blind code patch",
-        "suggested_fix_area": "Open trace/screenshot/native shard report and collect evidence before applying self-healing.",
-        "mcp_codegen_action": "Use trace/screenshot plus MCP snapshot to identify the exact failed element or state before patching.",
-        "fix_steps": steps,
-        "recommended_files_or_folders": files,
-        "approval_summary": f"Do not approve code change for {spec} until trace/screenshot identifies the failed element or state.",
-    }
 
 def _write_exact_plain_failure_report(report: dict[str, Any]) -> None:
     try:
         EXISTING_PLAIN_FAILURE_JSON.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         rows = []
-        repair_rows = []
         for rec in report.get("test_case_outcomes") or []:
             cls = "bad" if rec.get("status") == "failed" else ("ok" if rec.get("status") == "passed" else "warn")
-            steps = rec.get('fix_steps') or []
-            steps_html = '<ol>' + ''.join(f'<li>{_html(step)}</li>' for step in steps[:8]) + '</ol>' if steps else ''
-            rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code></td><td>{_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td class='{cls}'>{_html(rec.get('status'))}</td><td>{_html(rec.get('plain_english_reason'))}</td><td>{_html(rec.get('failure_category'))}</td><td>{_html(rec.get('target_patch_layer'))}</td></tr>")
-            if rec.get('status') == 'failed':
-                repair_rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code><br/>line {_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td>{_html(rec.get('mcp_codegen_action'))}</td><td>{steps_html}</td><td><pre>{_html(json.dumps(rec.get('recommended_files_or_folders') or [], indent=2, ensure_ascii=False))}</pre></td><td>{_html(rec.get('approval_summary'))}</td></tr>")
+            evidence = "<br/>".join(_html(x) for x in (rec.get("observed_evidence") or []))
+            files = "<br/>".join(f"<code>{_html(x)}</code>" for x in (rec.get("recommended_files") or [])) or "Evidence first; no file safely selected yet."
+            conf = f"{float(rec.get('confidence') or 0):.0%}"
+            rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code><br/>line {_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td class='{cls}'>{_html(rec.get('status'))}</td><td><b>{_html(rec.get('failure_category'))}</b><br/>Confidence: {_html(conf)}</td><td>{evidence}</td><td>{_html(rec.get('plain_english_reason'))}</td><td><b>Layer:</b> {_html(rec.get('likely_fix_layer'))}<br/><br/>{_html(rec.get('suggested_fix_area'))}<br/><br/><b>Files:</b><br/>{files}</td><td>{_html(rec.get('validation_steps'))}<br/><br/><b>Self-healing:</b> {_html(rec.get('self_healing_safety'))}</td></tr>")
         html = f"""<!doctype html><html><head><meta charset='utf-8'><title>Plain English RCA</title>
-<style>body{{font-family:Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#0f172a}}.card{{background:white;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:14px 0}}.warn{{color:#b45309;font-weight:800}}.ok{{color:#16a34a;font-weight:800}}.bad{{color:#dc2626;font-weight:800}}table{{width:100%;border-collapse:collapse;background:white}}th,td{{border:1px solid #cbd5e1;padding:8px;vertical-align:top}}th{{background:#1e293b;color:white}}code{{background:#0f172a;color:#dbeafe;padding:2px 6px;border-radius:6px}}pre{{white-space:pre-wrap;background:#0f172a;color:#dbeafe;border-radius:8px;padding:8px;max-height:220px;overflow:auto}}ol{{margin:0 0 0 18px;padding:0}}</style></head><body>
-<h1>Plain English RCA Report</h1><section class='card'><h2>Summary</h2><p>{_html(report.get('summary'))}</p><p>{_html(report.get('message'))}</p><p><b>Failure category counts:</b> <code>{_html(json.dumps(report.get('failure_category_counts') or {}, ensure_ascii=False))}</code></p></section>
-<section class='card'><h2>Test-by-test outcome and RCA</h2><p>Format: spec file → test case → passed/failed → plain English reason → failure category → safest patch layer.</p><table><thead><tr><th>Spec</th><th>Line</th><th>Test</th><th>Status</th><th>Reason</th><th>Failure category</th><th>Target patch layer</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="7">No test-case level evidence found. Open the native Playwright shard report.</td></tr>'}</tbody></table></section>
-<section class='card'><h2>Auditable RCA + MCP/codegen fix recipe</h2><p>This section breaks each failed test into observable checks and safe actions. It is not hidden chain-of-thought; it is an auditable checklist for locator/MCP/codegen/self-healing.</p><table><thead><tr><th>Failed spec/test</th><th>Test</th><th>MCP/codegen action</th><th>Safe steps</th><th>Recommended files</th><th>Approval summary</th></tr></thead><tbody>{''.join(repair_rows) or '<tr><td colspan="6">No failed tests found.</td></tr>'}</tbody></table></section>
+<style>body{{font-family:Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#0f172a}}.card{{background:white;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:14px 0}}.warn{{color:#b45309;font-weight:800}}.ok{{color:#16a34a;font-weight:800}}.bad{{color:#dc2626;font-weight:800}}table{{width:100%;border-collapse:collapse;background:white;font-size:13px}}th,td{{border:1px solid #cbd5e1;padding:8px;vertical-align:top}}th{{background:#1e293b;color:white;position:sticky;top:0}}code{{background:#0f172a;color:#dbeafe;padding:2px 6px;border-radius:6px;display:inline-block;margin:2px 0}}.scroll{{overflow:auto;max-height:75vh}}</style></head><body>
+<h1>Plain English RCA Report</h1><section class='card'><h2>Summary</h2><p>{_html(report.get('summary'))}</p><p>{_html(report.get('message'))}</p><p><b>Failure categories:</b> {_html(json.dumps(report.get('failure_category_counts') or {}, ensure_ascii=False))}</p></section>
+<section class='card'><h2>Where this report and supporting logs are stored locally</h2><p><b>Central report root:</b> <code>{_html(((report.get('local_storage_locations') or {}).get('central_report_root')))}</code></p><p><b>Central cache/log root:</b> <code>{_html(((report.get('local_storage_locations') or {}).get('central_cache_root')))}</code></p><p><b>Selected framework:</b> <code>{_html(((report.get('local_storage_locations') or {}).get('selected_framework_root')))}</code></p><p>Use <b>Logs, Reports and AI Memory → Show local report/log folders</b> in the GUI for every exact file and whether it currently exists.</p></section>
+<section class='card'><h2>Test-by-test explainable RCA</h2><p>This report separates evidence from inference. A locator is not recommended unless the error/trace indicates a DOM problem; environment, module, browser and assertion failures receive different fix layers.</p><div class='scroll'><table><thead><tr><th>Spec / line</th><th>Test</th><th>Status</th><th>Category / confidence</th><th>Observed evidence</th><th>Plain-English cause</th><th>Safest fix and likely files</th><th>Validation / auto-heal decision</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="8">No test-case level evidence found. Open the native Playwright report.</td></tr>'}</tbody></table></div></section>
 </body></html>"""
         EXISTING_PLAIN_FAILURE_HTML.write_text(html, encoding="utf-8")
     except Exception:
         pass
+
 
 def _deterministic_signals(text: str) -> list[dict[str, Any]]:
     low = (text or "").lower()
     signals: list[dict[str, Any]] = []
     def add(kind: str, confidence: float, recommendation: str) -> None:
         signals.append({"kind": kind, "confidence": confidence, "recommendation": recommendation})
+    if _is_module_resolution_failure(text):
+        missing = _extract_missing_module_name(text)
+        target = f" for {missing}" if missing else ""
+        add(
+            "typescript_path_alias_or_module_resolution",
+            0.96,
+            f"Fix Playwright/Node module resolution{target}: parse tsconfig/jsconfig path aliases and preload a runtime resolver or approved framework bootstrap. Do not change DOM locators for this failure.",
+        )
     if any(x in low for x in ["element is not attached to the dom", "not attached to the dom", "detached from dom", "detached"]):
         add("locator_detached_from_dom", 0.91, "Do not reuse stale locator/ElementHandle. Re-query the locator after page settles, use MCP/codegen to verify the live replacement locator, and patch pageObject/page method helper rather than adding blind waits.")
     if any(x in low for x in ["strict mode violation", "locator resolved to", "locator(", "getbyrole", "getbytext", "tobevisible", "waiting for"]):
         add("locator_not_found_or_ambiguous", 0.88, "Update pageObjects/locator definitions using stable Playwright locators and add fallbacks where needed.")
+    if any(x in low for x in ["element(s) not found"]):
+        add("locator_not_found_or_ambiguous", 0.86, "Update pageObjects/locator definitions using stable Playwright locators and add fallbacks where needed.")
     if any(x in low for x in ["intercepts pointer events", "not enabled", "not visible", "outside of the viewport", "detached", "click timeout"]):
         add("clickability_overlay_or_viewport", 0.84, "Patch reusable page method/BasePage to dismiss overlays, scroll into view, wait for stable DOM, then click safely.")
     if any(x in low for x in ["waitforurl", "tohaveurl", "navigation", "timeout", "networkidle"]):
@@ -2935,7 +3376,9 @@ def _deterministic_signals(text: str) -> list[dict[str, Any]]:
 
 def _failure_kind_from_text(text: str) -> str:
     low = (text or "").lower()
-    if any(x in low for x in ["strict mode violation", "resolved to", "locator", "getbyrole", "getbytext", "getbytestid", "waiting for", "tobevisible", "not found"]):
+    if _is_module_resolution_failure(text):
+        return "typescript_path_alias_or_module_resolution"
+    if any(x in low for x in ["strict mode violation", "resolved to", "locator", "getbyrole", "getbytext", "getbytestid", "waiting for", "tobevisible", "element(s) not found"]):
         return "locator_or_dom_change"
     if any(x in low for x in ["intercepts pointer events", "not enabled", "not visible", "outside of the viewport", "detached", "click timeout", "locator.click"]):
         return "interactability_overlay_or_viewport"
@@ -3280,23 +3723,23 @@ def _deterministic_existing_fix_plan(rca: dict[str, Any], failure_text: str, all
     primary = signals[0].get("kind") if signals else "unknown_or_insufficient_evidence"
     common = rca.get("common_cause_analysis") or {}
     primary_common = common.get("primary_common_cause") or {}
-    plain_report = rca.get("plain_english_failure_report") or {}
-    failed_outcomes = [x for x in (plain_report.get("test_case_outcomes") or []) if isinstance(x, dict) and str(x.get("status") or "").lower() == "failed"]
     plan: list[str] = []
-    if failed_outcomes:
-        plan.append(f"Build fix from exact failed test-case evidence first: {len(failed_outcomes)} failed test case(s) are in scope; passed tests are not touched.")
-        for rec in failed_outcomes[:20]:
-            plan.append(f"{rec.get('spec')} -> {rec.get('test')} failed - reason: {rec.get('plain_english_reason')}. Category: {rec.get('failure_category')}. Patch layer: {rec.get('target_patch_layer')}. MCP/codegen: {rec.get('mcp_codegen_action')}")
-            steps = rec.get('fix_steps') or []
-            if steps:
-                plan.append("  Safe sequence: " + " | ".join(str(s) for s in steps[:4]))
     if common.get("has_multi_workflow_common_cause") and primary_common:
         plan.extend([
             f"Prioritize shared component first: {primary_common.get('component')} ({primary_common.get('failure_kind')}) impacts {primary_common.get('impacted_count')} failed spec(s).",
             "Patch the common pageObject/page method/BasePage/helper used by these workflows before editing individual test specs.",
             "After common component fix, rerun only the failed inventory to confirm multiple workflows recover together.",
         ])
-    if primary == "locator_not_found_or_ambiguous" or mcp.get("failed_locator_or_action_candidates"):
+    if primary == "typescript_path_alias_or_module_resolution":
+        missing = _extract_missing_module_name(failure_text)
+        plan.extend([
+            f"Treat this as Playwright/Node module resolution, not a browser locator issue. Missing module: {missing or 'not extracted from log'}.",
+            "Read tsconfig.json/jsconfig.json with JSONC support and verify baseUrl/paths include the missing alias target, for example @config/* -> src/main/config/*.",
+            "Ensure Playwright execution preloads a path-alias runtime resolver through NODE_OPTIONS or an approved Playwright config/bootstrap. Prefer a dependency-free generated resolver when enterprise installs are restricted; alternatively add tsconfig-paths/register if package approval exists.",
+            "Include package.json, tsconfig/jsconfig, playwright.config.*, the failed spec, fixture, and alias target files in the human-approved patch scope.",
+            "Rerun only the failed spec after the alias resolver is active; do not modify pageObjects/locators unless a second browser-step failure appears after the import error is fixed.",
+        ])
+    elif primary == "locator_not_found_or_ambiguous" or mcp.get("failed_locator_or_action_candidates"):
         plan.extend([
             "Open the failed spec and identify the page method being called.",
             "Find the matching locator in pageObjects/locator module or page class.",
@@ -3349,6 +3792,8 @@ def _deterministic_existing_fix_plan(rca: dict[str, Any], failure_text: str, all
 
 def _write_self_healing_html(payload: dict[str, Any]) -> Path:
     EXISTING_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    framework_for_locations = str(payload.get("framework_path") or ((payload.get("root_cause") or {}).get("framework_path") or ""))
+    artifact_locations = existing_framework_artifact_locations(framework_for_locations)
     plan = payload.get("deterministic_fix_plan") or {}
     changed = (payload.get("patch_diff") or {}).get("changed_files") or []
     rca = payload.get("root_cause") or {}
@@ -3358,9 +3803,10 @@ def _write_self_healing_html(payload: dict[str, Any]) -> Path:
     case_fix_rows = []
     for rec in (((rca.get('plain_english_failure_report') or {}).get('test_case_outcomes')) or []):
         if str(rec.get('status') or '').lower() == 'failed':
-            steps_html = '<ol>' + ''.join(f'<li>{_html(step)}</li>' for step in ((rec.get('fix_steps') or [])[:6])) + '</ol>' if rec.get('fix_steps') else ''
-            files_html = '<pre>' + _html(json.dumps(rec.get('recommended_files_or_folders') or [], indent=2, ensure_ascii=False)) + '</pre>' if rec.get('recommended_files_or_folders') else ''
-            case_fix_rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code></td><td>{_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td>{_html(rec.get('plain_english_reason'))}<br/><b>Category:</b> {_html(rec.get('failure_category'))}</td><td>{_html(rec.get('mcp_codegen_action'))}<br/>{steps_html}</td><td>{_html(rec.get('target_patch_layer'))}<br/>{files_html}</td></tr>")
+            evidence = "<br/>".join(_html(x) for x in (rec.get('observed_evidence') or []))
+            recommended = "<br/>".join(f"<code>{_html(x)}</code>" for x in (rec.get('recommended_files') or [])) or "No file selected until evidence is confirmed."
+            confidence = f"{float(rec.get('confidence') or 0):.0%}"
+            case_fix_rows.append(f"<tr><td><code>{_html(rec.get('spec'))}</code><br/>line {_html(rec.get('line'))}</td><td>{_html(rec.get('test'))}</td><td><b>{_html(rec.get('failure_category'))}</b><br/>{_html(confidence)}</td><td>{evidence}</td><td>{_html(rec.get('plain_english_reason'))}</td><td><b>{_html(rec.get('likely_fix_layer'))}</b><br/>{_html(rec.get('suggested_fix_area'))}<br/><br/>{recommended}</td><td>{_html(rec.get('validation_steps'))}<br/><br/><b>{_html(rec.get('self_healing_safety'))}</b></td></tr>")
     files = []
     for f in (payload.get("scope") or {}).get("allowed_files") or []:
         files.append(f"<li><code>{_html(f)}</code></li>")
@@ -3382,15 +3828,16 @@ def _write_self_healing_html(payload: dict[str, Any]) -> Path:
 <style>body{{font-family:Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#0f172a}}.card{{background:white;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:14px 0}}.ok{{color:#16a34a;font-weight:800}}.bad{{color:#dc2626;font-weight:800}}.warn{{color:#b45309;font-weight:800}}code{{background:#0f172a;color:#dbeafe;padding:3px 6px;border-radius:6px}}pre{{white-space:pre-wrap;background:#0f172a;color:#dbeafe;border-radius:10px;padding:14px}}</style></head><body>
 <h1>Existing Framework Self-Healing Report</h1>
 <div class='card'><b>Status:</b> <span class='{ 'ok' if payload.get('applied') else 'warn' }'>{_html(payload.get('stage'))}</span><p>{_html(payload.get('message'))}</p></div>
+<div class='card'><h2>Local storage locations</h2><p><b>Central reports:</b> <code>{_html(artifact_locations.get('central_report_root'))}</code></p><p><b>RCA/self-healing cache, logs and backups:</b> <code>{_html(artifact_locations.get('central_cache_root'))}</code></p><p><b>Selected Playwright framework:</b> <code>{_html(artifact_locations.get('selected_framework_root'))}</code></p><p>Playwright's native report is normally under the selected framework's <code>playwright-report/index.html</code>; AstraHeal retains a stable copy under the central reports folder.</p></div>
 <div class='card'><h2>Human approval and multi-signal RCA gate</h2><p class='{gate_class}'>{_html(gate.get('user_message') or 'No separate gate status was recorded for this proposal/apply step.')}</p><pre>{_html(json.dumps(gate, indent=2, ensure_ascii=False)[:12000])}</pre></div>
 <div class='card'><h2>Codex apply diagnostics</h2><p>This section explains whether Codex was missing, unauthenticated, failed, or executed successfully but returned no file diff. Human approval is not treated as missing when the popup was approved.</p><pre>{_html(json.dumps({'codex_apply_diagnostics': payload.get('codex_apply_diagnostics'), 'codex_attempts': payload.get('codex_attempts'), 'deterministic_fallback_patch': payload.get('deterministic_fallback_patch'), 'ai_message': (payload.get('ai') or {}).get('message')}, indent=2, ensure_ascii=False)[:24000])}</pre></div>
 <div class='card'><h2>Failed specs in scope</h2><pre>{_html(json.dumps(rca.get('failed_specs') or [], indent=2, ensure_ascii=False))}</pre></div>
-<div class='card'><h2>Specific failed tests and proposed safe fix</h2><p>For each failed test, AstraHeal identifies the failure reason, MCP/codegen action, safe sequence, and safest project layer to update. Locator fixes should normally go into pageObjects/locator repository or page methods, not random waits inside specs.</p><table style="width:100%;border-collapse:collapse"><thead><tr><th>Spec</th><th>Line</th><th>Failed test</th><th>Reason/category</th><th>MCP/codegen + safe sequence</th><th>Patch target/files</th></tr></thead><tbody>{''.join(case_fix_rows) if case_fix_rows else '<tr><td colspan="6">No failed test-case level evidence found. Use native shard report/trace before patching.</td></tr>'}</tbody></table></div>
+<div class='card'><h2>Specific failed tests and evidence-based safe fix</h2><p>Each row separates observed evidence from the inferred cause, identifies the correct framework layer, lists likely files, and states whether self-healing is safe. Locator changes are not recommended for module, environment, browser, authentication or unverified assertion failures.</p><table style="width:100%;border-collapse:collapse"><thead><tr><th>Spec / line</th><th>Failed test</th><th>Category / confidence</th><th>Observed evidence</th><th>Plain-English cause</th><th>Fix layer / likely files</th><th>Validation / healing safety</th></tr></thead><tbody>{''.join(case_fix_rows) if case_fix_rows else '<tr><td colspan="7">No failed test-case level evidence found. Use native shard report/trace before patching.</td></tr>'}</tbody></table></div>
 <div class='card'><h2>Safe fix plan</h2><ol>{''.join(rows) if rows else '<li>No deterministic plan was generated.</li>'}</ol></div>
 <div class='card'><h2>Common-cause fix priority</h2><p>When several workflows fail because of the same component, the shared component is fixed first before individual test edits.</p><table style="width:100%;border-collapse:collapse"><thead><tr><th>Shared component/action</th><th>Failure kind</th><th>Impacted count</th><th>Impacted specs</th><th>Fix priority</th></tr></thead><tbody>{''.join(common_rows) if common_rows else '<tr><td colspan="5">No common-cause group available.</td></tr>'}</tbody></table><p><a href='/artifacts/reports/existing-framework/common-cause-memory.html' target='_blank'>Open common-cause memory/cache</a></p></div>
 <div class='card'><h2>Auditable RCA reasoning checklist used for patching</h2><table style="width:100%;border-collapse:collapse"><thead><tr><th>#</th><th>Check</th><th>Status</th><th>Fix decision</th></tr></thead><tbody>{''.join(checklist_rows) if checklist_rows else '<tr><td colspan="4">No checklist available.</td></tr>'}</tbody></table><p>This is an observable RCA checklist, not hidden chain-of-thought.</p></div>
 <div class='card'><h2>External MCP research context</h2><p>{_html(ext.get('message'))}</p><ul>{ext_queries or '<li>No external research queries available or feature disabled.</li>'}</ul></div>
-<div class='card'><h2>Allowed files</h2><ul>{''.join(files) if files else '<li>No allowed files resolved. Patch blocked.</li>'}</ul></div>
+<div class='card'><h2>Approved write boundary (not files changed)</h2><p>These files are the maximum boundary AI was allowed to modify. They are not all changed. The exact changed/impacted files appear in the next section. Whole-workspace write expansion is disabled unless explicitly granted.</p><ul>{''.join(files) if files else '<li>No allowed files resolved. Patch blocked.</li>'}</ul></div>
 <div class='card'><h2>Files changed / impacted</h2><ul>{''.join(changed_rows) if changed_rows else '<li>No files were changed by this step.</li>'}</ul></div>
 <div class='card'><h2>Patch review and rollback</h2><p><b>Applied:</b> {_html(payload.get('applied'))} &nbsp; <b>Human review required:</b> {_html(payload.get('human_approval_required'))}</p><p><b>Backup root:</b> <code>{_html((payload.get('backup') or {}).get('backup_root'))}</code></p><p>If failed-only validation is not good, use the GUI button <b>Rollback last AI fix</b> or restore the listed changed files from the backup root.</p><pre>{_html(json.dumps({'patch_confidence_review': payload.get('patch_confidence_review'), 'policy_validation': payload.get('policy_validation'), 'confidence_restore': payload.get('confidence_restore')}, indent=2, ensure_ascii=False)[:24000])}</pre></div>
 <div class='card'><h2>Raw details</h2><pre>{_html(json.dumps(payload, indent=2, ensure_ascii=False)[:70000])}</pre></div>
@@ -3539,7 +3986,7 @@ Return a concise summary of files changed after editing.
 def _candidate_deterministic_patch_files(root: Path, allowed_files: list[str]) -> list[str]:
     seen: set[str] = set()
     ordered: list[str] = []
-    keywords = ("base-page", "basepage", "mobile-base", "page", "helper", "action", "click", "locator", "wait", "navigation", "router", "popup", "blocker", "browser", "safe")
+    keywords = ("base-page", "basepage", "mobile-base", "page", "helper", "action", "click", "locator")
     for rel in allowed_files or []:
         norm = str(rel or "").replace("\\", "/").lstrip("./")
         low = norm.lower()
@@ -3572,8 +4019,15 @@ def _try_deterministic_self_heal_patch(root: Path, rca: dict[str, Any], failure_
     backup/policy validation and must be validated by failed-only rerun.
     """
     low = (failure_text or "").lower()
-    if not any(k in low for k in ["locator", "tobevisible", "element(s) not found", "not attached", "detached", "intercepts pointer events", "locator.click", "scrollintoviewifneeded", "test timeout", "timeout", "waitforurl", "tohaveurl", "navigation", "networkidle", "domcontentloaded", "permission", "cookie", "modal", "popup"]):
-        return {"attempted": False, "changed_files": [], "message": "Deterministic fallback skipped because the failure evidence did not match locator/actionability/timeout/navigation/blocker patterns."}
+    if _is_module_resolution_failure(failure_text):
+        return {
+            "attempted": False,
+            "changed_files": [],
+            "message": "Deterministic fallback skipped source edits because this is a module/path-alias runtime failure. AstraHeal preloads a generated tsconfig alias resolver during execution; any permanent framework-source change should be human-approved through Codex/package/config review.",
+            "recommended_layer": "playwright.config.ts / tsconfig.json / package.json / runtime bootstrap",
+        }
+    if not any(k in low for k in ["locator", "tobevisible", "element(s) not found", "not attached", "detached", "intercepts pointer events", "locator.click", "scrollintoviewifneeded"]):
+        return {"attempted": False, "changed_files": [], "message": "Deterministic fallback skipped because the failure evidence was not locator/actionability related."}
     changed: list[str] = []
     details: list[dict[str, Any]] = []
     marker = "AstraHeal deterministic self-healing fallback"
@@ -3635,37 +4089,6 @@ def _try_deterministic_self_heal_patch(root: Path, rca: dict[str, Any], failure_
                 new = new.replace(pat, tap_replacement, 1)
                 local_changes.append("bounded scroll-before-tap guard")
                 break
-        # Slow AUT / navigation-state timeout guard: avoid indefinite or fragile networkidle-only waits.
-        # This keeps the timeout bounded and records that a business-state assertion should still validate the page.
-        nav_patterns = [
-            "await this.page.waitForLoadState('networkidle');",
-            'await this.page.waitForLoadState("networkidle");',
-            "await page.waitForLoadState('networkidle');",
-            'await page.waitForLoadState("networkidle");',
-        ]
-        nav_replacements = {
-            "await this.page.waitForLoadState('networkidle');": "await this.page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});\n    // AstraHeal deterministic self-healing fallback: networkidle is fragile on slow VM/AUT; rely on bounded DOM ready plus business assertions.",
-            'await this.page.waitForLoadState("networkidle");': 'await this.page.waitForLoadState("domcontentloaded", { timeout: 10000 }).catch(() => {});\n    // AstraHeal deterministic self-healing fallback: networkidle is fragile on slow VM/AUT; rely on bounded DOM ready plus business assertions.',
-            "await page.waitForLoadState('networkidle');": "await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});\n    // AstraHeal deterministic self-healing fallback: networkidle is fragile on slow VM/AUT; rely on bounded DOM ready plus business assertions.",
-            'await page.waitForLoadState("networkidle");': 'await page.waitForLoadState("domcontentloaded", { timeout: 10000 }).catch(() => {});\n    // AstraHeal deterministic self-healing fallback: networkidle is fragile on slow VM/AUT; rely on bounded DOM ready plus business assertions.',
-        }
-        if any(k in low for k in ["test timeout", "timeout", "navigation", "networkidle", "waitforurl", "tohaveurl"]):
-            for pat in nav_patterns:
-                if pat in new and "networkidle is fragile on slow VM/AUT" not in new:
-                    new = new.replace(pat, nav_replacements[pat], 1)
-                    local_changes.append("bounded domcontentloaded guard for slow AUT/navigation wait")
-                    break
-        # Browser blocker guard for common cookie/location/permission/modal issues where a helper file already has close/dismiss hooks.
-        blocker_patterns = [
-            "await locator.click({ timeout: 10000 });",
-            "await locator.click({ timeout: 10_000 });",
-        ]
-        if any(k in low for k in ["intercepts pointer events", "permission", "cookie", "modal", "popup", "geolocation"]):
-            for pat in blocker_patterns:
-                if pat in new and "AstraHeal blocker evidence" not in new:
-                    new = new.replace(pat, "// AstraHeal blocker evidence: before this action, ensure known cookie/location/permission/modal blockers are dismissed in the shared blocker guard if present.\n      " + pat, 1)
-                    local_changes.append("blocker guard note before bounded click")
-                    break
         if new != text:
             try:
                 path.write_text(new, encoding="utf-8")
@@ -3765,6 +4188,37 @@ def _workspace_approved_patch_files(root: Path, seed_files: list[str] | None = N
             break
         add_file(root / name)
     return ordered
+
+def _resolve_runtime_approved_files(root: Path, values: str, max_files: int = 200) -> list[str]:
+    """Resolve only the files/folders explicitly submitted in this popup."""
+    approved: list[str] = []
+    seen: set[str] = set()
+    for raw_value in re.split(r"[\r\n,;]+", str(values or "")):
+        raw = raw_value.strip().strip('"').strip("'").replace("\\", "/")
+        if not raw:
+            continue
+        try:
+            candidate = Path(raw)
+            resolved = candidate.resolve() if candidate.is_absolute() else (root / raw.lstrip("./")).resolve()
+            if not str(resolved).lower().startswith(str(root.resolve()).lower()) or not resolved.exists() or _is_ignored(resolved, root):
+                continue
+            files = [resolved] if resolved.is_file() else [p.resolve() for p in resolved.rglob("*") if p.is_file() and not _is_ignored(p, root)]
+            for file in files:
+                if len(approved) >= max_files:
+                    return approved
+                if file.suffix.lower() not in TS_SUFFIXES and file.name.lower() not in {
+                    "playwright.config.ts", "playwright.config.js", "playwright.config.mjs", "playwright.config.cjs",
+                    "package.json", "package-lock.json", "pnpm-lock.yaml", "yarn.lock", "tsconfig.json", "jsconfig.json",
+                }:
+                    continue
+                rel = _rel_to(file, root)
+                if rel not in seen:
+                    seen.add(rel)
+                    approved.append(rel)
+        except Exception:
+            continue
+    return approved
+
 
 def _human_approved_patch_files(root: Path, human_memory: dict[str, Any] | None = None) -> list[str]:
     """Return human-approved files that may extend the safe patch scope.
@@ -3970,10 +4424,21 @@ def create_runtime_patch_approval_request(
     allowed_files = list(scope.get("allowed_files") or [])
     human_memory = read_human_intervention_memory(limit=50)
     human_approved_files = _human_approved_patch_files(root, human_memory)
-    workspace_files: list[str] = []
+    # Broad workspace files are calculated only as a transparent, read/context
+    # fallback. They are NOT silently added to the write approval boundary.
+    # A folder/file enters write scope only when the user explicitly lists it.
+    workspace_context_candidates: list[str] = []
     if policy_mode in {"approved_with_backup", "local_approved", "vm_vdi_approved", "apply_and_validate"}:
-        workspace_files = _workspace_approved_patch_files(root, allowed_files, max_files=700)
-    effective_allowed = sorted(set([*allowed_files, *human_approved_files, *workspace_files]))
+        workspace_context_candidates = _workspace_approved_patch_files(root, allowed_files, max_files=700)
+    # Previous human approvals remain visible as memory/context, but they do not
+    # silently expand this new runtime write boundary. The current popup is the
+    # source of truth for the current patch attempt.
+    effective_allowed = sorted(set(allowed_files))
+    failed_categories = [str(x.get("failure_category") or "") for x in ((rca.get("plain_english_failure_report") or {}).get("test_case_outcomes") or []) if str(x.get("status") or "").lower() == "failed"]
+    primary_category = next((x for x in failed_categories if x and x != "unknown_or_insufficient_evidence"), failed_categories[0] if failed_categories else "")
+    recommended_files = _recommended_files_for_failure_category(scope, primary_category, max_files=20)
+    if not recommended_files and primary_category not in {"authentication_or_authorization", "browser_or_runtime_crash", "assertion_or_product_behavior_mismatch", "timeout_or_unfinished_state", "unknown_or_insufficient_evidence"}:
+        recommended_files = _prioritize_patch_files_for_ai(scope.get("recommended_patch_files") or effective_allowed, rca, max_files=20)
     failure_text = _failure_text(rca.get("failed_inventory") or {})
     deterministic_fix_plan = _deterministic_existing_fix_plan(rca, failure_text, effective_allowed)
     failed_case_outcomes = [x for x in ((rca.get("plain_english_failure_report") or {}).get("test_case_outcomes") or []) if str(x.get("status") or "").lower() == "failed"]
@@ -4021,14 +4486,28 @@ def create_runtime_patch_approval_request(
         "gui_summary": "\n".join(["Runtime approval request - failed tests in scope", *[f"{x.get('spec')} -> {x.get('test')} failed - reason: {x.get('plain_english_reason')}" for x in failed_case_outcomes[:80]]]),
         "allowed_files": effective_allowed[:300],
         "allowed_files_count": len(effective_allowed),
+        "recommended_patch_files": recommended_files,
+        "recommended_patch_files_count": len(recommended_files),
+        "primary_failure_category": primary_category,
+        "scope_groups": scope.get("scope_groups") or {},
+        "file_reasons": scope.get("file_reasons") or {},
+        "allowed_files_explanation": "These are the maximum files AI may write after approval, not files that will definitely change. Actual changed files are reported separately after the patch.",
+        "workspace_context_candidates_count": len(workspace_context_candidates),
+        "workspace_context_explanation": "Additional framework files may be read/searched for context, but they are not writable unless you explicitly add their file/folder paths in the approval box.",
         "human_approved_files": human_approved_files,
-        "workspace_scope_enabled": bool(workspace_files),
+        "workspace_scope_enabled": False,
         "risks": risks,
         "questions": questions,
         "best_practices": best_practices,
         "recommended_decision": "approve_with_backup_and_validate" if effective_allowed else "provide_safe_files_or_guidance_first",
         "deterministic_fix_plan": deterministic_fix_plan,
-        "message": "Runtime approval is ready. Review risks/files, then approve, deny, or provide guidance in the popup.",
+        "root_cause": {
+            "failed_specs": rca.get("failed_specs") or [],
+            "signals": rca.get("signals") or [],
+            "plain_english_failure_report": rca.get("plain_english_failure_report") or {},
+            "common_cause_analysis": rca.get("common_cause_analysis") or {},
+        },
+        "message": "Runtime approval is ready. Review the per-test RCA, recommended minimal files and maximum write boundary, then approve, deny, or provide guidance.",
     }
     out = EXISTING_REPORTS_DIR / "runtime-approval-request.json"
     out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -4120,20 +4599,24 @@ def self_heal_existing_framework(framework_path: str = "", provider: str = "code
     human_intervention_memory = read_human_intervention_memory(limit=50)
     allowed_files = list(scope.get("allowed_files") or [])
     human_approved_files = _human_approved_patch_files(root, human_intervention_memory)
+    # Historical approvals are context only. They never silently expand the
+    # current patch boundary; the current Runtime AI Fix Approval textarea is
+    # authoritative for this attempt.
     if human_approved_files:
-        # Human-approved files can extend the automatic dependency scope, but
-        # only for files that exist inside the selected framework root.
-        allowed_files = sorted(set([*allowed_files, *human_approved_files]))
-        scope = {**scope, "allowed_files": allowed_files, "human_approved_safe_files": human_approved_files, "scope_mode": (scope.get("scope_mode") or "import_graph") + "+human_approved_files"}
+        scope = {**scope, "historical_human_approved_files_context_only": human_approved_files}
         rca["scope"] = scope
     approved_modes = {"approved_with_backup", "local_approved", "vm_vdi_approved", "apply_and_validate"}
-    if apply_patch and (policy_mode or "approved_with_backup").strip().lower() in approved_modes:
+    broad_scope_opt_in = str(os.environ.get("ASTRAHEAL_ALLOW_BROAD_WORKSPACE_PATCH_SCOPE") or "").strip().lower() in {"1", "true", "yes", "on"}
+    if apply_patch and broad_scope_opt_in and (policy_mode or "approved_with_backup").strip().lower() in approved_modes:
         workspace_files = _workspace_approved_patch_files(root, allowed_files, max_files=700)
         if workspace_files:
             original_count = len(allowed_files)
             allowed_files = sorted(set([*allowed_files, *workspace_files]))
-            scope = {**scope, "allowed_files": allowed_files, "workspace_approved_patch_scope": {"enabled": True, "original_failed_scope_count": original_count, "expanded_scope_count": len(allowed_files), "max_files": 700}, "scope_mode": (scope.get("scope_mode") or "import_graph") + "+approved_workspace"}
+            scope = {**scope, "allowed_files": allowed_files, "workspace_approved_patch_scope": {"enabled": True, "explicit_environment_opt_in": True, "original_failed_scope_count": original_count, "expanded_scope_count": len(allowed_files), "max_files": 700}, "scope_mode": (scope.get("scope_mode") or "import_graph") + "+explicit_broad_workspace_opt_in"}
             rca["scope"] = scope
+    else:
+        scope = {**scope, "workspace_approved_patch_scope": {"enabled": False, "reason": "Broad workspace write access is disabled by default. Add exact files/folders in Runtime AI Fix Approval to extend scope."}}
+        rca["scope"] = scope
 
     # Runtime popup approval can grant additional safe files/folders and adds
     # human guidance to AI memory for this patch attempt. This supports the
@@ -4153,11 +4636,12 @@ def self_heal_existing_framework(framework_path: str = "", provider: str = "code
                 rerun_instruction="After patch, run failed tests again in the selected headed/headless mode.",
             )
             refreshed_human_memory = read_human_intervention_memory(limit=50)
-            runtime_approved_files = _human_approved_patch_files(root, refreshed_human_memory)
-            if runtime_approved_files:
-                allowed_files = sorted(set([*allowed_files, *runtime_approved_files]))
-                scope = {**scope, "allowed_files": allowed_files, "runtime_popup_approved_files": runtime_approved_files, "scope_mode": (scope.get("scope_mode") or "import_graph") + "+runtime_popup_approval"}
-                rca["scope"] = scope
+            runtime_approved_files = _resolve_runtime_approved_files(root, approval_safe_files)
+            # Exact current-popup restriction: deleting every path means no write
+            # permission and blocks patching; adding a folder/file grants only it.
+            allowed_files = sorted(set(runtime_approved_files))
+            scope = {**scope, "allowed_files": allowed_files, "runtime_popup_approved_files": runtime_approved_files, "runtime_popup_scope_is_authoritative": True, "scope_mode": "runtime_popup_exact_write_boundary"}
+            rca["scope"] = scope
             human_intervention_memory = refreshed_human_memory
             runtime_human_approval["saved_update"] = approved_update
         except Exception as exc:
@@ -4601,15 +5085,15 @@ def execute_existing_failed_only(framework_path: str = "", project: str = "chrom
 
     root = _resolve_framework_path(framework_path or inventory.get("framework_path", ""))
     failed_targets = _failed_rerun_targets_from_inventory(inventory, root=root)
-    failed_specs = sorted(dict.fromkeys(_strip_playwright_line_selector(t) for t in failed_targets if _is_tests_folder_executable_spec(t)), key=_spec_compare_key)
+    failed_specs = sorted(dict.fromkeys(_strip_playwright_line_selector(t) for t in failed_targets if _is_tests_folder_executable_spec(t, root=root)), key=_spec_compare_key)
     if not failed_targets:
         recovered = _read_last_execution_inventory()
         if recovered.get("ok") and (recovered.get("failed_specs") or recovered.get("failed_test_cases")):
             inventory = recovered
             failed_targets = _failed_rerun_targets_from_inventory(inventory, root=root)
-            failed_specs = sorted(dict.fromkeys(_strip_playwright_line_selector(t) for t in failed_targets if _is_tests_folder_executable_spec(t)), key=_spec_compare_key)
+            failed_specs = sorted(dict.fromkeys(_strip_playwright_line_selector(t) for t in failed_targets if _is_tests_folder_executable_spec(t, root=root)), key=_spec_compare_key)
     if not failed_targets:
-        payload = {"ok": False, "skipped": True, "stage": "existing_framework_failed_only_blocked_no_failed_targets", "message": "No valid failed test targets found for rerun. Open failed-tests.json and execution-report.json; the previous run may not have captured failed test cases/specs or paths were outside the root tests/** execution scope.", "failed_inventory": inventory}
+        payload = {"ok": False, "skipped": True, "stage": "existing_framework_failed_only_blocked_no_failed_targets", "message": "No valid failed test targets found for rerun. Open failed-tests.json and execution-report.json; the previous run may not have captured failed test cases/specs or paths were outside the recursively proven Playwright execution scope.", "failed_inventory": inventory}
         (EXISTING_REPORTS_DIR / "failed-only-rerun-report.json").write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         log_event("existing_framework_failed_only", payload["message"], status="error", progress=100, details=payload)
         return payload
@@ -4776,7 +5260,7 @@ def _failed_rerun_targets_from_inventory(inventory: dict[str, Any], root: Path |
     for rec in _inventory_failed_case_records(inventory or {}, root=root):
         spec = _normalize_existing_spec_path(rec.get("spec"), root=root)
         line = rec.get("line") or rec.get("testLine") or rec.get("location", {}).get("line") if isinstance(rec.get("location"), dict) else rec.get("line")
-        if not spec or not _is_tests_folder_executable_spec(spec):
+        if not spec or not _is_tests_folder_executable_spec(spec, root=root):
             continue
         selector = spec
         try:
@@ -4792,7 +5276,7 @@ def _failed_rerun_targets_from_inventory(inventory: dict[str, Any], root: Path |
         return targets
     for spec in inventory.get("failed_specs") or []:
         spec = _normalize_existing_spec_path(spec, root=root)
-        if spec and _is_tests_folder_executable_spec(spec) and spec.lower() not in seen:
+        if spec and _is_tests_folder_executable_spec(spec, root=root) and spec.lower() not in seen:
             targets.append(spec)
             seen.add(spec.lower())
     return targets
@@ -4906,7 +5390,7 @@ def _latest_failed_only_remaining_inventory() -> dict[str, Any]:
     # Legacy fallback: preserve remaining failed spec files if the rerun did not
     # produce JSON case records.  This is less precise, so reports will say so.
     legacy_specs = [_normalize_existing_spec_path(s, root=root) for s in (inv.get("failed_specs") or [])]
-    legacy_specs = [s for s in legacy_specs if s and _is_tests_folder_executable_spec(s)]
+    legacy_specs = [s for s in legacy_specs if s and _is_tests_folder_executable_spec(s, root=root)]
     return {
         "ok": bool(legacy_specs),
         "source": f"failed-only-rerun-ledger iteration {latest.get('iteration')} spec fallback",
@@ -4987,9 +5471,7 @@ def _failed_case_gui_lines_from_rca(rca: dict[str, Any], *, include_passed: bool
             if include_passed:
                 lines.append(f"{rec.get('spec')} -> {rec.get('test') or '(whole spec fallback)'} passed")
         elif status == "failed":
-            category = rec.get('failure_category') or 'failure'
-            target = rec.get('target_patch_layer') or rec.get('suggested_fix_area') or 'see Playwright report'
-            lines.append(f"{rec.get('spec')} -> {rec.get('test') or '(whole spec fallback)'} failed - reason: {rec.get('plain_english_reason') or 'see Playwright report'} | category: {category} | fix target: {target}")
+            lines.append(f"{rec.get('spec')} -> {rec.get('test') or '(whole spec fallback)'} failed - reason: {rec.get('plain_english_reason') or 'see Playwright report'}")
         else:
             lines.append(f"{rec.get('spec')} -> {rec.get('test') or '(whole spec fallback)'} {status}")
     return lines
@@ -5174,6 +5656,9 @@ def _write_sequential_first_run_playwright_report(root: Path, inventory: dict[st
 def _failure_reason_from_case(rec: dict[str, Any]) -> str:
     text = json.dumps(rec.get("errors") or rec, ensure_ascii=False)[-6000:]
     low = text.lower()
+    if _is_module_resolution_failure(text):
+        missing = _extract_missing_module_name(text)
+        return f"Playwright/Node could not resolve module import or TypeScript path alias{(' ' + missing) if missing else ''}; the test did not reach the browser/DOM step"
     if "element(s) not found" in low or "waiting for locator" in low or "to be visible" in low and "not found" in low:
         return "locator is missing, hidden, or not available in DOM for this page state"
     if "not attached to the dom" in low or "detached" in low:
@@ -5182,8 +5667,10 @@ def _failure_reason_from_case(rec: dict[str, Any]) -> str:
         return "element is blocked by overlay/modal/cookie/location popup or another component"
     if "timeout" in low or "test timeout" in low:
         return "test timed out; likely slow AUT, navigation/state wait, or blocked locator/action"
-    if "tohaveurl" in low or "expected pattern" in low or "received string" in low:
-        return "navigation/assertion did not match expected page state"
+    if "tohaveurl" in low or "url did not match" in low or "navigation" in low and "expected" in low:
+        return "navigation or redirect did not reach the expected URL/page state"
+    if any(x in low for x in ["expect(", "expected:", "received:", "tohavetext", "tocontaintext", "toequal"]):
+        return "actual application value or state did not match the expected assertion; confirm requirement and test data before changing the test"
     if "payment type not found" in low:
         return "expected payment option/test data is not available in the current environment"
     return "failure requires trace/screenshot review; see native Playwright shard report"

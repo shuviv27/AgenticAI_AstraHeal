@@ -45,6 +45,7 @@ from qa_pipeline.agents.existing_framework_control.controller import (
     install_existing_framework_robust_harness,
     read_existing_framework_intelligence_v2,
     search_existing_framework_rag,
+    existing_framework_artifact_locations,
 )
 from qa_pipeline.agents.existing_framework_control.mcp_locator_rca import build_mcp_assisted_locator_rca
 from qa_pipeline.agents.api_framework_control.controller import (
@@ -845,6 +846,13 @@ def api_runtime_logs(limit: int = 250) -> dict:
 @app.get("/api/runtime/status")
 def api_runtime_status() -> dict:
     return {"ok": True, "current": current_status(), "summary": write_runtime_summary(), "events_tail": read_events(20)}
+
+
+@app.post("/api/existing-framework/artifact-locations")
+async def api_existing_framework_artifact_locations(framework_path: str = Form("")) -> JSONResponse:
+    """Show absolute local report/log/cache paths for explainability."""
+    report = await run_in_threadpool(existing_framework_artifact_locations, framework_path=framework_path)
+    return JSONResponse(report)
 
 
 @app.post("/api/runtime/reset")
@@ -3884,11 +3892,83 @@ async def module2_load_testcases(
     pasted_json_or_steps: str = Form(""),
     jira_story: str = Form(""),
     jira_epic: str = Form(""),
+    source_mode: str = Form("auto"),
     testcase_file: Optional[UploadFile] = File(None),
 ) -> JSONResponse:
     from qa_pipeline.modules.playwright_ts_generator.controller import load_functional_testcases_enterprise
     uploaded = await testcase_file.read() if testcase_file else None
-    return JSONResponse(load_functional_testcases_enterprise(feature, pasted_json_or_steps, uploaded, testcase_file.filename if testcase_file else "", jira_story=jira_story, jira_epic=jira_epic))
+    return JSONResponse(load_functional_testcases_enterprise(feature, pasted_json_or_steps, uploaded, testcase_file.filename if testcase_file else "", jira_story=jira_story, jira_epic=jira_epic, source_mode=source_mode))
+
+
+@app.post("/api/module2/playwright/preview-placement")
+async def module2_preview_existing_placement(
+    framework_path: str = Form(""),
+    feature: str = Form("module2_feature"),
+    target_test_folder: str = Form(""),
+    target_page_file: str = Form(""),
+    target_locator_file: str = Form(""),
+    placement_mode: str = Form("confirm_if_ambiguous"),
+) -> JSONResponse:
+    from qa_pipeline.modules.playwright_ts_generator.controller import preview_existing_framework_generation_enterprise
+    return JSONResponse(preview_existing_framework_generation_enterprise(
+        framework_path=framework_path,
+        feature=feature,
+        target_test_folder=target_test_folder,
+        target_page_file=target_page_file,
+        target_locator_file=target_locator_file,
+        placement_mode=placement_mode,
+    ))
+
+
+@app.post("/api/module2/atlassian/status")
+async def module2_atlassian_status(
+    jira_url: str = Form(""),
+    confluence_url: str = Form(""),
+    atlassian_username: str = Form(""),
+    jira_api_token: str = Form(""),
+    jira_password: str = Form(""),
+) -> JSONResponse:
+    from qa_pipeline.integrations.atlassian_mcp import AtlassianCredentials, atlassian_status
+    creds = AtlassianCredentials.from_values(jira_url, confluence_url, atlassian_username, jira_api_token, jira_password)
+    return JSONResponse(atlassian_status(creds, include_confluence=bool(confluence_url.strip())))
+
+
+@app.post("/api/module2/atlassian/fetch")
+async def module2_atlassian_fetch(
+    feature: str = Form("module2_feature"),
+    jira_url: str = Form(""),
+    confluence_url: str = Form(""),
+    atlassian_username: str = Form(""),
+    jira_api_token: str = Form(""),
+    jira_password: str = Form(""),
+    atlassian_source_kind: str = Form("jira_issue"),
+    jira_issue_key: str = Form(""),
+    jira_epic_key: str = Form(""),
+    jira_jql: str = Form(""),
+    confluence_page: str = Form(""),
+    atlassian_max_results: int = Form(200),
+) -> JSONResponse:
+    from qa_pipeline.integrations.atlassian_mcp import AtlassianCredentials, fetch_atlassian_source
+    from qa_pipeline.modules.playwright_ts_generator.controller import load_functional_testcases_enterprise
+    try:
+        creds = AtlassianCredentials.from_values(jira_url, confluence_url, atlassian_username, jira_api_token, jira_password)
+        fetched = fetch_atlassian_source(
+            creds=creds,
+            source_kind=atlassian_source_kind,
+            issue_key=jira_issue_key,
+            epic_key=jira_epic_key,
+            jql=jira_jql,
+            confluence_page=confluence_page,
+            max_results=max(1, min(int(atlassian_max_results or 200), 1000)),
+        )
+        normalized = load_functional_testcases_enterprise(
+            feature=feature,
+            pasted_json_or_steps=fetched.get("source_text", ""),
+            source_mode="jira" if atlassian_source_kind.startswith("jira") else "auto",
+        )
+        return JSONResponse({**fetched, "normalized_testcases": normalized, "ok": bool(fetched.get("ok") and normalized.get("ok")), "message": fetched.get("message", "") + " " + normalized.get("message", "")})
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Atlassian source fetch failed. Credentials were not saved."})
 
 @app.post("/api/module2/playwright/generate-new")
 async def module2_generate_new(
@@ -3907,6 +3987,26 @@ async def module2_generate_existing(
     provider: str = Form("deterministic"),
     model: str = Form("llama3"),
     base_url: str = Form(""),
+    target_test_folder: str = Form(""),
+    target_page_file: str = Form(""),
+    target_locator_file: str = Form(""),
+    placement_mode: str = Form("confirm_if_ambiguous"),
+    allow_new_support_files: bool = Form(True),
+    validate_generated: bool = Form(True),
+    bdd_output_mode: str = Form("playwright_specs"),
 ) -> JSONResponse:
     from qa_pipeline.modules.playwright_ts_generator.controller import generate_existing_framework_extension_enterprise
-    return JSONResponse(generate_existing_framework_extension_enterprise(framework_path, feature, provider, model, base_url))
+    return JSONResponse(generate_existing_framework_extension_enterprise(
+        framework_path=framework_path,
+        feature=feature,
+        provider=provider,
+        model=model,
+        base_url=base_url,
+        target_test_folder=target_test_folder,
+        target_page_file=target_page_file,
+        target_locator_file=target_locator_file,
+        placement_mode=placement_mode,
+        allow_new_support_files=allow_new_support_files,
+        validate_generated=validate_generated,
+        bdd_output_mode=bdd_output_mode,
+    ))

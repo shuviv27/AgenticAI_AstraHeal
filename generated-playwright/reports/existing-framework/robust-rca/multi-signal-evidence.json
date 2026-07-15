@@ -1,0 +1,107 @@
+{
+  "generated_at": "2026-07-16T02:16:25",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "failed_specs": [
+    "tests/mobile/mobile-home.spec.ts",
+    "tests/ui/dashboard.spec.ts"
+  ],
+  "artifact_index": {
+    "failure_run_dirs": [],
+    "trace_files": [
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/html/data/c1e7053815dc2f6d63653c2001a792102764676a.zip",
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/trace.zip",
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/html/data/079d75526e317f2633fb4ff601c53947d3813eb6.zip",
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium-retry1/trace.zip",
+      "reports/existing-framework/html/data/a2886c4046c57c87d50cef77b7811e2fde5fcb5d.zip",
+      "test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/trace.zip"
+    ],
+    "har_files": [],
+    "dom_snapshot_files": [],
+    "screenshots": [
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/html/data/9e017539a3aab1d055ab50acbac88231dad9ceef.png",
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/html/data/710c8e689136706d134305b94712f31335baeeaa.png",
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium-retry1/test-failed-1.png",
+      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium/test-failed-1.png",
+      "reports/existing-framework/html/data/9e017539a3aab1d055ab50acbac88231dad9ceef.png",
+      "test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/test-failed-1.png",
+      "test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium/test-failed-1.png"
+    ]
+  },
+  "signals": {
+    "dom_snapshot_diff": {
+      "available": false,
+      "signal": "dom_snapshot_diff",
+      "changed": false,
+      "confidence": 0.0,
+      "note": "Need at least two snapshots to compute diff.",
+      "files_seen": []
+    },
+    "playwright_trace_replay": {
+      "available": true,
+      "signal": "playwright_trace_replay",
+      "changed": true,
+      "confidence": 0.7999999999999999,
+      "trace_files": [
+        "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/html/data/c1e7053815dc2f6d63653c2001a792102764676a.zip",
+        "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/trace.zip",
+        "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/html/data/079d75526e317f2633fb4ff601c53947d3813eb6.zip",
+        "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/test-results/mobile-mobile-home-Mobile--2b884-tton-visible-and-functional-chromium-retry1/trace.zip",
+        "reports/existing-framework/html/data/a2886c4046c57c87d50cef77b7811e2fde5fcb5d.zip",
+        "test-results/ui-dashboard-Dashboard-–-C-e9212-s-sold-lease-status-message-chromium-retry1/trace.zip"
+      ],
+      "action_timing_indicators": 5,
+      "trace_action_markers_seen": true,
+      "note": "Trace artifacts are indexed for RCA; open the trace from the report for visual replay when confidence is low."
+    },
+    "network_har_diff": {
+      "available": false,
+      "signal": "network_har_diff",
+      "changed": false,
+      "confidence": 0.0,
+      "note": "Need current and previous HAR. TestTelemetry can capture this automatically."
+    },
+    "fixture_seed_diff": {
+      "available": true,
+      "signal": "fixture_seed_diff",
+      "changed": false,
+      "confidence": 0.2,
+      "note": "No passed-run fixture baseline yet. It will be created after a passing run.",
+      "fixture_count": 11
+    },
+    "cross_run_flakiness_frequency": {
+      "available": false,
+      "signal": "cross_run_flakiness_frequency",
+      "changed": false,
+      "confidence": 0.0,
+      "history_runs_seen": 0,
+      "failed_spec_stats": [
+        {
+          "spec": "tests/mobile/mobile-home.spec.ts",
+          "runs": 0,
+          "failures": 0,
+          "passes": 0,
+          "failure_rate": 0.0
+        },
+        {
+          "spec": "tests/ui/dashboard.spec.ts",
+          "runs": 0,
+          "failures": 0,
+          "passes": 0,
+          "failure_rate": 0.0
+        }
+      ],
+      "intermittent_flake_candidates": [],
+      "consistent_regression_candidates": []
+    },
+    "assertion_drift_classifier": {
+      "available": false,
+      "signal": "assertion_drift_classifier",
+      "changed": false,
+      "confidence": 0.0,
+      "auto_heal_assertion_allowed": false,
+      "note": "No clear expected/received assertion pair found."
+    }
+  }
+}

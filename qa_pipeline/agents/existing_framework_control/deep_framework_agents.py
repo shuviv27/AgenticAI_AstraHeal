@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from collections import Counter, defaultdict, deque
 from datetime import datetime
@@ -9,10 +10,12 @@ from typing import Any
 
 from qa_pipeline.core.paths import QA_CACHE_DIR, REPORTS_DIR
 from qa_pipeline.core.runtime_logger import log_event
+from qa_pipeline.core.tsconfig_alias import load_jsonc
+from qa_pipeline.agents.existing_framework_control.structure_discovery import build_structure_profile
 
 CODE_SUFFIXES = {'.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'}
 SPEC_SUFFIXES = ('.spec.ts', '.specs.ts', '.test.ts', '.spec.js', '.specs.js', '.test.js', '.spec.mjs', '.specs.mjs', '.test.mjs', '.spec.cjs', '.specs.cjs', '.test.cjs', '.feature')
-IGNORED = {'node_modules', '.git', 'dist', 'build', 'coverage', 'playwright-report', 'test-results', 'reports', '.next'}
+IGNORED = {'node_modules', '.git', 'dist', 'build', 'coverage', 'playwright-report', 'test-results', 'reports', '.next', '.qa-cache', '.aiqa-history', '.codex-backups', '%appdata%', '%AppData%', '.npm', 'npm-cache'}
 # Central GUI mirror locations. For existing external frameworks, the selected
 # framework owns the source-of-truth memory under <framework>/.qa-cache.
 MEMORY_DIR = QA_CACHE_DIR / 'existing-framework' / 'agentic-memory'
@@ -45,23 +48,52 @@ def _rel(path: Path, root: Path) -> str:
         return str(path).replace('\\', '/')
 
 
+def _path_under_test_area(parts: tuple[str, ...] | list[str]) -> bool:
+    rel = "/".join(str(p).lower() for p in parts if str(p))
+    return rel.startswith(("tests/", "src/test/", "src/tests/", "test/", "specs/", "e2e/")) or "/src/test/" in ("/" + rel + "/") or "/tests/" in ("/" + rel + "/")
+
+
 def _ignored(path: Path, root: Path) -> bool:
     try:
         parts = path.relative_to(root).parts
     except Exception:
         parts = path.parts
-    return any(p in IGNORED for p in parts)
+    under_test_area = _path_under_test_area(parts)
+    for p in parts:
+        low = str(p).lower()
+        if p in IGNORED or low in IGNORED:
+            if low == "reports" and under_test_area:
+                continue
+            return True
+    return False
 
 
 def _files(root: Path, suffixes: set[str] | None = None, limit: int = 7000) -> list[Path]:
     out: list[Path] = []
-    for p in root.rglob('*'):
+    root = Path(root)
+    for current, dirs, names in os.walk(root):
+        base = Path(current)
+        kept_dirs = []
+        for d in dirs:
+            dlow = d.lower()
+            try:
+                rel_parts = list((base / d).relative_to(root).parts)
+            except Exception:
+                rel_parts = [d]
+            if (d in IGNORED or dlow in IGNORED) and not (dlow == "reports" and _path_under_test_area(rel_parts)):
+                continue
+            kept_dirs.append(d)
+        dirs[:] = kept_dirs
+        for name in names:
+            if len(out) >= limit:
+                break
+            p = base / name
+            if not p.is_file() or _ignored(p, root):
+                continue
+            if suffixes is None or p.suffix.lower() in suffixes or p.name.lower().endswith(SPEC_SUFFIXES):
+                out.append(p)
         if len(out) >= limit:
             break
-        if not p.is_file() or _ignored(p, root):
-            continue
-        if suffixes is None or p.suffix.lower() in suffixes or p.name.lower().endswith(SPEC_SUFFIXES):
-            out.append(p)
     return sorted(out, key=lambda p: _rel(p, root))
 
 
@@ -69,6 +101,8 @@ def _load_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     try:
+        if path.name.lower() in {"tsconfig.json", "jsconfig.json"}:
+            return load_jsonc(path)
         return json.loads(_safe_read(path, 200_000))
     except Exception:
         return {}
@@ -103,7 +137,7 @@ def _resolve_import(root: Path, base_file: Path, raw: str, ts_paths: dict[str, l
 
     def add(base: Path) -> None:
         candidates.append(base)
-        if not base.suffix:
+        if base.suffix.lower() not in {'.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.json'}:
             for s in ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']:
                 candidates.append(Path(str(base) + s))
             for idx in ['index.ts', 'index.tsx', 'index.js', 'index.jsx']:
@@ -123,8 +157,14 @@ def _resolve_import(root: Path, base_file: Path, raw: str, ts_paths: dict[str, l
             'objects': ['pageObjects', 'pageobjects', 'objects', 'src/pageObjects', 'src/objects'],
             'utils': ['utils', 'src/utils', 'helpers', 'src/helpers', 'test-utils'],
             'helpers': ['helpers', 'src/helpers', 'utils', 'src/utils'],
-            'fixtures': ['fixtures', 'tests/fixtures', 'src/fixtures'],
-            'data': ['testData', 'test-data', 'data', 'src/data'],
+            'fixtures': ['fixtures', 'tests/fixtures', 'src/fixtures', 'src/test/resources/fixtures'],
+            'config': ['config', 'src/config', 'src/main/config', 'tests/config', 'src/test/config'],
+            'api': ['api', 'src/api', 'src/main/api'],
+            'base': ['base', 'src/base', 'src/main/ui_base', 'src/ui_base'],
+            'dataloader': ['data-loader', 'dataLoader', 'src/test/resources/data-loader', 'tests/data-loader'],
+            'testdata': ['testData', 'test-data', 'src/test/resources/testData', 'tests/testData'],
+            'reporters': ['reporters', 'src/test/resources/reporters', 'tests/reporters'],
+            'data': ['testData', 'test-data', 'data', 'src/data', 'src/test/resources/testData'],
         }
         for prefix in alias_map.get(alias.lower(), [alias, f'src/{alias}']):
             add(root / prefix / rest)
@@ -156,10 +196,13 @@ def _classify_file(rel: str, text: str) -> dict[str, Any]:
     if rel.lower().endswith('.feature'): kind = 'bdd_feature'
     elif rel.lower().endswith(SPEC_SUFFIXES): kind = 'spec'
     elif '/pages/' in f'/{low}/' or low.endswith('page.ts') or low.endswith('page.js'): kind = 'page_method_layer'
-    elif any(x in low for x in ['pageobjects', 'page-objects', '/objects/']): kind = 'locator_object_layer'
-    elif any(x in low for x in ['/utils/', '/helpers/', 'basepage', 'safeaction', 'smartlocator']): kind = 'utility_helper_layer'
+    elif any(x in low for x in ['pageobjects', 'page-objects', 'page_objects', '/objects/', '/locators/', 'object-repository']): kind = 'locator_object_layer'
+    elif any(x in low for x in ['/ui_base/', '/ui-base/', '/uibase/', 'basepage', 'safeaction', 'smartlocator']): kind = 'ui_base_layer'
+    elif any(x in low for x in ['/config/', '/configs/', '/configuration/', '/environment/']): kind = 'configuration_layer'
+    elif any(x in low for x in ['/api/', '/apis/', '/services/', '/clients/', '/requests/']): kind = 'api_service_layer'
+    elif any(x in low for x in ['/utils/', '/helpers/', '/utilities/', '/common/', '/shared/']): kind = 'utility_helper_layer'
     elif any(x in low for x in ['/fixtures/', '/support/', 'fixture', 'hooks', 'world']): kind = 'fixture_layer'
-    elif any(x in low for x in ['testdata', 'test-data', '/data/']): kind = 'test_data_layer'
+    elif any(x in low for x in ['testdata', 'test-data', 'test_data', '/data/', '/resources/']): kind = 'test_data_layer'
     locators = {
         'getByRole': len(re.findall(r'\.getByRole\s*\(', text)),
         'getByTestId': len(re.findall(r'\.getByTestId\s*\(', text)),
@@ -342,8 +385,11 @@ def build_deep_framework_understanding(root: Path, inventory: dict[str, Any] | N
     """
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
     MEMORY_DIR.mkdir(parents=True, exist_ok=True)
+    structure_profile = build_structure_profile(root, limit=7000)
     all_files = _files(root, CODE_SUFFIXES | {'.json', '.md', '.txt', '.yaml', '.yml', '.feature'}, limit=7000)
-    spec_files = [p for p in all_files if p.name.lower().endswith(SPEC_SUFFIXES)]
+    executable_rel_specs = set(structure_profile.get('executable_specs') or [])
+    spec_files = [p for p in all_files if _rel(p, root) in executable_rel_specs]
+    feature_files = [p for p in all_files if p.name.lower().endswith('.feature')]
     file_profiles = []
     for f in all_files[:2500]:
         rel = _rel(f, root)
@@ -371,7 +417,15 @@ def build_deep_framework_understanding(root: Path, inventory: dict[str, Any] | N
             'safe_patch_scope_agent': 'spec dependency chains and allowed patch candidates',
             'memory_agent': 'writes reusable understanding into project memory',
         },
-        'inventory_summary': {'total_files_scanned': len(all_files), 'spec_count': len(spec_files), 'sample_specs': [_rel(p, root) for p in spec_files[:80]]},
+        'inventory_summary': {
+            'total_files_scanned': len(all_files),
+            'spec_count': len(spec_files),
+            'feature_file_count': len(feature_files),
+            'sample_specs': [_rel(p, root) for p in spec_files[:80]],
+            'discovered_test_roots': structure_profile.get('discovered_test_roots') or [],
+        },
+        'structure_discovery': structure_profile,
+        'component_directory_model': structure_profile.get('component_directory_model') or {},
         'folder_role_map': folder_roles,
         'file_profiles_sample': file_profiles[:600],
         'dependency_graph': dep_graph,
@@ -433,7 +487,7 @@ def _h(v: Any) -> str:
 
 def _write_html(report: dict[str, Any]) -> None:
     cards = []
-    for key in ['agents', 'inventory_summary', 'framework_family_detection', 'reference_framework_profiles_used', 'folder_role_map', 'locator_strategy', 'aut_understanding', 'architecture_recommendations', 'rca_self_healing_policy']:
+    for key in ['agents', 'inventory_summary', 'structure_discovery', 'component_directory_model', 'framework_family_detection', 'reference_framework_profiles_used', 'folder_role_map', 'locator_strategy', 'aut_understanding', 'architecture_recommendations', 'rca_self_healing_policy']:
         cards.append(f"<section class='card'><h2>{_h(key.replace('_',' ').title())}</h2><pre>{_h(json.dumps(report.get(key), indent=2, ensure_ascii=False))}</pre></section>")
     html = f"""<!doctype html><html><head><meta charset='utf-8'><title>Agentic Framework Understanding</title>
 <style>body{{font-family:Segoe UI,Arial,sans-serif;margin:24px;background:#07111f;color:#e5edf8}}.card{{background:#0f1b2d;border:1px solid #25415f;border-radius:16px;padding:16px;margin:14px 0;box-shadow:0 10px 30px rgba(0,0,0,.22)}}pre{{white-space:pre-wrap;background:#07111f;border:1px solid #223752;color:#dbeafe;border-radius:12px;padding:14px;overflow:auto}}code{{background:#17243a;padding:3px 7px;border-radius:7px}}.pill{{display:inline-block;background:#1d4ed8;color:white;border-radius:999px;padding:4px 10px;margin-right:6px}}</style></head><body>

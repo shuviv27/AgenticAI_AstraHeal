@@ -1,0 +1,132 @@
+{
+  "ok": true,
+  "source": "existing_framework_execution",
+  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "generated_at": "2026-07-16T02:18:13",
+  "target_args": [
+    "tests/mobile/mobile-home.spec.ts",
+    "tests/ui/dashboard.spec.ts"
+  ],
+  "all_specs": [
+    "tests/mobile/mobile-home.spec.ts",
+    "tests/ui/dashboard.spec.ts"
+  ],
+  "passed_specs": [
+    "tests/mobile/mobile-home.spec.ts"
+  ],
+  "failed_specs": [
+    "tests/ui/dashboard.spec.ts"
+  ],
+  "failed_count": 1,
+  "failed_tests": [
+    {
+      "id": "ui/dashboard.spec.ts::chromium::ui\\dashboard.spec.ts › dashboard – customer portal › dashboard shows sold lease status message",
+      "spec": "tests/ui/dashboard.spec.ts",
+      "title": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message",
+      "projectName": "chromium",
+      "status": "timedout",
+      "errors": [
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        },
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        }
+      ],
+      "line": 103,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 2
+    }
+  ],
+  "all_test_cases": [
+    {
+      "id": "mobile/mobile-home.spec.ts::chromium::mobile\\mobile-home.spec.ts › mobile home page - direct tests › login button visible and functional",
+      "spec": "tests/mobile/mobile-home.spec.ts",
+      "title": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Login button visible and functional",
+      "projectName": "chromium",
+      "status": "passed",
+      "errors": [],
+      "line": 42,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 1
+    },
+    {
+      "id": "ui/dashboard.spec.ts::chromium::ui\\dashboard.spec.ts › dashboard – customer portal › dashboard shows sold lease status message",
+      "spec": "tests/ui/dashboard.spec.ts",
+      "title": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message",
+      "projectName": "chromium",
+      "status": "timedout",
+      "errors": [
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        },
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        }
+      ],
+      "line": 103,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 2
+    }
+  ],
+  "passed_test_cases": [
+    {
+      "id": "mobile/mobile-home.spec.ts::chromium::mobile\\mobile-home.spec.ts › mobile home page - direct tests › login button visible and functional",
+      "spec": "tests/mobile/mobile-home.spec.ts",
+      "title": "mobile\\mobile-home.spec.ts › Mobile Home Page - Direct Tests › Login button visible and functional",
+      "projectName": "chromium",
+      "status": "passed",
+      "errors": [],
+      "line": 42,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 1
+    }
+  ],
+  "failed_test_cases": [
+    {
+      "id": "ui/dashboard.spec.ts::chromium::ui\\dashboard.spec.ts › dashboard – customer portal › dashboard shows sold lease status message",
+      "spec": "tests/ui/dashboard.spec.ts",
+      "title": "ui\\dashboard.spec.ts › Dashboard – Customer Portal › Dashboard shows sold lease status message",
+      "projectName": "chromium",
+      "status": "timedout",
+      "errors": [
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        },
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        }
+      ],
+      "line": 103,
+      "column": 7,
+      "expectedStatus": "passed",
+      "outcome": null,
+      "attempt_count": 2
+    }
+  ],
+  "test_case_count": 2,
+  "passed_test_case_count": 1,
+  "failed_test_case_count": 1,
+  "inventory_granularity": "test_case",
+  "spec_statuses": {
+    "tests/mobile/mobile-home.spec.ts": "passed",
+    "tests/ui/dashboard.spec.ts": "failed"
+  },
+  "test_statuses": {
+    "mobile/mobile-home.spec.ts::chromium::mobile\\mobile-home.spec.ts › mobile home page - direct tests › login button visible and functional": "passed",
+    "ui/dashboard.spec.ts::chromium::ui\\dashboard.spec.ts › dashboard – customer portal › dashboard shows sold lease status message": "timedout"
+  },
+  "results_json": "generated-playwright/reports/existing-framework/results.json",
+  "native_html_report": "generated-playwright/reports/existing-framework/html/index.html",
+  "execution_console_log": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\reports\\existing-framework\\execution-console.log",
+  "extraction_note": "",
+  "note": "Existing-framework RCA/self-healing uses failed_specs only. Reports use test-case level counts when Playwright JSON is available; otherwise they clearly fall back to spec-file granularity."
+}

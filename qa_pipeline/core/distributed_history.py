@@ -10,6 +10,7 @@ from qa_pipeline.core.paths import QA_CACHE_DIR, REPORTS_DIR
 from qa_pipeline.core.runtime_logger import log_event
 from qa_pipeline.core.vdi_agent_control import list_agents, create_agent_job
 from qa_pipeline.core.central_workspace import resolve_worker_framework_root, with_unique_artifact_env, wrap_command_for_worker_path
+from qa_pipeline.core.tsconfig_alias import runtime_env_for_tsconfig_aliases
 
 SPEC_SUFFIXES = ('.spec.ts','.specs.ts','.test.ts','.spec.js','.specs.js','.test.js','.spec.mjs','.specs.mjs','.test.mjs','.spec.cjs','.specs.cjs','.test.cjs')
 HISTORY_ROOT = QA_CACHE_DIR / 'framework-execution-history'
@@ -213,7 +214,9 @@ def _playwright_list_count(root: Path, tests: list[str], browser: str) -> dict[s
     if browser and str(browser).lower() not in {'auto', 'default', 'all'}:
         cmd.append(f'--project={browser}')
     try:
-        result = subprocess.run(cmd, cwd=str(root), text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=120)
+        alias_env = runtime_env_for_tsconfig_aliases(root, output_dir=root / 'reports' / 'existing-framework' / 'list-preflight', base_env=os.environ.copy())
+        env = {**os.environ.copy(), **alias_env}
+        result = subprocess.run(cmd, cwd=str(root), env=env, text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=120)
         output = result.stdout or ''
         total = None
         m = re.search(r'Total:\s*(\d+)\s+tests?', output, flags=re.I)
@@ -256,7 +259,7 @@ def _write_local_shard_launcher(root: Path, shard_dir: Path, command: str, env_o
     shard_dir.mkdir(parents=True, exist_ok=True)
     if os.name == 'nt':
         script = shard_dir / 'RUN_LOCAL_PARALLEL_SHARD.cmd'
-        env_lines = ''.join(f'set {k}={_safe_env_value(v)}\r\n' for k, v in env_overrides.items())
+        env_lines = ''.join(f'set "{k}={_safe_env_value(v)}"\r\n' for k, v in env_overrides.items())
         script.write_text(
             '@echo off\r\n'
             'setlocal enableextensions\r\n'
@@ -316,6 +319,7 @@ def _run_local_parallel_shard_process(root: Path, run_id: str, shard: dict[str, 
         'ASTRAHEAL_MAX_EXPLICIT_WAIT_MS': str(_astraheal_max_wait_ms()),
         'ASTRAHEAL_MAX_TEST_TIMEOUT_MS': str(_astraheal_max_wait_ms()),
     }
+    env_overrides.update(runtime_env_for_tsconfig_aliases(root, output_dir=shard_dir, base_env={**os.environ.copy(), **env_overrides}))
     command = _build_command(root, list(shard.get('tests') or []), browser, headed, output_dir=test_results_dir)
     env = {**os.environ.copy(), **env_overrides}
     launcher = _write_local_shard_launcher(root, shard_dir, command, env_overrides, f'Local/VM parallel shard {shard_id}')
@@ -420,6 +424,7 @@ def _run_browserstack_shard_process(root: Path, run_id: str, shard: dict[str, An
         'ASTRAHEAL_MAX_EXPLICIT_WAIT_MS': str(_astraheal_max_wait_ms()),
         'ASTRAHEAL_MAX_TEST_TIMEOUT_MS': str(_astraheal_max_wait_ms()),
     }
+    env_overrides.update(runtime_env_for_tsconfig_aliases(root, output_dir=shard_dir, base_env={**os.environ.copy(), **env_overrides}))
     env = {**os.environ.copy(), **env_overrides}
     launcher = _write_local_shard_launcher(root, shard_dir, command, env_overrides, f'BrowserStack execution shard {shard_id}')
     started = time.time()
@@ -514,7 +519,7 @@ def _publish_local_parallel_failed_inventory(root: Path, summary: dict[str, Any]
 
         def accept(value: Any) -> str:
             v = clean_spec(value)
-            return v if _is_tests_folder_executable_spec(v) else ''
+            return v if _is_tests_folder_executable_spec(v, root=root) else ''
 
         for sr in shard_results:
             tests = [accept(t) for t in (sr.get('tests') or [])]
@@ -723,7 +728,7 @@ def _read_selected_tests(framework_path: str, selected_tests: str) -> tuple[Path
     seen: set[str] = set()
     for t in tests:
         normalized = t.replace('\\', '/')
-        if not normalized or normalized.startswith('node_modules/') or not _is_tests_folder_executable_spec(normalized):
+        if not normalized or normalized.startswith('node_modules/') or not _is_tests_folder_executable_spec(normalized, root=root):
             continue
         key = normalized.lower()
         if key not in seen:
@@ -855,14 +860,14 @@ def create_distributed_plan(framework_path: str, selected_tests: str = '', brows
                f'AstraHeal AI/RCA/self-healing and reports remain on this VM; BrowserStack runs only the browsers.')
     elif execution_target_mode == 'central_only' and local_parallel_enabled:
         agent_mode = 'local_or_central_vm_parallel_browser_shards'
-        msg = (f'Local/VM parallel plan created: {len(tests)} executable tests/** script(s) split into {len(shards)} browser shard(s) '
+        msg = (f'Local/VM parallel plan created: {len(tests)} executable discovered Playwright target(s) split into {len(shards)} browser shard(s) '
                f'using {local_tests_per_shard or "auto"} test(s) per local browser instance. No worker VM/VDI agents are required.')
     elif execution_target_mode == 'central_only':
         agent_mode = 'central_vm_only'
-        msg = f'Central/local single-machine plan created: {len(tests)} executable tests/** script(s) across {len(shards)} shard(s).'
+        msg = f'Central/local single-machine plan created: {len(tests)} executable discovered Playwright target(s) across {len(shards)} shard(s).'
     else:
         agent_mode = 'vm_worker_agents_only' if execution_target_mode == 'workers_only' else 'central_vm_plus_worker_agents'
-        msg = f'Node-hub plan created: {len(tests)} executable tests/** script(s) across {len(shards)} shard(s). Execution target mode: {execution_target_mode}.'
+        msg = f'Node-hub plan created: {len(tests)} executable discovered Playwright target(s) across {len(shards)} shard(s). Execution target mode: {execution_target_mode}.'
 
     plan = {
         'ok': bool(tests and shards),
@@ -891,7 +896,7 @@ def create_distributed_plan(framework_path: str, selected_tests: str = '', brows
         'online_agents': online_agents,
         'available_execution_workers': workers,
         'shards': shards,
-        'message': msg if shards else f'No executable Playwright tests were resolved for mode {execution_target_mode}. Use Find scripts first and select tests/**/*.spec.ts/specs.ts/test.ts files.',
+        'message': msg if shards else f'No executable Playwright tests were resolved for mode {execution_target_mode}. Use Find scripts first and select tests/**/*.spec.ts/specs.ts/test.ts or src/test/specs/**/*.spec.ts files.',
     }
     _write(CENTRAL_REPORT_DIR / 'distributed-execution-plan.json', plan)
     try:
@@ -935,18 +940,34 @@ def _extract_failed_specs_from_text(text: str) -> list[str]:
     return sorted(failed)
 
 
+
+def _is_module_resolution_failure_text(text: str) -> bool:
+    low = (text or '').lower()
+    return any(x in low for x in ['cannot find module', 'module_not_found', 'err_module_not_found', 'require stack', 'tsconfig-paths', 'path alias', 'failed to resolve import', 'cannot resolve module'])
+
+
+def _missing_module_name_text(text: str) -> str:
+    raw = text or ''
+    for pat in [r"Cannot find module ['\"]([^'\"]+)['\"]", r"ERR_MODULE_NOT_FOUND[^\n]*['\"]([^'\"]+)['\"]", r"Cannot resolve module ['\"]([^'\"]+)['\"]"]:
+        m = re.search(pat, raw, flags=re.I)
+        if m:
+            return m.group(1)[:180]
+    return ''
+
 def _distributed_auditable_rca_checklist(text: str, classification: str) -> list[dict[str, Any]]:
     low = (text or '').lower()
     def hit(keys: list[str], yes: str, no: str = 'needs_evidence') -> str:
         return yes if any(k in low for k in keys) else no
+    missing = _missing_module_name_text(text)
     return [
         {'order': 1, 'check': 'Failed-only scope confirmed', 'status': 'done', 'decision': 'Only failed specs from this shard are eligible for RCA/self-healing.'},
-        {'order': 2, 'check': 'Locator exists in DOM/accessibility snapshot', 'status': hit(['locator', 'not found', 'tobevisible', 'waiting for'], 'locator_dom_check_required'), 'decision': 'Use MCP/browser evidence or trace before changing locator.'},
-        {'order': 3, 'check': 'Locator strategy/address correctness', 'status': hit(['strict mode', 'nth(', 'resolved to', 'aria-label'], 'locator_strategy_check_required'), 'decision': 'Prefer stable role/testId/label locator in POM/pageObject layer.'},
-        {'order': 4, 'check': 'Interactability/actionability', 'status': hit(['intercepts pointer events', 'not visible', 'not enabled', 'detached', 'locator.click'], 'actionability_check_required'), 'decision': 'Patch shared click/helper with stable wait, scroll, overlay handling; avoid force:true by default.'},
-        {'order': 5, 'check': 'Viewport/scroll/page-size', 'status': hit(['outside of the viewport', 'scrolling into view', 'footer', 'mobile'], 'viewport_scroll_check_required'), 'decision': 'Scroll into view and use responsive/mobile-aware page method when needed.'},
-        {'order': 6, 'check': 'Popup/modal/permission/cookie overlay', 'status': hit(['popup', 'modal', 'permission', 'cookie', 'geolocation', 'chakra-modal'], 'overlay_check_required'), 'decision': 'Dismiss known blockers in reusable helper before action.'},
-        {'order': 7, 'check': 'Navigation/data/environment/assertion drift', 'status': classification, 'decision': 'Classify environment/data/product defects separately from safe code self-healing.'},
+        {'order': 2, 'check': 'Playwright/Node module resolution and TypeScript path aliases', 'status': 'module_resolution_failure_found' if _is_module_resolution_failure_text(text) else 'no_module_resolution_evidence', 'observable_evidence': {'missing_module': missing, 'alias_runtime_needed': missing.startswith('@') if missing else False}, 'decision': 'Fix tsconfig/package/Playwright runtime alias setup first; do not patch locators for Cannot find module.'},
+        {'order': 3, 'check': 'Locator exists in DOM/accessibility snapshot', 'status': hit(['locator', 'tobevisible', 'waiting for locator', 'element(s) not found'], 'locator_dom_check_required'), 'decision': 'Use MCP/browser evidence or trace before changing locator.'},
+        {'order': 4, 'check': 'Locator strategy/address correctness', 'status': hit(['strict mode', 'nth(', 'resolved to', 'aria-label'], 'locator_strategy_check_required'), 'decision': 'Prefer stable role/testId/label locator in POM/pageObject layer.'},
+        {'order': 5, 'check': 'Interactability/actionability', 'status': hit(['intercepts pointer events', 'not visible', 'not enabled', 'detached', 'locator.click'], 'actionability_check_required'), 'decision': 'Patch shared click/helper with stable wait, scroll, overlay handling; avoid force:true by default.'},
+        {'order': 6, 'check': 'Viewport/scroll/page-size', 'status': hit(['outside of the viewport', 'scrolling into view', 'footer', 'mobile'], 'viewport_scroll_check_required'), 'decision': 'Scroll into view and use responsive/mobile-aware page method when needed.'},
+        {'order': 7, 'check': 'Popup/modal/permission/cookie overlay', 'status': hit(['popup', 'modal', 'permission', 'cookie', 'geolocation', 'chakra-modal'], 'overlay_check_required'), 'decision': 'Dismiss known blockers in reusable helper before action.'},
+        {'order': 8, 'check': 'Navigation/data/environment/assertion drift', 'status': classification, 'decision': 'Classify environment/data/product defects separately from safe code self-healing.'},
     ]
 
 
@@ -962,8 +983,9 @@ def _agentic_rca_for_shard(shard_result: dict[str, Any]) -> dict[str, Any]:
     classification = 'passed'
     if status == 'failed':
         low = text.lower()
-        if 'timeout' in low: classification = 'timeout_or_slow_aut'
-        elif 'strict mode violation' in low or 'locator' in low or 'not found' in low: classification = 'locator_or_dom_change'
+        if _is_module_resolution_failure_text(text): classification = 'typescript_path_alias_or_module_resolution'
+        elif 'timeout' in low: classification = 'timeout_or_slow_aut'
+        elif 'strict mode violation' in low or 'locator' in low or 'element(s) not found' in low: classification = 'locator_or_dom_change'
         elif 'expect' in low or 'assert' in low: classification = 'assertion_or_product_behavior_drift'
         elif 'net::' in low or 'econn' in low or 'certificate' in low: classification = 'environment_network_or_certificate'
         else: classification = 'framework_or_application_failure'
@@ -1197,8 +1219,12 @@ def _status_class(status: Any) -> str:
 
 
 def _failure_reason_from_case(rec: dict[str, Any]) -> str:
-    text = json.dumps(rec.get('errors') or rec, ensure_ascii=False).lower()
-    if 'element(s) not found' in text or 'locator' in text and 'not found' in text:
+    raw = json.dumps(rec.get('errors') or rec, ensure_ascii=False)
+    text = raw.lower()
+    if _is_module_resolution_failure_text(raw):
+        missing = _missing_module_name_text(raw)
+        return f"Playwright/Node could not resolve module import or TypeScript path alias{(' ' + missing) if missing else ''}; test did not reach the browser DOM step"
+    if 'element(s) not found' in text or ('locator' in text and 'not found' in text):
         return 'locator is missing or not found in the current DOM'
     if 'strict mode violation' in text:
         return 'locator is ambiguous and matches multiple elements'
