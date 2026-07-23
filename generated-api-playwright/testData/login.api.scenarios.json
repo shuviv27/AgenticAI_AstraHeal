@@ -1,0 +1,15 @@
+{
+  "base_url": "https://example.com",
+  "scenarios": [
+    {
+      "id": "LOGIN-API-001",
+      "title": "API health and contract smoke check",
+      "method": "GET",
+      "path": "/",
+      "expected_status": 200,
+      "body": null,
+      "headers": {},
+      "expected_result": "API endpoint responds successfully or reveals a product/environment issue."
+    }
+  ]
+}
