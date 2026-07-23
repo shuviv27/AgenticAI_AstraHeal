@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="advanced-ai-automation-pipeline",
-    version="0.4.3",
+    version="0.4.4",
     description="Python Agentic AI QA Pipeline with GUI and reuse-aware Playwright generation",
     packages=find_packages(include=["qa_pipeline", "qa_pipeline.*"]),
     python_requires=">=3.11,<3.14",

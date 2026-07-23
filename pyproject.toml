@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "advanced-ai-automation-pipeline"
-version = "0.4.3"
+version = "0.4.4"
 description = "Python Agentic AI QA Pipeline with GUI and reuse-aware Playwright generation"
 requires-python = ">=3.11,<3.14"
 dependencies = [

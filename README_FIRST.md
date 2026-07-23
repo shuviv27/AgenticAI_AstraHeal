@@ -106,3 +106,20 @@ Read:
 ```text
 docs/31_ADD_NEW_TESTS_MULTI_SOURCE_BDD_ATLASSIAN.md
 ```
+## Excel functional-test generation validation fix (0.4.4)
+
+The **Add new test later** workflow now correctly handles enterprise spreadsheets that use continuation rows and headers such as `Test_Case`, `Summery`, `Step Number`, `Step Description`, `Test Data`, and `Expected Result`.
+
+- One grouped testcase becomes one independent Playwright spec under the selected framework's existing generated-spec folder, such as `generated-playwright/tests/generated`.
+- Architectural base classes such as `BasePage.ts` are never selected as business page objects.
+- New methods are inserted inside the actual exported class boundary, even when helper functions exist after the class.
+- Existing business page objects and locator repositories are reused first. A new page/object pair is created only when no matching concrete page exists.
+- Username/password values from spreadsheets are converted to environment variables and are not persisted in normalized JSON, specs, reports, or logs.
+- Static TypeScript syntax validation runs before Playwright `--list`; failed validation still triggers full transactional rollback.
+
+Read:
+
+```text
+docs/32_EXCEL_FUNCTIONAL_TESTCASE_GENERATION_VALIDATION_FIX.md
+```
+

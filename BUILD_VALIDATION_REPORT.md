@@ -1,147 +1,151 @@
-# AstraHeal AI v0.4.3 Build Validation Report
+# AstraHeal AI v0.4.4 Build Validation Report
 
-**Build:** `0.4.3`  
-**Validation date:** 2026-07-16  
-**Primary enhancement:** Add new test later — multi-test documents, Gherkin/BDD, framework-aware reuse, Jira/Confluence MCP-first intake, and transactional generation
+**Build:** `0.4.4`  
+**Validation date:** 2026-07-23  
+**Primary fix:** Excel functional-test parsing, safe business-page placement, reusable page-object generation, and pre-Playwright TypeScript validation
 
-## Delivered behavior
+## Reported failure reproduced
 
-### Multi-test source intake
+The supplied workbook was processed against a clean copy of the repository-generated default framework.
 
-- PDF, DOCX, legacy DOC (when local `antiword` is available), TXT, Markdown, JSON, CSV, XLSX/XLSM, and `.feature` inputs are accepted.
-- One uploaded file may contain multiple testcases.
-- Test Case/Scenario headings and spreadsheet Test Case IDs are normalized into independent scenarios.
-- One normalized testcase/scenario produces one Playwright `.spec.ts` file.
+Observed source structure:
 
-### Gherkin/Cucumber BDD
+```text
+Test_Case | Summery | Step Number | Step Description | Test Data | Expected Result
+```
 
-- Supports `Feature`, tags, `Background`, `Scenario`, `Scenario Outline`/`Scenario Template`, `Examples`, `Given`, `When`, `Then`, `And`, `But`, and `*`.
-- Scenario Outline example rows expand into independent executable scenarios.
-- BDD traceability is retained in the normalized payload and generation report.
+The workbook contains ten grouped testcases with continuation rows. One source ID is `TS_04`; AstraHeal preserves it rather than silently changing business data.
 
-### Existing-framework placement and reuse
+The v0.4.3 failure was reproduced and traced to the generated source layer, not to the workbook upload or rollback mechanism:
 
-- The framework path is taken from the Existing Framework tab.
-- Playwright `testDir` and the recursively learned framework structure determine the spec destination.
-- A no-write placement preview reports the recommended test folder, page/method file, locator file, match evidence, and ambiguity per scenario.
-- Default placement policy stops before changes when the target is ambiguous.
-- Existing methods and locators are reused first.
-- New methods/locators are appended to the closest approved existing file.
-- A new support file is created only when no safe reusable target exists and the user permits it.
-- A separate locator repository must already be linked to the selected page class before it can be updated.
+1. `pages/BasePage.ts` was selected as the best business page match.
+2. The file contained helper exports after the `BasePage` class.
+3. Generated methods were inserted at the file's final closing brace instead of the class closing brace.
+4. Methods landed inside a helper function, making the TypeScript invalid.
+5. All ten specs imported the damaged page layer, so Playwright `--list` failed for every attempted spec.
+6. Transactional rollback correctly restored the framework.
 
-### Playwright MCP/codegen policy
+## Corrected behavior
 
-- The tab exposes MCP/codegen preparation before generation.
-- Existing symbols are reused before any locator is proposed.
-- Newly inferred semantic locators are explicitly marked provisional until live-DOM verification through Playwright MCP, codegen, trace, or a real application session.
-- Generated specs are validated with `npx --no-install playwright test <specs> --list` when local Node/Playwright dependencies are available.
+### Excel understanding
 
-### Transactional safety
+- Recognizes `Test_Case`, `Test Case ID`, `Summery`, `Summary`, `Step Number`, `Step Description`, `Test Data`, and `Expected Result` header variants.
+- Groups continuation rows under the latest testcase ID/title.
+- Preserves step order, source test data, per-step expected results, and scenario-level expected results.
+- Infers the shared Salesforce application/page context from the workbook content.
+- Produces one normalized scenario and one Playwright spec per testcase.
 
-- Every pre-existing page/locator file is backed up before modification.
-- Every newly created spec/support file is tracked.
-- If Playwright validation fails, AstraHeal restores original files and deletes newly created source/spec files automatically.
-- The report preserves attempted files, validation output, and rollback evidence while returning zero committed changed files.
+### Framework placement and reuse
 
-### Jira and Confluence
+- Uses the framework selected in **Existing Framework**.
+- For the default framework, detects `testDir: './tests'` and reuses the established `tests/generated` folder.
+- Excludes architectural/abstract base files such as `BasePage.ts`, `AbstractPage.ts`, and `PageBase.ts` from business-page selection.
+- Reuses an existing concrete business page and linked locator repository when one matches.
+- Creates only one reusable `SalesforcePage.ts` and `SalesforcePage.objects.ts` pair when no Salesforce-specific page already exists.
+- All ten generated specs share the same page-object pair; support files are not duplicated per testcase.
 
-- Supports individual Jira issues, Epic children, JQL result sets, and Confluence pages.
-- Epic children become independent testcases; the Epic remains contextual when children are available.
-- When `uvx` is available, AstraHeal launches `mcp-atlassian` over stdio, initializes MCP, discovers tools dynamically, and invokes read-only Jira/Confluence tools first.
-- Secure REST is a clearly reported fallback when MCP is unavailable, times out, or returns unusable data.
-- Username, API token, password/personal token are held only for the current request.
-- MCP JSON stores environment-variable placeholders only.
-- Secret values are removed from non-Atlassian GUI requests and are not included in normalized testcases, reports, or returned credential summaries.
+### Safe source modification
 
-## Automated validation
+- Finds the exported class declaration and its matching closing brace while respecting comments and quoted strings.
+- Inserts generated members inside the actual class boundary.
+- Does not patch trailing helper functions or unrelated exports.
+
+### Test data and credential safety
+
+- URLs and usable non-secret spreadsheet values are retained as test input.
+- Salesforce username/password values are converted to:
+
+```text
+process.env.SALESFORCE_USERNAME
+process.env.SALESFORCE_PASSWORD
+```
+
+- Raw credential values are excluded from normalized testcase JSON, generated specs, generation reports, and logs.
+
+### Validation and rollback
+
+Validation is now layered:
+
+1. Static TypeScript/JavaScript parse validation checks every changed source/spec file.
+2. Playwright `--list` runs when the selected framework has installed local Playwright dependencies.
+3. Any failed stage restores existing files and deletes newly created source/spec files.
+
+The static validator resolves either framework-local TypeScript or an installed global TypeScript package.
+
+## Exact workbook verification
+
+The supplied workbook was run through the corrected parser and generator in a clean copy of `generated-playwright`.
+
+| Verification | Result |
+|---|---:|
+| Normalized testcases | **10** |
+| Generated independent specs | **10** |
+| Application/page context | **Salesforce** |
+| Shared new business page files | **2** |
+| Generated spec destination | `tests/generated` |
+| Created reusable symbols | **184** |
+| Reused symbols across scenarios | **322** |
+| TypeScript/JavaScript parser diagnostics | **0** |
+| Raw username/password present in generated output | **No** |
+| `BasePage.ts` modified | **No** |
+
+The source build intentionally does not include `node_modules`. Therefore an authenticated/local Playwright `--list` run was not available in the packaging environment. The exact generated source passed the TypeScript parser with zero diagnostics. On the user's installed default framework, the existing Playwright `--list` stage remains mandatory and rollback remains active if it reports a framework/runtime problem.
+
+## Automated regression validation
 
 | Validation | Result |
 |---|---:|
-| Complete Python regression suite | **36/36 passed** |
-| New Add New Tests regression group | **11/11 passed** |
-| Existing recursive framework discovery/execution regression group | Passed |
-| Existing explainable RCA/exact approval-scope regression group | Passed |
+| Complete Python regression suite | **39/39 passed** |
+| Add New Tests regression group | **14/14 passed** |
+| Existing recursive discovery/execution group | Passed |
+| Explainable RCA/exact approval-scope group | Passed |
 | Python compilation (`compileall`) | Passed |
 | FastAPI application import | Passed |
 | FastAPI route count | **152** |
-| GUI JavaScript syntax (`node --check`) | Passed |
+| GUI inline JavaScript syntax (`node --check`) | Passed |
 | Setuptools wheel build | Passed |
-| Built wheel version | **0.4.3** |
-| `openpyxl` wheel dependency metadata | Present: `openpyxl>=3.1,<4` |
-| Final ZIP integrity | Passed |
-| Clean extraction regression rerun | **36/36 passed** |
-| Clean extraction Python compilation | Passed |
-| Clean extraction GUI JavaScript syntax | Passed |
+| Built wheel version | **0.4.4** |
+| `openpyxl` wheel dependency | `openpyxl>=3.1,<4` |
+| Final ZIP integrity | **Passed** |
+| Clean extraction regression rerun | **39/39 passed** |
 
-The optional `python -m build` frontend was not installed in this environment. Package validation was completed successfully through the installed setuptools/wheel path using `python setup.py bdist_wheel`.
+## New permanent regression coverage
 
-## New regression coverage
+1. Enterprise Excel aliases `Test_Case` and `Summery` are interpreted correctly.
+2. Continuation rows preserve testcase context and step order.
+3. Step data and URLs are used by generated calls.
+4. Salesforce username/password values become environment variables and raw values are redacted.
+5. The default framework uses `tests/generated` rather than writing broadly to `tests`.
+6. `BasePage.ts` is not selected as a business page.
+7. One reusable Salesforce page/object pair is created when required.
+8. Generated page methods are inserted inside the exported class even when helper functions follow it.
+9. Existing rollback, multi-source, Gherkin/BDD, Jira/Confluence MCP, recursive discovery, RCA/self-healing, sequential/distributed execution, and BrowserStack tests remain passing.
 
-1. A plain document containing two testcases normalizes into two scenarios.
-2. Gherkin Background, Scenario, `And`, Scenario Outline, and Examples expand correctly.
-3. XLSX rows group by Test Case ID and preserve multiple steps.
-4. Two normalized scenarios create two specs under configured `src/test/specs`.
-5. Existing page files are updated rather than creating a root-level duplicate page file.
-6. Ambiguous page placement stops before source changes.
-7. An explicitly linked locator repository is updated without creating another file.
-8. Failed Playwright validation restores the original page file and removes generated specs.
-9. MCP configuration and fetched responses never contain supplied secret markers.
-10. Jira Epic child Stories/Bugs become separate testcases and the Epic is excluded as an extra test.
-11. MCP is selected before REST when a local MCP runtime is available.
-12. New APIs coexist with failure analysis, self-healing, BrowserStack, and established routes.
+## Runtime output for the reported workbook
 
-## Existing functionality regression coverage retained
-
-- root and nested `src/**` Playwright discovery;
-- custom and parent-relative `testDir` handling;
-- monorepo discovery;
-- deep-learning dependency mapping;
-- MCP explicit-spec fallback;
-- sequential and distributed path preservation;
-- BrowserStack deep-path and environment-only credential handling;
-- provider gates and critical routes;
-- category-specific Plain English RCA;
-- exact runtime approval write boundaries;
-- explicit local report/log locations.
-
-## Files written at runtime
-
-Normalized source:
+After successful generation on an installed default framework, expected paths are:
 
 ```text
-<ASTRAHEAL_ROOT>/testcases/module2_uploaded/<feature>/functional-testcases.json
+generated-playwright/tests/generated/<feature>-<testcase-id>.spec.ts
+generated-playwright/pages/SalesforcePage.ts
+generated-playwright/pageObjects/SalesforcePage.objects.ts
+generated-playwright/.aiqa-history/add-new-tests/<feature>-generation-report.json
+generated-playwright/.aiqa-history/add-new-tests/<feature>-generation-report.html
 ```
 
-Framework generation reports:
+A page/locator file is created only because the default framework does not already contain a concrete Salesforce-specific page. When such a page exists, AstraHeal reuses and extends it instead.
+## Clean-package verification
 
-```text
-<FRAMEWORK_ROOT>/.aiqa-history/add-new-tests/<feature>-generation-report.json
-<FRAMEWORK_ROOT>/.aiqa-history/add-new-tests/<feature>-generation-report.html
-<FRAMEWORK_ROOT>/.aiqa-history/new-test-generation.jsonl
-```
+A provisional source ZIP was extracted into a new directory and validated independently from the working tree:
 
-Backups:
+- 39/39 regression tests passed;
+- Python compilation passed;
+- GUI inline JavaScript syntax passed;
+- FastAPI imported with 152 routes;
+- the exact uploaded workbook again produced ten specs under `tests/generated`;
+- `SalesforcePage.ts` and `SalesforcePage.objects.ts` were created once and reused;
+- `BasePage.ts` remained byte-for-byte unchanged;
+- static TypeScript validation reported zero diagnostics;
+- raw supplied username/password values were absent;
+- Salesforce credential environment-variable references were present.
 
-```text
-<FRAMEWORK_ROOT>/.aiqa-history/backups/add-new-tests/<timestamp>/
-```
-
-Atlassian MCP placeholder configuration:
-
-```text
-<ASTRAHEAL_ROOT>/.qa-cache/atlassian-mcp/mcp-atlassian.json
-```
-
-## Validation limits
-
-The following require customer credentials, network access, and the real application environment and therefore were not executed here:
-
-- a live Jira or Confluence tenant fetch;
-- a live `mcp-atlassian` session against customer data;
-- a live authenticated Playwright MCP/codegen browser session;
-- locator verification against the customer AUT DOM;
-- BrowserStack cloud execution;
-- live OpenAI, DeepSeek, Codex, Ollama, or Perplexity provider calls.
-
-The build validates MCP protocol selection, dynamic-tool routing logic, fallback behavior, secret isolation, framework writes, rollback, and all existing local regressions. New locators remain clearly marked provisional until live-DOM verification is performed in the target environment.

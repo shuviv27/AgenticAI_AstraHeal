@@ -1,15 +1,21 @@
 {
   "ok": true,
   "stage": "playwright_framework_alignment_checked",
-  "generated_at": "2026-07-16T02:16:57",
-  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
+  "generated_at": "2026-07-08T18:43:56",
+  "framework_path": "/mnt/data/work/racpad/qa_racpad_ts_automation",
   "aligned": true,
-  "issue_count": 2,
+  "issue_count": 3,
   "issues": [
     {
       "severity": "medium",
+      "title": "PageObject/locator folder not detected",
+      "detail": "Locator definitions may be mixed with page methods or specs.",
+      "safe_fix": "Create/use pageObjects/<PageName>.objects.ts and keep locators separate from test specs."
+    },
+    {
+      "severity": "medium",
       "title": "Inline locators inside specs",
-      "detail": "Detected inline page.locator/getBy* calls in 8 spec file(s).",
+      "detail": "Detected inline page.locator/getBy* calls in 5 spec file(s).",
       "safe_fix": "RCA/self-healing should prefer pageObjects/pages/helper files; edit specs only when unavoidable."
     },
     {
@@ -23,13 +29,21 @@
     {
       "priority": 1,
       "area": "playwright_alignment",
-      "action": "RCA/self-healing should prefer pageObjects/pages/helper files; edit specs only when unavoidable.",
-      "why": "Detected inline page.locator/getBy* calls in 8 spec file(s).",
+      "action": "Create/use pageObjects/<PageName>.objects.ts and keep locators separate from test specs.",
+      "why": "Locator definitions may be mixed with page methods or specs.",
       "severity": "medium",
       "how_to_apply": "Use Fix failed tests safely / AI full-control framework fix so backup, approval, validation and rollback remain active."
     },
     {
       "priority": 2,
+      "area": "playwright_alignment",
+      "action": "RCA/self-healing should prefer pageObjects/pages/helper files; edit specs only when unavoidable.",
+      "why": "Detected inline page.locator/getBy* calls in 5 spec file(s).",
+      "severity": "medium",
+      "how_to_apply": "Use Fix failed tests safely / AI full-control framework fix so backup, approval, validation and rollback remain active."
+    },
+    {
+      "priority": 3,
       "area": "playwright_alignment",
       "action": "Enable trace: 'on-first-retry', screenshot/video on failure through approved config update.",
       "why": "RCA is stronger with trace/video/screenshot evidence.",

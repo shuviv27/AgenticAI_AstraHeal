@@ -54,28 +54,88 @@ def _infer_action(text: str, keyword: str = '') -> str:
     low = f'{keyword} {text}'.lower()
     if keyword.lower() == 'then' or re.search(r'\b(?:verify|validate|expect|expects|should|assert|confirm that|visible|displayed|shown)\b', low):
         return 'verify'
-    if re.search(r'\b(?:open|opens|navigate|navigates|go to|launch|launches|visit|visits)\b', low):
+    if re.search(r'https?://|\b(?:base url|application url|test environment url|new browser session)\b', low):
         return 'goto'
     if re.search(r'\b(?:enter|enters|fill|fills|type|types|input|inputs|provide|provides)\b', low):
         return 'fill'
-    if re.search(r'\b(?:select|selects|choose|chooses|pick|picks)\b', low):
+    if re.search(r'\b(?:select|selects|choose|chooses|pick|picks)\b', low) and re.search(r'\b(?:dropdown|combobox|list|status|date|time|type|product|source|interest|option as| as )\b', low):
         return 'select'
-    if re.search(r'\b(?:click|clicks|tap|taps|press|presses|submit|submits|confirm|confirms)\b', low):
+    if re.search(r'\b(?:click|clicks|tap|taps|press|presses|submit|submits|confirm|confirms|open|opens|navigate|navigates|go to|launch|launches|visit|visits|select|selects|choose|chooses)\b', low):
         return 'click'
     return 'perform'
 
 
 def _clean_step_text(value: str) -> str:
     value = re.sub(r'^\s*(?:step\s*)?\d+[\).:\-\s]+', '', value or '', flags=re.I)
+    value = re.sub(r'[*_`]+', '', value)
     return value.strip(' \t-•')
 
 
 
 def _semantic_target(value: str) -> str:
     text = _clean_step_text(value or 'element')
+    fill_in = re.match(r'^(?:in|on)\s+(.+?),\s*(?:enter|type|fill|input|provide)\b', text, re.I)
+    if fill_in:
+        text = fill_in.group(1)
     text = re.sub(r'^(?:click|tap|press|enter|fill|type|input|provide|select|choose|verify|validate|assert|confirm|open|navigate to|go to)\s+', '', text, flags=re.I)
+    text = re.sub(r'^(?:on|the)\s+', '', text, flags=re.I)
+    text = re.sub(r'\s+(?:as|with)\s+["\'`]?[^"\'`]+["\'`]?\s*$', '', text, flags=re.I)
+    text = re.sub(r'\s+from\s+(?:the\s+)?dropdown\s*$', '', text, flags=re.I)
+    text = re.sub(r'\s+(?:and\s+)?(?:click|press|select|open)\s+.+$', '', text, flags=re.I)
     text = re.sub(r'\s+(?:is|should be|must be)\s+(?:displayed|visible|shown|enabled|available|present)\.?$', '', text, flags=re.I)
     return text.strip() or 'element'
+
+
+def _infer_page_context(title: str, steps: list[dict[str, Any]], fallback: str = 'Home') -> str:
+    corpus = ' '.join([title] + [str(step.get('target') or '') for step in steps]).lower()
+    if 'salesforce' in corpus or 'customer central' in corpus or 'work queue' in corpus:
+        return 'Salesforce'
+    if 'loyalty management' in corpus:
+        return 'LoyaltyManagement'
+    if re.search(r'\blogin|sign in|username|password\b', corpus):
+        return 'Login'
+    return fallback or 'Home'
+
+
+def _environment_name_for_step(step_text: str) -> str:
+    low = step_text.lower()
+    if 'password' in low:
+        return 'SALESFORCE_PASSWORD' if 'salesforce' in low or 'store co-worker' in low else 'TEST_PASSWORD'
+    if any(token in low for token in ('username', 'user name', 'email')):
+        return 'SALESFORCE_USERNAME' if 'salesforce' in low or 'store co-worker' in low or 'agent' in low or 'admin user' in low else 'TEST_USERNAME'
+    if 'verification code' in low or re.search(r'\botp\b', low):
+        return 'SALESFORCE_VERIFICATION_CODE'
+    semantic = re.sub(r'[^A-Za-z0-9]+', '_', _semantic_target(step_text)).strip('_').upper()
+    return (semantic[:64] or 'TEST_DATA')
+
+
+def _extract_test_data(step_text: str, raw_value: str) -> dict[str, Any]:
+    raw = (raw_value or '').strip()
+    if not raw or raw.lower() in {'n/a', 'na', 'none', 'null', '-'}:
+        return {}
+    low_step = step_text.lower()
+    if any(token in low_step for token in ('password', 'username', 'user name', 'verification code', ' api token', 'token')):
+        return {
+            'value_env': _environment_name_for_step(step_text),
+            'value_sensitive': True,
+            'value_source': 'environment_only',
+        }
+    url_match = re.search(r'https?://[^\s]+', raw)
+    if url_match:
+        return {'value': url_match.group(0).rstrip('.,;'), 'value_source': 'spreadsheet_test_data'}
+    candidate = raw
+    labelled = re.match(r'^\s*[^:=]{1,80}\s*[:=]\s*(.+?)\s*$', raw)
+    if labelled:
+        candidate = labelled.group(1).strip()
+    if re.search(r'\b(?:asks?|prompted|displayed|page|message|appears?|successfully)\b', candidate, re.I) and not re.search(r'[=@]|\d{3,}', candidate):
+        return {}
+    generic = candidate.strip().lower()
+    if generic in {'date', 'time', 'product', 'appointment type', 'notes', 'status', 'type'}:
+        return {
+            'value_env': _environment_name_for_step(step_text),
+            'value_source': 'environment_placeholder',
+        }
+    return {'value': candidate[:500], 'value_source': 'spreadsheet_test_data'}
 
 def _scenario_id(feature: str, index: int, supplied: str = '') -> str:
     if supplied.strip():
@@ -481,9 +541,11 @@ def _parse_excel(uploaded_bytes: bytes, feature: str) -> dict[str, Any]:
                 header_row = idx
                 break
         headers = rows[header_row]
-        id_idx = _find_header_index(headers, ('test case id', 'testcase id', 'tc id', 'id'))
-        title_idx = _find_header_index(headers, ('test case title', 'testcase title', 'test case', 'scenario', 'title', 'test name'))
+        id_idx = _find_header_index(headers, ('test case id', 'testcase id', 'tc id', 'test case', 'test_case', 'tc', 'id'))
+        title_idx = _find_header_index(headers, ('test case title', 'testcase title', 'summary', 'summery', 'scenario summary', 'scenario', 'title', 'test name'))
         step_idx = _find_header_index(headers, ('test step', 'step', 'steps', 'step description', 'action'))
+        step_number_idx = _find_header_index(headers, ('step number', 'step no', 'step #', 'sequence'))
+        test_data_idx = _find_header_index(headers, ('test data', 'testdata', 'input data', 'data', 'value'))
         expected_idx = _find_header_index(headers, ('expected result', 'expected outcome', 'expected'))
         pre_idx = _find_header_index(headers, ('precondition', 'prerequisite'))
         page_idx = _find_header_index(headers, ('page', 'screen', 'module'))
@@ -505,7 +567,7 @@ def _parse_excel(uploaded_bytes: bytes, feature: str) -> dict[str, Any]:
                 'id': supplied_id,
                 'title': title or key,
                 'feature': feature,
-                'page': pascal_case(cell(page_idx)) or 'Home',
+                'page': pascal_case(cell(page_idx)) if cell(page_idx) else 'Home',
                 'priority': (cell(priority_idx) or 'medium').lower(),
                 'preconditions': [],
                 'steps': [],
@@ -517,15 +579,29 @@ def _parse_excel(uploaded_bytes: bytes, feature: str) -> dict[str, Any]:
             if cell(pre_idx) and cell(pre_idx) not in scenario['preconditions']:
                 scenario['preconditions'].append(cell(pre_idx))
             step_text = cell(step_idx)
+            step_number = cell(step_number_idx)
+            test_data = cell(test_data_idx)
             expected = cell(expected_idx)
             if step_text:
                 step = _step_from_text(step_text, scenario['page'])
+                step.update(_extract_test_data(step_text, test_data))
+                if step_number:
+                    step['step_number'] = step_number
                 if expected:
                     step['expected'] = expected
                 scenario['steps'].append(step)
             if expected:
                 scenario['expected_result'] = expected
         for scenario in grouped.values():
+            scenario['page'] = _infer_page_context(str(scenario.get('title') or ''), scenario.get('steps') or [], str(scenario.get('page') or 'Home'))
+            for step in scenario.get('steps') or []:
+                step['page'] = scenario['page']
+                if step.get('value_sensitive') and str(scenario['page']).lower() == 'salesforce':
+                    low_target = str(step.get('target') or '').lower()
+                    if 'password' in low_target:
+                        step['value_env'] = 'SALESFORCE_PASSWORD'
+                    elif any(token in low_target for token in ('username', 'user name', 'email')):
+                        step['value_env'] = 'SALESFORCE_USERNAME'
             if scenario.get('expected_result') and not any(step.get('action') == 'verify' for step in scenario.get('steps') or []):
                 scenario['steps'].append(_step_from_text(scenario['expected_result'], scenario.get('page') or 'Home', 'Then'))
             if scenario.get('steps') or scenario.get('title'):
@@ -653,7 +729,11 @@ def _code_files(root: Path, dirs: list[str]) -> list[Path]:
 
 
 def _tokens(*values: str) -> list[str]:
-    ignore = {'page', 'test', 'case', 'scenario', 'flow', 'validate', 'verify', 'the', 'and', 'with'}
+    ignore = {
+        'page', 'test', 'case', 'scenario', 'flow', 'validate', 'verify', 'the', 'and', 'with',
+        'click', 'enter', 'select', 'open', 'navigate', 'displayed', 'visible', 'successfully',
+        'button', 'field', 'section', 'record', 'created', 'expected', 'result', 'valid', 'new',
+    }
     return [x for x in re.findall(r'[a-z0-9]+', ' '.join(values).lower()) if len(x) > 2 and x not in ignore]
 
 
@@ -673,6 +753,21 @@ def _file_score(path: Path, root: Path, tokens: list[str]) -> int:
     return score
 
 
+def _is_concrete_page_file(path: Path) -> bool:
+    name = path.stem.lower()
+    if name in {'basepage', 'base_page', 'abstractpage', 'pagebase'} or name.startswith(('basepage.', 'abstractpage.')):
+        return False
+    if any(part.lower() in {'utils', 'utilities', 'helpers', 'fixtures', 'config', 'configs'} for part in path.parts):
+        return False
+    try:
+        text = path.read_text(encoding='utf-8', errors='replace')[:8000]
+    except Exception:
+        return False
+    if re.search(r'export\s+abstract\s+class\s+', text):
+        return False
+    return bool(re.search(r'export\s+(?:default\s+)?class\s+', text))
+
+
 def _rank_files(root: Path, files: list[Path], tokens: list[str]) -> list[dict[str, Any]]:
     ranked = [{'path': _rel(path, root), 'score': _file_score(path, root, tokens)} for path in files]
     return sorted(ranked, key=lambda x: (-x['score'], len(x['path']), x['path'].lower()))
@@ -686,8 +781,13 @@ def _choose_test_dir(root: Path, profile: dict[str, Any], feature: str, explicit
         return selected, reasons
     configured = profile.get('configured_test_dirs') or []
     if configured:
+        configured_dir = root / configured[0]
+        generated_subdir = configured_dir / 'generated'
+        if generated_subdir.exists() and (any(generated_subdir.glob('*.spec.*')) or (generated_subdir / '.gitkeep').exists()):
+            reasons.append('Selected the existing generated-spec subfolder under Playwright testDir to preserve framework conventions and execution scripts.')
+            return generated_subdir, reasons
         reasons.append('Selected from Playwright config testDir discovered by framework learning.')
-        return root / configured[0], reasons
+        return configured_dir, reasons
     roots = profile.get('discovered_test_roots') or []
     if roots:
         reasons.append('Selected from recursively proven executable Playwright test root.')
@@ -713,7 +813,7 @@ def _placement_for_scenario(root: Path, profile: dict[str, Any], scenario: dict[
     components = profile.get('component_directory_model') or {}
     page_dirs = components.get('page_dirs') or []
     object_dirs = components.get('page_object_dirs') or []
-    page_files = _code_files(root, page_dirs)
+    page_files = [path for path in _code_files(root, page_dirs) if _is_concrete_page_file(path)]
     object_files = _code_files(root, object_dirs)
     step_context = ' '.join(str(step.get('target') or '') for step in scenario.get('steps') or [])
     tokens = _tokens(feature, str(scenario.get('page') or ''), str(scenario.get('title') or ''), step_context)
@@ -727,13 +827,26 @@ def _placement_for_scenario(root: Path, profile: dict[str, Any], scenario: dict[
     locator_reason = 'explicit_user_selection' if locator_path else ''
     ambiguous = False
     if page_path is None and ranked_pages:
-        page_path = root / ranked_pages[0]['path']
-        page_reason = 'best_existing_page_match'
-        if len(ranked_pages) > 1 and ranked_pages[0]['score'] == ranked_pages[1]['score'] and ranked_pages[0]['score'] > 0:
-            ambiguous = True
+        context_tokens = _tokens(str(scenario.get('page') or ''))
+        matching_context = next((item for item in ranked_pages if any(token in Path(item['path']).stem.lower() for token in context_tokens)), None)
+        selected = matching_context or ranked_pages[0]
+        selected_name = Path(selected['path']).stem.lower()
+        context_matches_name = any(token in selected_name for token in context_tokens)
+        if not context_tokens or str(scenario.get('page') or '').lower() in {'home', 'generated'} or context_matches_name:
+            page_path = root / selected['path']
+            page_reason = 'best_existing_page_match'
+            if matching_context is None and len(ranked_pages) > 1 and ranked_pages[0]['score'] == ranked_pages[1]['score'] and ranked_pages[0]['score'] > 0:
+                ambiguous = True
+        else:
+            page_reason = 'no_existing_page_matches_application_context'
     if locator_path is None and page_path is not None:
-        locator_path = page_path
-        locator_reason = 'safe_unified_page_object_placement; separate locator files require an explicit existing linkage'
+        linked = next((candidate for candidate in object_files if _locator_binding(page_path, candidate) is not None), None)
+        if linked is not None:
+            locator_path = linked
+            locator_reason = 'existing_locator_repository_imported_or_instantiated_by_selected_page'
+        else:
+            locator_path = page_path
+            locator_reason = 'safe_unified_page_object_placement; no linked locator repository was detected'
     return {
         'scenario_id': scenario.get('id'),
         'scenario_title': scenario.get('title'),
@@ -827,13 +940,76 @@ def _rollback_generation(root: Path, backup_root: Path, created_paths: set[str])
     }
 
 
+def _matching_brace_index(text: str, open_index: int) -> int:
+    depth = 0
+    quote = ''
+    escaped = False
+    line_comment = False
+    block_comment = False
+    i = open_index
+    while i < len(text):
+        char = text[i]
+        nxt = text[i + 1] if i + 1 < len(text) else ''
+        if line_comment:
+            if char == '\n':
+                line_comment = False
+            i += 1
+            continue
+        if block_comment:
+            if char == '*' and nxt == '/':
+                block_comment = False
+                i += 2
+                continue
+            i += 1
+            continue
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == '\\':
+                escaped = True
+            elif char == quote:
+                quote = ''
+            i += 1
+            continue
+        if char == '/' and nxt == '/':
+            line_comment = True
+            i += 2
+            continue
+        if char == '/' and nxt == '*':
+            block_comment = True
+            i += 2
+            continue
+        if char in {'\'', '"', '`'}:
+            quote = char
+            i += 1
+            continue
+        if char == '{':
+            depth += 1
+        elif char == '}':
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return -1
+
+
+def _class_close_index(text: str, class_name: str = '') -> int:
+    name = rf'\s+{re.escape(class_name)}\b' if class_name else r'\s+[A-Za-z_$][\w$]*\b'
+    match = re.search(rf'export\s+(?:default\s+)?(?:abstract\s+)?class{name}[^{{]*{{', text)
+    if not match:
+        return -1
+    open_index = text.find('{', match.start())
+    return _matching_brace_index(text, open_index)
+
+
 def _append_member(path: Path, member: str, symbol: str) -> bool:
     text = path.read_text(encoding='utf-8', errors='replace') if path.exists() else ''
     if re.search(rf'\b{re.escape(symbol)}\b', text):
         return False
-    idx = text.rfind('}')
+    class_name = _class_name(path, '')
+    idx = _class_close_index(text, class_name)
     if idx < 0:
-        raise ValueError(f'Could not safely identify class boundary in {path}')
+        raise ValueError(f'Could not safely identify exported class boundary in {path}')
     path.write_text(text[:idx].rstrip() + '\n\n' + member.rstrip() + '\n' + text[idx:], encoding='utf-8')
     return True
 
@@ -863,6 +1039,22 @@ def _locator_expression(target: str, action: str) -> str:
     return f"this.page.getByText(/{escaped}/i)"
 
 
+def _ts_single_quote(value: str) -> str:
+    return str(value).replace('\\', '\\\\').replace("'", "\\'").replace('\r', ' ').replace('\n', ' ')
+
+
+def _locator_definition(target: str, action: str) -> str:
+    label = _ts_single_quote(_semantic_target(target)[:120])
+    low = f'{action} {target}'.lower()
+    if any(x in low for x in ('email', 'username', 'password', 'textbox', 'input', 'field', 'first name', 'last name', 'mobile', 'notes', 'search box')):
+        return f"{{ strategy: 'role', role: 'textbox', value: '{label}', description: '{label}', fallbacks: [{{ strategy: 'label', value: '{label}' }}, {{ strategy: 'placeholder', value: '{label}' }}] }}"
+    if any(x in low for x in ('button', 'click', 'submit', 'save', 'continue', 'login', 'sign in', 'icon')):
+        return f"{{ strategy: 'role', role: 'button', value: '{label}', description: '{label}', fallbacks: [{{ strategy: 'text', value: '{label}' }}] }}"
+    if any(x in low for x in ('link', 'navigate', 'menu', 'tab')):
+        return f"{{ strategy: 'role', role: 'link', value: '{label}', description: '{label}', fallbacks: [{{ strategy: 'text', value: '{label}' }}] }}"
+    return f"{{ strategy: 'text', value: '{label}', description: '{label}' }}"
+
+
 def _create_page_file(path: Path, class_name: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -874,13 +1066,74 @@ def _create_page_file(path: Path, class_name: str) -> None:
     )
 
 
+def _create_framework_support_files(root: Path, profile: dict[str, Any], class_name: str) -> tuple[Path, Path, list[Path]]:
+    components = profile.get('component_directory_model') or {}
+    page_dir = root / ((components.get('page_dirs') or ['pages'])[0])
+    object_dirs = components.get('page_object_dirs') or []
+    page_path = page_dir / f'{class_name}.ts'
+    created: list[Path] = []
+    base_candidates = [path for path in _code_files(root, components.get('page_dirs') or ['pages']) if path.stem.lower() in {'basepage', 'base_page'}]
+    locator_factory = next((path for path in root.rglob('locatorFactory.ts') if path.is_file()), None)
+    if base_candidates and object_dirs and locator_factory:
+        base_path = base_candidates[0]
+        object_dir = root / object_dirs[0]
+        locator_name = f'{class_name}Objects'
+        locator_path = object_dir / f'{class_name}.objects.ts'
+        if not locator_path.exists():
+            locator_path.parent.mkdir(parents=True, exist_ok=True)
+            factory_import = _relative_import(locator_path, locator_factory)
+            locator_path.write_text(
+                f"import type {{ LocatorDefinition }} from '{factory_import}';\n\n"
+                f"export const {locator_name} = {{\n"
+                f"}} satisfies Record<string, LocatorDefinition>;\n",
+                encoding='utf-8',
+            )
+            created.append(locator_path)
+        if not page_path.exists():
+            page_path.parent.mkdir(parents=True, exist_ok=True)
+            base_import = _relative_import(page_path, base_path)
+            locator_import = _relative_import(page_path, locator_path)
+            page_path.write_text(
+                "import type { Page } from '@playwright/test';\n"
+                f"import {{ BasePage }} from '{base_import}';\n"
+                f"import {{ {locator_name} }} from '{locator_import}';\n\n"
+                f"export class {class_name} extends BasePage {{\n"
+                "  constructor(page: Page) {\n"
+                "    super(page);\n"
+                "  }\n"
+                "}\n",
+                encoding='utf-8',
+            )
+            created.append(page_path)
+        return page_path, locator_path, created
+    if not page_path.exists():
+        _create_page_file(page_path, class_name)
+        created.append(page_path)
+    return page_path, page_path, created
 
-def _linked_locator_reference(page_path: Path, locator_path: Path) -> str | None:
+
+def _object_literal_name(path: Path) -> str:
+    if not path.exists():
+        return ''
+    text = path.read_text(encoding='utf-8', errors='replace')
+    match = re.search(r'export\s+const\s+([A-Za-z_$][\w$]*)\s*=\s*{', text)
+    return match.group(1) if match else ''
+
+
+def _locator_binding(page_path: Path, locator_path: Path) -> dict[str, str] | None:
     if page_path.resolve() == locator_path.resolve():
-        return 'this'
+        return {'style': 'direct_class_member', 'locator_expression': 'this.{locator}', 'reference': 'this'}
     if not page_path.exists() or not locator_path.exists():
         return None
     page_text = page_path.read_text(encoding='utf-8', errors='replace')
+    object_name = _object_literal_name(locator_path)
+    if object_name and re.search(rf'\b{re.escape(object_name)}\b', page_text) and ('getLocator' in page_text or re.search(r'extends\s+BasePage\b', page_text)):
+        return {
+            'style': 'locator_definition_object',
+            'collection': object_name,
+            'locator_expression': f'this.getLocator({object_name}.{{locator}})',
+            'reference': object_name,
+        }
     locator_class = _class_name(locator_path, pascal_case(locator_path.stem))
     if locator_class not in page_text:
         return None
@@ -891,8 +1144,35 @@ def _linked_locator_reference(page_path: Path, locator_path: Path) -> str | None
     for pattern in patterns:
         match = re.search(pattern, page_text)
         if match:
-            return f'this.{match.group(1)}'
+            reference = f'this.{match.group(1)}'
+            return {'style': 'locator_class_instance', 'locator_expression': reference + '.{locator}', 'reference': reference}
     return None
+
+
+def _append_locator(path: Path, locator: str, target: str, action: str, binding: dict[str, str]) -> bool:
+    text = path.read_text(encoding='utf-8', errors='replace') if path.exists() else ''
+    if re.search(rf'\b{re.escape(locator)}\b', text):
+        return False
+    if binding.get('style') == 'locator_definition_object':
+        object_name = binding.get('collection') or _object_literal_name(path)
+        match = re.search(rf'export\s+const\s+{re.escape(object_name)}\s*=\s*{{', text)
+        if not match:
+            raise ValueError(f'Could not safely identify locator object boundary in {path}')
+        open_index = text.find('{', match.start())
+        close_index = _matching_brace_index(text, open_index)
+        if close_index < 0:
+            raise ValueError(f'Could not safely identify locator object closing brace in {path}')
+        member = f"  {locator}: {_locator_definition(target, action)},"
+        path.write_text(text[:close_index].rstrip() + '\n' + member + '\n' + text[close_index:], encoding='utf-8')
+        return True
+    member = f"  readonly {locator} = {_locator_expression(target, action)};"
+    return _append_member(path, member, locator)
+
+
+
+def _linked_locator_reference(page_path: Path, locator_path: Path) -> str | None:
+    binding = _locator_binding(page_path, locator_path)
+    return binding.get('reference') if binding else None
 
 def _relative_import(from_file: Path, to_file: Path) -> str:
     rel = os.path.relpath(to_file.with_suffix(''), from_file.parent).replace('\\', '/')
@@ -913,13 +1193,26 @@ def _unique_spec_path(test_dir: Path, feature: str, scenario: dict[str, Any], in
 def _step_call(step: dict[str, Any], method: str) -> str:
     action = str(step.get('action') or '').lower()
     value = str(step.get('value') or '').strip()
+    value_env = re.sub(r'[^A-Z0-9_]+', '_', str(step.get('value_env') or '').upper()).strip('_')
     expected = str(step.get('expected') or '').strip()
+    if value_env:
+        arg_expression = f"process.env.{value_env} || {json.dumps('${' + value_env + '_REQUIRED}')}"
+    elif value:
+        arg_expression = json.dumps(value)
+    else:
+        fallback_env = _environment_name_for_step(str(step.get('target') or 'test data'))
+        arg_expression = f"process.env.{fallback_env} || {json.dumps('${' + fallback_env + '_REQUIRED}')}"
     if action in {'goto', 'open', 'launch', 'navigate'}:
-        arg = value or "process.env.BASE_URL || '/'"
-        return f'await screen.{method}({arg if arg.startswith("process.env") else json.dumps(arg)});'
+        url_match = re.search(r'https?://[^\s]+', str(step.get('target') or ''))
+        if value:
+            arg = json.dumps(value)
+        elif url_match:
+            arg = json.dumps(url_match.group(0).rstrip('.,;'))
+        else:
+            arg = "process.env.BASE_URL || process.env.TEST_BASE_URL || '/'"
+        return f'await screen.{method}({arg});'
     if action in {'fill', 'type', 'enter', 'select'}:
-        arg = value or '${TEST_DATA_REQUIRED}'
-        return f'await screen.{method}({json.dumps(arg)});'
+        return f'await screen.{method}({arg_expression});'
     if action in {'verify', 'assert', 'expect', 'validate'} and expected:
         return f'await screen.{method}({json.dumps(expected)});'
     return f'await screen.{method}();'
@@ -929,7 +1222,7 @@ def _method_member(action: str, method: str, locator_ref: str) -> str:
     if action in {'fill', 'type', 'enter'}:
         return f"  async {method}(value: string) {{\n    await {locator_ref}.fill(value);\n  }}"
     if action == 'select':
-        return f"  async {method}(value: string) {{\n    await {locator_ref}.selectOption(value);\n  }}"
+        return f"  async {method}(value: string) {{\n    const target = {locator_ref};\n    await target.selectOption({{ label: value }}).catch(async () => {{\n      await target.click();\n      await this.page.getByRole('option', {{ name: value }}).click();\n    }});\n  }}"
     if action in {'verify', 'assert', 'expect', 'validate'}:
         return f"  async {method}(expectedText?: string) {{\n    await {locator_ref}.waitFor({{ state: 'visible' }});\n    if (expectedText) {{\n      const actualText = (await {locator_ref}.textContent()) || '';\n      if (!actualText.includes(expectedText)) throw new Error(`Expected text not found: ${{expectedText}}`);\n    }}\n  }}"
     return f"  async {method}() {{\n    await {locator_ref}.click();\n  }}"
@@ -957,22 +1250,100 @@ def _generate_report(root: Path, plan: dict[str, Any]) -> tuple[Path, Path]:
     return json_path, html_path
 
 
-def _validate_specs(root: Path, specs: list[str], enabled: bool) -> dict[str, Any]:
+def _validate_typescript_syntax(root: Path, source_files: list[str]) -> dict[str, Any]:
+    node = shutil.which('node')
+    files = [rel for rel in source_files if Path(rel).suffix.lower() in {'.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'} and (root / rel).exists()]
+    if not node or not files:
+        return {'ok': None, 'skipped': True, 'reason': 'Node.js or generated TypeScript/JavaScript source files are unavailable.'}
+    script = r"""
+const fs = require('fs');
+let ts;
+try { ts = require('typescript'); }
+catch (error) { console.log(JSON.stringify({ skipped: true, reason: String(error) })); process.exit(0); }
+const diagnostics = [];
+for (const file of process.argv.slice(1)) {
+  const text = fs.readFileSync(file, 'utf8');
+  const kind = file.endsWith('.tsx') ? ts.ScriptKind.TSX : file.endsWith('.jsx') ? ts.ScriptKind.JSX : file.endsWith('.js') ? ts.ScriptKind.JS : ts.ScriptKind.TS;
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, kind);
+  for (const item of source.parseDiagnostics || []) {
+    const pos = source.getLineAndCharacterOfPosition(item.start || 0);
+    diagnostics.push({ file, line: pos.line + 1, column: pos.character + 1, code: item.code, message: ts.flattenDiagnosticMessageText(item.messageText, ' ') });
+  }
+}
+console.log(JSON.stringify({ skipped: false, diagnostics }));
+process.exit(diagnostics.length ? 2 : 0);
+"""
+    try:
+        env = os.environ.copy()
+        local_typescript = root / 'node_modules' / 'typescript'
+        if not local_typescript.exists():
+            npm = shutil.which('npm')
+            if npm:
+                npm_root = subprocess.run([npm, 'root', '-g'], capture_output=True, text=True, timeout=15)
+                global_root = (npm_root.stdout or '').strip() if npm_root.returncode == 0 else ''
+                if global_root:
+                    existing_node_path = env.get('NODE_PATH', '').strip()
+                    env['NODE_PATH'] = os.pathsep.join(x for x in (global_root, existing_node_path) if x)
+        proc = subprocess.run([node, '-e', script, *files], cwd=root, capture_output=True, text=True, timeout=60, env=env)
+        raw = (proc.stdout or '').strip().splitlines()
+        payload = json.loads(raw[-1]) if raw else {}
+        if payload.get('skipped'):
+            return {'ok': None, 'skipped': True, 'reason': payload.get('reason') or 'TypeScript package is unavailable.'}
+        diagnostics = payload.get('diagnostics') or []
+        return {
+            'ok': not diagnostics,
+            'skipped': False,
+            'diagnostic_count': len(diagnostics),
+            'diagnostics': diagnostics[:100],
+            'files_checked': files,
+        }
+    except Exception as exc:
+        return {'ok': None, 'skipped': True, 'reason': f'{type(exc).__name__}: {exc}'}
+
+
+def _playwright_command(root: Path) -> list[str] | None:
+    local = root / 'node_modules' / '.bin' / ('playwright.cmd' if os.name == 'nt' else 'playwright')
+    if local.exists():
+        return [str(local)]
+    npx = shutil.which('npx')
+    return [npx, '--no-install', 'playwright'] if npx else None
+
+
+def _validate_specs(root: Path, specs: list[str], enabled: bool, source_files: list[str] | None = None) -> dict[str, Any]:
     if not enabled:
         return {'ok': None, 'skipped': True, 'reason': 'Validation was disabled by the user.'}
-    npx = shutil.which('npx')
-    if not npx or not (root / 'package.json').exists():
-        return {'ok': None, 'skipped': True, 'reason': 'npx or package.json is unavailable; generated files were statically written but not listed by Playwright.'}
-    args = [npx, '--no-install', 'playwright', 'test', *specs, '--list']
+    syntax = _validate_typescript_syntax(root, source_files or specs)
+    if syntax.get('ok') is False:
+        return {
+            'ok': False,
+            'skipped': False,
+            'stage': 'typescript_syntax',
+            'plain_english_reason': 'Generated TypeScript/JavaScript contains a syntax error. Playwright execution was not attempted, and rollback is required.',
+            'syntax': syntax,
+        }
+    command = _playwright_command(root)
+    if not command or not (root / 'package.json').exists():
+        return {
+            'ok': None,
+            'skipped': True,
+            'reason': 'Local Playwright CLI or package.json is unavailable; static syntax validation completed but Playwright --list could not run.',
+            'syntax': syntax,
+        }
+    args = [*command, 'test', *specs, '--list']
     try:
         proc = subprocess.run(args, cwd=root, capture_output=True, text=True, timeout=180)
+        stderr = proc.stderr[-12000:]
+        stdout = proc.stdout[-12000:]
         return {
             'ok': proc.returncode == 0,
             'skipped': False,
+            'stage': 'playwright_list',
             'command': ' '.join(args),
             'returncode': proc.returncode,
-            'stdout': proc.stdout[-6000:],
-            'stderr': proc.stderr[-6000:],
+            'stdout': stdout,
+            'stderr': stderr,
+            'syntax': syntax,
+            'plain_english_reason': ('Playwright successfully discovered every generated testcase.' if proc.returncode == 0 else 'Playwright could not load one or more generated specs or their dependent page/locator files. Review the first error and impacted file below; AstraHeal will roll back the attempted changes.'),
         }
     except Exception as exc:
         return {'ok': False, 'skipped': False, 'error': f'{type(exc).__name__}: {exc}'}
@@ -1033,7 +1404,7 @@ def generate_existing_framework_tests(
         if page_rel and locator_rel and page_rel != locator_rel:
             page_candidate = root / page_rel
             locator_candidate = root / locator_rel
-            if _linked_locator_reference(page_candidate, locator_candidate) is None:
+            if _locator_binding(page_candidate, locator_candidate) is None:
                 return {
                     'ok': False,
                     'needs_user_input': True,
@@ -1055,25 +1426,23 @@ def generate_existing_framework_tests(
         placement = placement_by_id.get(scenario.get('id')) or {}
         page_rel = placement.get('recommended_page_file')
         page_path = root / page_rel if page_rel else None
-        if page_path is None:
+        auto_locator_path: Path | None = None
+        if page_path is None or not page_path.exists():
             if not allow_new_support_files:
                 return {'ok': False, 'needs_user_input': True, 'placement_preview': preview, 'message': f"No reusable page file exists for {scenario.get('id')}. Select a page file or allow creation of a support file only when required."}
-            components = profile.get('component_directory_model') or {}
-            page_dir = root / ((components.get('page_dirs') or ['pages'])[0])
             class_name = pascal_case(str(scenario.get('page') or feature)) or 'GeneratedPage'
             if not class_name.endswith('Page'):
                 class_name += 'Page'
-            page_path = page_dir / f'{class_name}.ts'
-            if not page_path.exists():
-                _create_page_file(page_path, class_name)
-                created_paths.add(_rel(page_path, root))
-                changed_files.append(_rel(page_path, root))
-                created_symbols.append({'file': _rel(page_path, root), 'kind': 'support_file', 'name': class_name, 'reason': 'No suitable existing page file was available.'})
+            page_path, auto_locator_path, created_support = _create_framework_support_files(root, profile, class_name)
+            for created_path in created_support:
+                created_paths.add(_rel(created_path, root))
+                changed_files.append(_rel(created_path, root))
+                created_symbols.append({'file': _rel(created_path, root), 'kind': 'support_file', 'name': created_path.stem, 'reason': 'No semantically matching concrete page file existed; one reusable application page/locator pair was created and shared by all related testcases.'})
         class_name = _class_name(page_path, pascal_case(page_path.stem))
-        locator_rel = placement.get('recommended_locator_file') or _rel(page_path, root)
+        locator_rel = placement.get('recommended_locator_file') or (_rel(auto_locator_path, root) if auto_locator_path else _rel(page_path, root))
         locator_path = root / locator_rel
-        locator_reference = _linked_locator_reference(page_path, locator_path)
-        if locator_reference is None:
+        binding = _locator_binding(page_path, locator_path)
+        if binding is None:
             return {'ok': False, 'needs_user_input': True, 'placement_preview': preview, 'message': f'Locator file {locator_rel} is not linked to page file {_rel(page_path, root)}. No further files were changed.'}
         _backup_file(root, page_path, backup_root)
         if locator_path.resolve() != page_path.resolve():
@@ -1089,7 +1458,7 @@ def generate_existing_framework_tests(
                 if re.search(r'\bgotoApplication\s*\(', text):
                     reused_symbols.append({'file': _rel(page_path, root), 'kind': 'method', 'name': method, 'scenario_id': scenario.get('id')})
                 else:
-                    member = "  async gotoApplication(url: string) {\n    await this.page.goto(url);\n  }"
+                    member = ("  async gotoApplication(url: string) {\n    await this.goto(url);\n  }" if re.search(r'extends\s+BasePage\b', text) else "  async gotoApplication(url: string) {\n    await this.page.goto(url);\n  }")
                     if _append_member(page_path, member, method):
                         text += '\n' + member
                         changed_files.append(_rel(page_path, root))
@@ -1101,15 +1470,15 @@ def generate_existing_framework_tests(
             if re.search(rf'\b{re.escape(locator)}\b', locator_text):
                 reused_symbols.append({'file': _rel(locator_path, root), 'kind': 'locator', 'name': locator, 'scenario_id': scenario.get('id')})
             else:
-                member = f"  readonly {locator} = {_locator_expression(target, action)};"
-                if _append_member(locator_path, member, locator):
-                    locator_text += '\n' + member
+                if _append_locator(locator_path, locator, target, action, binding):
+                    locator_text = locator_path.read_text(encoding='utf-8', errors='replace')
                     changed_files.append(_rel(locator_path, root))
                     created_symbols.append({'file': _rel(locator_path, root), 'kind': 'locator', 'name': locator, 'scenario_id': scenario.get('id'), 'evidence': 'provisional semantic locator; verify with Playwright MCP/codegen/live DOM before production use'})
             if re.search(rf'\b{re.escape(method)}\s*\(', text):
                 reused_symbols.append({'file': _rel(page_path, root), 'kind': 'method', 'name': method, 'scenario_id': scenario.get('id')})
             else:
-                member = _method_member(action, method, f'{locator_reference}.{locator}')
+                locator_expression = str(binding.get('locator_expression') or 'this.{locator}').format(locator=locator)
+                member = _method_member(action, method, locator_expression)
                 if _append_member(page_path, member, method):
                     text += '\n' + member
                     changed_files.append(_rel(page_path, root))
@@ -1144,7 +1513,7 @@ def generate_existing_framework_tests(
 
     changed_files = sorted(dict.fromkeys(changed_files))
     specs = [x['spec_file'] for x in scenario_outputs]
-    validation = _validate_specs(root, specs, validate_generated)
+    validation = _validate_specs(root, specs, validate_generated, changed_files)
     attempted_changed_files = list(changed_files)
     attempted_specs = list(specs)
     rollback = {'performed': False, 'restored_files': [], 'deleted_created_files': [], 'reason': ''}
