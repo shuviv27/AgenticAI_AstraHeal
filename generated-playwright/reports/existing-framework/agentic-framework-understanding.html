@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset='utf-8'><title>Agentic Framework Understanding</title>
 <style>body{font-family:Segoe UI,Arial,sans-serif;margin:24px;background:#07111f;color:#e5edf8}.card{background:#0f1b2d;border:1px solid #25415f;border-radius:16px;padding:16px;margin:14px 0;box-shadow:0 10px 30px rgba(0,0,0,.22)}pre{white-space:pre-wrap;background:#07111f;border:1px solid #223752;color:#dbeafe;border-radius:12px;padding:14px;overflow:auto}code{background:#17243a;padding:3px 7px;border-radius:7px}.pill{display:inline-block;background:#1d4ed8;color:white;border-radius:999px;padding:4px 10px;margin-right:6px}</style></head><body>
-<h1>Agentic Multi-Agent Framework Understanding</h1><p><span class='pill'>Architecture</span><span class='pill'>Code Semantics</span><span class='pill'>Locator Strategy</span><span class='pill'>AUT Flow</span><span class='pill'>Safe Patch Scope</span><span class='pill'>Memory</span></p><p>Framework: <code>C:\PROJECTS\qa_acima_testautomation_execution_fixed\qa_acima_fixed</code></p><section class='card'><h2>Agents</h2><pre>{
+<h1>Agentic Multi-Agent Framework Understanding</h1><p><span class='pill'>Architecture</span><span class='pill'>Code Semantics</span><span class='pill'>Locator Strategy</span><span class='pill'>AUT Flow</span><span class='pill'>Safe Patch Scope</span><span class='pill'>Memory</span></p><p>Framework: <code>/mnt/data/work/racpad/qa_racpad_ts_automation</code></p><section class='card'><h2>Agents</h2><pre>{
   "architecture_agent": "folder/file role mapping and POM layer detection",
   "code_semantics_agent": "classes/functions/test titles/page routes/import graph",
   "locator_strategy_agent": "locator style, brittle selectors, anti-patterns",
@@ -8,394 +8,76 @@
   "safe_patch_scope_agent": "spec dependency chains and allowed patch candidates",
   "memory_agent": "writes reusable understanding into project memory"
 }</pre></section><section class='card'><h2>Inventory Summary</h2><pre>{
-  "total_files_scanned": 240,
-  "spec_count": 23,
-  "feature_file_count": 25,
+  "total_files_scanned": 405,
+  "spec_count": 60,
   "sample_specs": [
-    "e2e/example.spec.ts",
-    "e2e/seed.spec.ts",
-    "tests/ai-generated/new_feature.spec.ts",
-    "tests/api/customer.spec.ts",
-    "tests/api/lease.spec.ts",
-    "tests/api/payment.spec.ts",
-    "tests/mobile/mobile-home.spec.ts",
-    "tests/seed.spec.ts",
-    "tests/smoke/api-smoke.spec.ts",
-    "tests/smoke/ui-smoke.spec.ts",
-    "tests/ui/acima-advantage.spec.ts",
-    "tests/ui/benefit-plus.spec.ts",
-    "tests/ui/dashboard.spec.ts",
-    "tests/ui/login.spec.ts",
-    "tests/ui/payment.spec.ts",
-    "tests/ui/profile.spec.ts",
-    "tests/ui/shop-marketplace.spec.ts",
-    "tests/ui/shop-online.spec.ts",
-    "tests/ui/static-pages.spec.ts",
-    "tests/unit/seed.spec.ts",
-    "tests/unit/teams/teamsNotifier.spec.ts",
-    "tests/unit/teams/teamsPayloadBuilder.spec.ts",
-    "tests/unit/teams/testRunAggregator.spec.ts"
-  ],
-  "discovered_test_roots": [
-    "e2e",
-    "tests",
-    "tests/unit"
-  ]
-}</pre></section><section class='card'><h2>Structure Discovery</h2><pre>{
-  "ok": true,
-  "generated_at": "2026-07-16T02:16:57",
-  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
-  "scan_strategy": "recursive_config_plus_path_plus_content_evidence",
-  "candidate_spec_count": 23,
-  "executable_spec_count": 23,
-  "executable_specs": [
-    "e2e/example.spec.ts",
-    "e2e/seed.spec.ts",
-    "tests/ai-generated/new_feature.spec.ts",
-    "tests/api/customer.spec.ts",
-    "tests/api/lease.spec.ts",
-    "tests/api/payment.spec.ts",
-    "tests/mobile/mobile-home.spec.ts",
-    "tests/seed.spec.ts",
-    "tests/smoke/api-smoke.spec.ts",
-    "tests/smoke/ui-smoke.spec.ts",
-    "tests/ui/acima-advantage.spec.ts",
-    "tests/ui/benefit-plus.spec.ts",
-    "tests/ui/dashboard.spec.ts",
-    "tests/ui/login.spec.ts",
-    "tests/ui/payment.spec.ts",
-    "tests/ui/profile.spec.ts",
-    "tests/ui/shop-marketplace.spec.ts",
-    "tests/ui/shop-online.spec.ts",
-    "tests/ui/static-pages.spec.ts",
-    "tests/unit/seed.spec.ts",
-    "tests/unit/teams/teamsNotifier.spec.ts",
-    "tests/unit/teams/teamsPayloadBuilder.spec.ts",
-    "tests/unit/teams/testRunAggregator.spec.ts"
-  ],
-  "spec_evidence": [
-    {
-      "path": "e2e/example.spec.ts",
-      "accepted": true,
-      "reason": "conventional_or_enterprise_test_area",
-      "test_root": "e2e",
-      "configured_test_dir": "",
-      "content_proof": false
-    },
-    {
-      "path": "e2e/seed.spec.ts",
-      "accepted": true,
-      "reason": "conventional_or_enterprise_test_area",
-      "test_root": "e2e",
-      "configured_test_dir": "",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ai-generated/new_feature.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/api/customer.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/api/lease.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/api/payment.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/mobile/mobile-home.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/seed.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/smoke/api-smoke.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/smoke/ui-smoke.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ui/acima-advantage.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ui/benefit-plus.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ui/dashboard.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ui/login.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ui/payment.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ui/profile.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ui/shop-marketplace.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ui/shop-online.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/ui/static-pages.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests",
-      "configured_test_dir": "tests",
-      "content_proof": false
-    },
-    {
-      "path": "tests/unit/seed.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests/unit",
-      "configured_test_dir": "tests/unit",
-      "content_proof": false
-    },
-    {
-      "path": "tests/unit/teams/teamsNotifier.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests/unit",
-      "configured_test_dir": "tests/unit",
-      "content_proof": false
-    },
-    {
-      "path": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests/unit",
-      "configured_test_dir": "tests/unit",
-      "content_proof": false
-    },
-    {
-      "path": "tests/unit/teams/testRunAggregator.spec.ts",
-      "accepted": true,
-      "reason": "configured_playwright_test_dir",
-      "test_root": "tests/unit",
-      "configured_test_dir": "tests/unit",
-      "content_proof": false
-    }
-  ],
-  "rejected_spec_candidates": [],
-  "configured_test_dirs": [
-    "tests",
-    "tests/unit",
-    ".features-gen/ui",
-    ".features-gen/api",
-    ".features-gen/mobile"
-  ],
-  "discovered_test_roots": [
-    "e2e",
-    "tests",
-    "tests/unit"
-  ],
-  "acceptance_reason_counts": {
-    "conventional_or_enterprise_test_area": 2,
-    "configured_playwright_test_dir": 21
-  },
-  "component_directory_model": {
-    "spec_dirs": [
-      "e2e",
-      "specs",
-      "tests",
-      "tests/ai-generated",
-      "tests/api",
-      "tests/mobile",
-      "tests/smoke",
-      "tests/ui",
-      "tests/unit",
-      "tests/unit/teams"
-    ],
-    "page_dirs": [
-      "pages"
-    ],
-    "page_object_dirs": [
-      "pageObjects"
-    ],
-    "config_dirs": [
-      "config"
-    ],
-    "api_dirs": [
-      "api",
-      "api/services",
-      "features/api",
-      "step-definitions/api",
-      "test-data/api",
-      "tests/api"
-    ],
-    "ui_base_dirs": [],
-    "fixture_dirs": [
-      "fixtures"
-    ],
-    "test_data_dirs": [
-      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/html/data",
-      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/html/data",
-      "reports/existing-framework/html/data",
-      "test-data"
-    ],
-    "utility_dirs": [
-      "agents/failure-analyzer/lib",
-      "agents/failure-analyzer/utils",
-      "step-definitions/common",
-      "utils"
-    ],
-    "reporter_dirs": [
-      "agents/failure-analyzer/reporter",
-      "reporters"
-    ]
-  },
-  "source_layout": {
-    "has_src": false,
-    "has_src_main": false,
-    "has_src_test": false,
-    "has_src_test_specs": false,
-    "has_root_tests": true
-  },
-  "safety_rules": [
-    "Ignore dependency, build, report, result, cache, backup and history directories.",
-    "Keep all legacy tests/** discovery behavior.",
-    "Accept custom locations only when Playwright config or executable test content proves the file is runnable.",
-    "Never infer a source patch target from filename alone; dependency mapping remains required."
-  ]
-}</pre></section><section class='card'><h2>Component Directory Model</h2><pre>{
-  "spec_dirs": [
-    "e2e",
-    "specs",
-    "tests",
-    "tests/ai-generated",
-    "tests/api",
-    "tests/mobile",
-    "tests/smoke",
-    "tests/ui",
-    "tests/unit",
-    "tests/unit/teams"
-  ],
-  "page_dirs": [
-    "pages"
-  ],
-  "page_object_dirs": [
-    "pageObjects"
-  ],
-  "config_dirs": [
-    "config"
-  ],
-  "api_dirs": [
-    "api",
-    "api/services",
-    "features/api",
-    "step-definitions/api",
-    "test-data/api",
-    "tests/api"
-  ],
-  "ui_base_dirs": [],
-  "fixture_dirs": [
-    "fixtures"
-  ],
-  "test_data_dirs": [
-    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/html/data",
-    "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/html/data",
-    "reports/existing-framework/html/data",
-    "test-data"
-  ],
-  "utility_dirs": [
-    "agents/failure-analyzer/lib",
-    "agents/failure-analyzer/utils",
-    "step-definitions/common",
-    "utils"
-  ],
-  "reporter_dirs": [
-    "agents/failure-analyzer/reporter",
-    "reporters"
+    "src/test/specs/accountmanagement/account-management-part-2.generated-base.spec.ts",
+    "src/test/specs/accountmanagement/account-management-part-2.generated.spec.ts",
+    "src/test/specs/accountmanagement/account-management.generated-base.spec.ts",
+    "src/test/specs/accountmanagement/am-activity-log-actions.spec.ts",
+    "src/test/specs/accountmanagement/am-activity-log-filters.spec.ts",
+    "src/test/specs/accountmanagement/mx-account-management.spec.ts",
+    "src/test/specs/accountmanagement/past-due-contact-logs.spec.ts",
+    "src/test/specs/accountmanagement/past-due-list-actions-and-print.spec.ts",
+    "src/test/specs/accountmanagement/past-due-list-commitment-filters.spec.ts",
+    "src/test/specs/accountmanagement/past-due-list-customer-filters.spec.ts",
+    "src/test/specs/agreement/agreement-switch-out.spec.ts",
+    "src/test/specs/agreement/agreements-additional.spec.ts",
+    "src/test/specs/agreement/agreements-charge-off.generated.spec.ts",
+    "src/test/specs/agreement/agreements-part-2.generated.spec.ts",
+    "src/test/specs/agreement/agreements-primary.generated.spec.ts",
+    "src/test/specs/agreement/agreements.generated.spec.ts",
+    "src/test/specs/agreement/loaner-agreement.spec.ts",
+    "src/test/specs/browserstack/browserstack-hub-url.spec.ts",
+    "src/test/specs/cashmanagment/cash-managment.spec.ts",
+    "src/test/specs/cashmanagment/debug-paidin-moneyorder.spec.ts",
+    "src/test/specs/cashmanagment/mx-cash-managment.spec.ts",
+    "src/test/specs/customer/assign-alerts.spec.ts",
+    "src/test/specs/customer/create-customer-mexico.spec.ts",
+    "src/test/specs/customer/create-customer.spec.ts",
+    "src/test/specs/customer/customer-edit.spec.ts",
+    "src/test/specs/customer/customer-page.spec.ts",
+    "src/test/specs/customer/mx-edit-customer.spec.ts",
+    "src/test/specs/customerOrders/customer-order-flow.spec.ts",
+    "src/test/specs/dapevents/dap-customer-event.spec.ts",
+    "src/test/specs/dapevents/dap-event-task.spec.ts",
+    "src/test/specs/dapevents/dap-events-mexico.spec.ts",
+    "src/test/specs/dapevents/dap-store-event.spec.ts",
+    "src/test/specs/dashboard/dashboard.spec.ts",
+    "src/test/specs/dashboard/mx-dashboard.spec.ts",
+    "src/test/specs/docusign/create-agreement-instore-and-email.spec.ts",
+    "src/test/specs/docusign/create-agreement-with-manual-signature.spec.ts",
+    "src/test/specs/e2e/customer2delivery.spec.ts",
+    "src/test/specs/e2e/e2e-docusign.spec.ts",
+    "src/test/specs/e2e/e2e-txt2pay.spec.ts",
+    "src/test/specs/inventory/inventory-charge-off.spec.ts",
+    "src/test/specs/inventory/inventory-search.spec.ts",
+    "src/test/specs/inventory/inventory-status-change.spec.ts",
+    "src/test/specs/inventory/inventory-transfer.spec.ts",
+    "src/test/specs/inventory/manual-po-create.spec.ts",
+    "src/test/specs/inventory/new-package-item-search.spec.ts",
+    "src/test/specs/inventory/print-edit-price-tags.spec.ts",
+    "src/test/specs/mexico/agreement-in-mexico.spec.ts",
+    "src/test/specs/mexico/inventory-mx.spec.ts",
+    "src/test/specs/mpo/manual-po-create.spec.ts",
+    "src/test/specs/mpo/mx-manual-po-create.spec.ts",
+    "src/test/specs/payment/payment.module.spec.ts",
+    "src/test/specs/reports/reporting-cash-management-transactions.spec.ts",
+    "src/test/specs/reports/reporting-operations.spec.ts",
+    "src/test/specs/reports/reporting.spec.ts",
+    "src/test/specs/sla/edit-customer-route-sla.spec.ts",
+    "src/test/specs/sla/hold-and-unhold-inventory-sla.spec.ts",
+    "src/test/specs/sla/inventory-charge-off-sla.spec.ts",
+    "src/test/specs/sla/rate-deduction-sla.spec.ts",
+    "src/test/specs/sla/sla.spec.ts",
+    "src/test/specs/tools/ui-compilation-sample.spec.ts"
   ]
 }</pre></section><section class='card'><h2>Framework Family Detection</h2><pre>{
-  "family": "cucumber_playwright_bdd",
+  "family": "playwright_test",
   "has_cucumber_js": false,
-  "has_feature_files": true,
+  "has_feature_files": false,
   "has_playwright_specs": true,
-  "has_step_definitions": true,
+  "has_step_definitions": false,
   "has_support_world_hooks": false
 }</pre></section><section class='card'><h2>Reference Framework Profiles Used</h2><pre>{
   "warning": "NameError: name 'REPO_ROOT' is not defined"
@@ -403,103 +85,55 @@
   {
     "folder": ".",
     "dominant_role": "code",
-    "file_count": 11,
+    "file_count": 6,
     "role_counts": {
-      "code": 11
+      "code": 6
     },
     "examples": [
-      ".astraheal-external-research.json",
+      "AGENTS.md",
       "README.md",
-      "browserstack.yml",
-      "dashboard.yml",
-      "debug-login-flow.js",
-      "make-a-payment.yml",
       "package-lock.json",
-      "package.json"
-    ]
-  },
-  {
-    "folder": ".claude",
-    "dominant_role": "code",
-    "file_count": 10,
-    "role_counts": {
-      "code": 10
-    },
-    "examples": [
-      ".claude/skills/playwright-cli/SKILL.md",
-      ".claude/skills/playwright-cli/references/element-attributes.md",
-      ".claude/skills/playwright-cli/references/playwright-tests.md",
-      ".claude/skills/playwright-cli/references/request-mocking.md",
-      ".claude/skills/playwright-cli/references/running-code.md",
-      ".claude/skills/playwright-cli/references/session-management.md",
-      ".claude/skills/playwright-cli/references/storage-state.md",
-      ".claude/skills/playwright-cli/references/test-generation.md"
+      "package.json",
+      "playwright.config.ts",
+      "tsconfig.json"
     ]
   },
   {
     "folder": ".github",
     "dominant_role": "code",
-    "file_count": 10,
+    "file_count": 17,
     "role_counts": {
-      "code": 10
+      "code": 17
     },
     "examples": [
-      ".github/agents/healer.agent.md",
+      ".github/agents/failure-analyzer.agent.md",
       ".github/agents/playwright-test-generator.agent.md",
       ".github/agents/playwright-test-healer.agent.md",
       ".github/agents/playwright-test-planner.agent.md",
-      ".github/workflows/common.yml",
+      ".github/agents/test-fixer.agent.md",
       ".github/workflows/copilot-setup-steps.yml",
-      ".github/workflows/p1.yml",
-      ".github/workflows/playwright.yml"
+      ".github/workflows/ui-pw-us-acct-mgmt-reg.yml",
+      ".github/workflows/ui-pw-us-agreement-reg.yml"
     ]
   },
   {
-    "folder": ".playwright-mcp",
+    "folder": ".qa-cache",
     "dominant_role": "code",
-    "file_count": 34,
+    "file_count": 2,
     "role_counts": {
-      "code": 34
+      "code": 2
     },
     "examples": [
-      ".playwright-mcp/page-2026-04-20T07-49-10-866Z.yml",
-      ".playwright-mcp/page-2026-04-20T07-49-27-846Z.yml",
-      ".playwright-mcp/page-2026-04-20T07-50-34-759Z.yml",
-      ".playwright-mcp/page-2026-04-20T11-14-59-908Z.yml",
-      ".playwright-mcp/page-2026-04-20T11-15-19-040Z.yml",
-      ".playwright-mcp/page-2026-04-20T11-15-22-454Z.yml",
-      ".playwright-mcp/page-2026-04-20T11-15-40-449Z.yml",
-      ".playwright-mcp/page-2026-04-20T11-16-00-823Z.yml"
-    ]
-  },
-  {
-    "folder": ".qa-ai-generated",
-    "dominant_role": "code",
-    "file_count": 1,
-    "role_counts": {
-      "code": 1
-    },
-    "examples": [
-      ".qa-ai-generated/new_feature-extension-plan.json"
-    ]
-  },
-  {
-    "folder": ".vscode",
-    "dominant_role": "code",
-    "file_count": 1,
-    "role_counts": {
-      "code": 1
-    },
-    "examples": [
-      ".vscode/mcp.json"
+      ".qa-cache/existing-framework/agentic-memory/framework-understanding-memory.json",
+      ".qa-cache/existing-framework/rag/framework-rag-summary.json"
     ]
   },
   {
     "folder": "agents",
     "dominant_role": "code",
-    "file_count": 34,
+    "file_count": 36,
     "role_counts": {
-      "code": 32,
+      "code": 34,
       "utility_helper_layer": 2
     },
     "examples": [
@@ -514,340 +148,88 @@
     ]
   },
   {
-    "folder": "api",
+    "folder": "db",
     "dominant_role": "code",
-    "file_count": 7,
+    "file_count": 8,
     "role_counts": {
-      "code": 4,
-      "api_service_layer": 3
+      "code": 8
     },
     "examples": [
-      "api/api-client.ts",
-      "api/services/customer.service.ts",
-      "api/services/lease.service.ts",
-      "api/services/payment-method.service.ts",
-      "api/types/customer.types.ts",
-      "api/types/lease.types.ts",
-      "api/types/payment.types.ts"
+      "db/package.json",
+      "db/src/client/db-client.ts",
+      "db/src/config/db-config.ts",
+      "db/src/examples/db-module-smoke.ts",
+      "db/src/index.ts",
+      "db/src/seeds/racpad-account-management-seeds.ts",
+      "db/src/seeds/racpad-smoke-seeds.ts",
+      "db/tsconfig.json"
     ]
   },
   {
-    "folder": "config",
+    "folder": "docs",
     "dominant_role": "code",
     "file_count": 2,
     "role_counts": {
       "code": 2
     },
     "examples": [
-      "config/env.ts",
-      "config/environments.ts"
+      "docs/basicdemo/aibasic.txt",
+      "docs/basicdemo/generate-aibasic-html.cjs"
     ]
   },
   {
-    "folder": "e2e",
-    "dominant_role": "spec",
-    "file_count": 2,
-    "role_counts": {
-      "spec": 2
-    },
-    "examples": [
-      "e2e/example.spec.ts",
-      "e2e/seed.spec.ts"
-    ]
-  },
-  {
-    "folder": "features",
-    "dominant_role": "bdd_feature",
-    "file_count": 25,
-    "role_counts": {
-      "bdd_feature": 25
-    },
-    "examples": [
-      "features/api/customer.feature",
-      "features/api/lease.feature",
-      "features/api/payment.feature",
-      "features/broken-links.feature",
-      "features/mobile/acima-advantage.feature",
-      "features/mobile/broken-links.feature",
-      "features/mobile/dashboard.feature",
-      "features/mobile/home.feature"
-    ]
-  },
-  {
-    "folder": "fixtures",
-    "dominant_role": "fixture_layer",
-    "file_count": 5,
-    "role_counts": {
-      "fixture_layer": 5
-    },
-    "examples": [
-      "fixtures/api.fixture.ts",
-      "fixtures/base.fixture.ts",
-      "fixtures/bdd-api.fixture.ts",
-      "fixtures/bdd-mobile.fixture.ts",
-      "fixtures/bdd-ui.fixture.ts"
-    ]
-  },
-  {
-    "folder": "pageObjects",
-    "dominant_role": "locator_object_layer",
-    "file_count": 1,
-    "role_counts": {
-      "locator_object_layer": 1
-    },
-    "examples": [
-      "pageObjects/HomePage.objects.ts"
-    ]
-  },
-  {
-    "folder": "pages",
-    "dominant_role": "page_method_layer",
-    "file_count": 22,
-    "role_counts": {
-      "page_method_layer": 22
-    },
-    "examples": [
-      "pages/HomePage.ts",
-      "pages/acima-advantage-page.ts",
-      "pages/acima-home-page.ts",
-      "pages/base-page.ts",
-      "pages/benefit-plus-page.ts",
-      "pages/home-page.ts",
-      "pages/login-page.ts",
-      "pages/mexico-customer-portal-page.ts"
-    ]
-  },
-  {
-    "folder": "reporters",
-    "dominant_role": "code",
-    "file_count": 1,
-    "role_counts": {
-      "code": 1
-    },
-    "examples": [
-      "reporters/teams-reporter.ts"
-    ]
-  },
-  {
-    "folder": "specs",
-    "dominant_role": "code",
-    "file_count": 5,
-    "role_counts": {
-      "code": 5
-    },
-    "examples": [
-      "specs/README.md",
-      "specs/acima-broken-links-test.plan.md",
-      "specs/acima-mexico-test.plan.md",
-      "specs/shop-marketplace.plan.md",
-      "specs/shop-online.plan.md"
-    ]
-  },
-  {
-    "folder": "step-definitions",
-    "dominant_role": "code",
-    "file_count": 28,
-    "role_counts": {
-      "api_service_layer": 4,
-      "utility_helper_layer": 1,
-      "code": 23
-    },
-    "examples": [
-      "step-definitions/api/customer.steps.ts",
-      "step-definitions/api/lease.steps.ts",
-      "step-definitions/api/payment.steps.ts",
-      "step-definitions/api/shared-api.steps.ts",
-      "step-definitions/common/shared.steps.ts",
-      "step-definitions/mobile-common/shared.steps.ts",
-      "step-definitions/mobile/acima-advantage.steps.ts",
-      "step-definitions/mobile/broken-links.steps.ts"
-    ]
-  },
-  {
-    "folder": "test-data",
-    "dominant_role": "test_data_layer",
-    "file_count": 11,
-    "role_counts": {
-      "api_service_layer": 1,
-      "test_data_layer": 10
-    },
-    "examples": [
-      "test-data/api/customer.yaml",
-      "test-data/mobile/dashboard/dashboard_page.yaml",
-      "test-data/mobile/home/home_page.yaml",
-      "test-data/mobile/login/login_page.yaml",
-      "test-data/mobile/payment/payment_page.yaml",
-      "test-data/mobile/profile/profile_page.yaml",
-      "test-data/ui/home/home_page.yaml",
-      "test-data/ui/login/login_page.yaml"
-    ]
-  },
-  {
-    "folder": "tests",
-    "dominant_role": "spec",
-    "file_count": 21,
-    "role_counts": {
-      "spec": 21
-    },
-    "examples": [
-      "tests/ai-generated/new_feature.spec.ts",
-      "tests/api/customer.spec.ts",
-      "tests/api/lease.spec.ts",
-      "tests/api/payment.spec.ts",
-      "tests/mobile/mobile-home.spec.ts",
-      "tests/seed.spec.ts",
-      "tests/smoke/api-smoke.spec.ts",
-      "tests/smoke/ui-smoke.spec.ts"
-    ]
-  },
-  {
-    "folder": "utils",
+    "folder": "shared",
     "dominant_role": "code",
     "file_count": 9,
     "role_counts": {
-      "code": 8,
-      "test_data_layer": 1
+      "code": 9
     },
     "examples": [
-      "utils/random-data.ts",
-      "utils/teams/README.md",
-      "utils/teams/models.ts",
-      "utils/teams/teamsNotifier.ts",
-      "utils/teams/teamsPayloadBuilder.ts",
-      "utils/teams/testRunAggregator.ts",
-      "utils/test-data.ts",
-      "utils/verify.ts"
+      "shared/package.json",
+      "shared/secure/secure-config.plain.yaml",
+      "shared/src/config/runtime-config.ts",
+      "shared/src/index.ts",
+      "shared/src/secure/bootstrap-legacy-secure-config.ts",
+      "shared/src/secure/secure-config-cli.ts",
+      "shared/src/secure/secure-config.ts",
+      "shared/src/types/smoke.ts"
+    ]
+  },
+  {
+    "folder": "src",
+    "dominant_role": "test_data_layer",
+    "file_count": 325,
+    "role_counts": {
+      "code": 55,
+      "page_method_layer": 67,
+      "test_data_layer": 87,
+      "fixture_layer": 56,
+      "spec": 60
+    },
+    "examples": [
+      "src/main/api/agreement/agreement-backend-api.ts",
+      "src/main/api/agreement/agreement-db.ts",
+      "src/main/api/agreement/customer-api.ts",
+      "src/main/api/agreement/purchase-order-api.ts",
+      "src/main/api/agreement/racpad-api-client.ts",
+      "src/main/api/agreement/racpad-request-context.ts",
+      "src/main/api/agreement/text.ts",
+      "src/main/api/browserstack/browserstack-hub-url.ts"
     ]
   }
 ]</pre></section><section class='card'><h2>Locator Strategy</h2><pre>{
   "overall_counts": {
-    "getByRole": 208,
+    "getByRole": 1025,
     "getByTestId": 0,
-    "getByLabel": 3,
-    "getByText": 29,
-    "locator": 467,
-    "xpath": 1112,
-    "css": 78
+    "getByLabel": 2,
+    "getByText": 236,
+    "locator": 1587,
+    "xpath": 2670,
+    "css": 267
   },
-  "stable_locator_ratio": 0.111,
-  "brittle_locator_ratio": 0.627,
+  "stable_locator_ratio": 0.177,
+  "brittle_locator_ratio": 0.508,
   "file_level_locator_map": [
-    {
-      "file": ".claude/skills/playwright-cli/SKILL.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 12,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".claude/skills/playwright-cli/references/running-code.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 5,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 5,
-        "xpath": 3,
-        "css": 3
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".claude/skills/playwright-cli/references/session-management.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 17,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".claude/skills/playwright-cli/references/storage-state.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 6,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".claude/skills/playwright-cli/references/test-generation.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 8,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 1,
-        "locator": 1,
-        "xpath": 3,
-        "css": 1
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".claude/skills/playwright-cli/references/tracing.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 5,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".claude/skills/playwright-cli/references/video-recording.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 4,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 1,
-        "locator": 0,
-        "xpath": 2,
-        "css": 0
-      },
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": ".github/agents/healer.agent.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "test_skip_only_or_fixme"
-      ]
-    },
     {
       "file": ".github/agents/playwright-test-healer.agent.md",
       "kind": "code",
@@ -865,7 +247,7 @@
       ]
     },
     {
-      "file": ".playwright-mcp/page-2026-04-20T07-49-10-866Z.yml",
+      "file": ".github/agents/test-fixer.agent.md",
       "kind": "code",
       "locator_counts": {
         "getByRole": 0,
@@ -873,472 +255,13 @@
         "getByLabel": 0,
         "getByText": 0,
         "locator": 0,
-        "xpath": 13,
+        "xpath": 0,
         "css": 0
       },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-20T07-49-27-846Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 14,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-20T07-50-34-759Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 12,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-20T11-14-59-908Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-20T11-15-19-040Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-20T11-15-22-454Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-20T11-15-40-449Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-20T11-16-00-823Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 11,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-22T16-38-08-289Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 4,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-22T16-38-20-903Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 4,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-22T16-38-32-273Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 5,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-22T16-38-47-623Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 4,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-22T16-39-04-210Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 4,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-22T16-39-25-401Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 1,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-04-22T16-39-43-398Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 4,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-01T09-13-34-016Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 6,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-01T09-15-05-446Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 11,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-01T09-15-20-918Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-01T09-15-42-413Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 11,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-01T09-15-50-756Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-01T09-16-21-195Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 11,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-01T09-16-58-702Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-04-04-532Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 5,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-04-41-753Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 15,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-04-47-080Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-04-59-830Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 16,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-05-05-103Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-05-11-277Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 11,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-05-16-719Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-05-29-284Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 11,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-05-34-918Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 13,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-05-53-264Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 11,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": ".playwright-mcp/page-2026-05-02T07-06-00-164Z.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 5,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "README.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 8,
-        "css": 0
-      },
-      "anti_patterns": []
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
     },
     {
       "file": "agents/README.md",
@@ -1401,20 +324,6 @@
       "anti_patterns": []
     },
     {
-      "file": "agents/failure-analyzer/output/run-history.json",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 378,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
       "file": "agents/failure-analyzer/utils/fingerprints.ts",
       "kind": "utility_helper_layer",
       "locator_counts": {
@@ -1427,6 +336,68 @@
         "css": 0
       },
       "anti_patterns": []
+    },
+    {
+      "file": "agents/jira_release_regression_agent.md",
+      "kind": "code",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 1,
+        "css": 0
+      },
+      "anti_patterns": []
+    },
+    {
+      "file": "agents/test-fixer/FIX_REPORT.md",
+      "kind": "code",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 2,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "agents/test-fixer/fix-report.json",
+      "kind": "code",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "agents/test-fixer/locator-suggestions.md",
+      "kind": "code",
+      "locator_counts": {
+        "getByRole": 2,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 2,
+        "locator": 6,
+        "xpath": 2,
+        "css": 1
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout"
+      ]
     },
     {
       "file": "agents/test-fixer/strategies/brittle-wait.ts",
@@ -1475,66 +446,6 @@
       "anti_patterns": []
     },
     {
-      "file": "browserstack.yml",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 1,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "config/environments.ts",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 12,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "debug-login-flow.js",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 4,
-        "xpath": 1,
-        "css": 0
-      },
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "e2e/example.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 2,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 2,
-        "css": 0
-      },
-      "anti_patterns": [
-        "inline_locator_inside_spec"
-      ]
-    },
-    {
       "file": "package-lock.json",
       "kind": "code",
       "locator_counts": {
@@ -1543,861 +454,1079 @@
         "getByLabel": 0,
         "getByText": 0,
         "locator": 0,
-        "xpath": 272,
+        "xpath": 62,
         "css": 0
       },
       "anti_patterns": []
     },
     {
-      "file": "pageObjects/HomePage.objects.ts",
-      "kind": "locator_object_layer",
+      "file": "shared/secure/secure-config.plain.yaml",
+      "kind": "code",
       "locator_counts": {
         "getByRole": 0,
         "getByTestId": 0,
         "getByLabel": 0,
-        "getByText": 2,
+        "getByText": 0,
         "locator": 0,
-        "xpath": 0,
+        "xpath": 1,
         "css": 0
       },
       "anti_patterns": []
     },
     {
-      "file": "pages/acima-advantage-page.ts",
+      "file": "src/main/pages/accountmanagement/account-management/am-activity-log.page.ts",
       "kind": "page_method_layer",
       "locator_counts": {
         "getByRole": 1,
         "getByTestId": 0,
         "getByLabel": 0,
-        "getByText": 1,
-        "locator": 21,
-        "xpath": 1,
-        "css": 1
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "pages/acima-home-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 9,
-        "getByTestId": 0,
-        "getByLabel": 0,
         "getByText": 0,
-        "locator": 19,
-        "xpath": 0,
-        "css": 3
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "pages/base-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 3,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 2,
-        "xpath": 0,
-        "css": 1
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "pages/benefit-plus-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 6,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 14,
-        "xpath": 0,
-        "css": 2
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "pages/home-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 1,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 2,
-        "locator": 21,
-        "xpath": 0,
-        "css": 2
-      },
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/login-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 23,
-        "getByTestId": 0,
-        "getByLabel": 2,
-        "getByText": 0,
-        "locator": 35,
-        "xpath": 4,
-        "css": 7
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "pages/mexico-customer-portal-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 14,
-        "getByTestId": 0,
-        "getByLabel": 1,
-        "getByText": 2,
-        "locator": 13,
-        "xpath": 1,
-        "css": 5
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "pages/mexico-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 24,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 1,
         "locator": 23,
-        "xpath": 5,
-        "css": 5
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "pages/mobile/mobile-base-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 1,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 11,
-        "xpath": 3,
-        "css": 3
-      },
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/mobile/mobile-dashboard-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 11,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/mobile/mobile-home-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 3,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 30,
-        "xpath": 0,
-        "css": 4
-      },
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/mobile/mobile-login-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 21,
-        "xpath": 1,
+        "xpath": 15,
         "css": 2
       },
       "anti_patterns": [
-        "blind_waitForTimeout"
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
       ]
     },
     {
-      "file": "pages/mobile/mobile-payment-methods-page.ts",
+      "file": "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 51,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 1,
+        "locator": 102,
+        "xpath": 195,
+        "css": 10
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
       "kind": "page_method_layer",
       "locator_counts": {
         "getByRole": 2,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 25,
-        "xpath": 0,
-        "css": 9
+        "locator": 46,
+        "xpath": 22,
+        "css": 6
       },
       "anti_patterns": [
-        "blind_waitForTimeout"
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
       ]
     },
     {
-      "file": "pages/mobile/mobile-payments-page.ts",
+      "file": "src/main/pages/accountmanagement/home.page.ts",
       "kind": "page_method_layer",
       "locator_counts": {
         "getByRole": 0,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 15,
+        "locator": 0,
         "xpath": 0,
         "css": 0
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "pages/mobile/mobile-profile-page.ts",
+      "file": "src/main/pages/accountmanagement/take-payment.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 52,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 24,
+        "locator": 81,
+        "xpath": 107,
+        "css": 13
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-details.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 26,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 8,
+        "locator": 58,
+        "xpath": 129,
+        "css": 6
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-item-search.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 59,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 2,
+        "locator": 56,
+        "xpath": 102,
+        "css": 14
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-reinstatement.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 7,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 1,
+        "locator": 1,
+        "xpath": 2,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-split.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 14,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 5,
+        "locator": 13,
+        "xpath": 19,
+        "css": 1
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-switchout.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 9,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 1,
+        "locator": 3,
+        "xpath": 1,
+        "css": 2
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-transfer-receive.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 3,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 2,
+        "locator": 2,
+        "xpath": 11,
+        "css": 1
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-transfer.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 9,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 1,
+        "locator": 6,
+        "xpath": 8,
+        "css": 1
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-view.page.ts",
       "kind": "page_method_layer",
       "locator_counts": {
         "getByRole": 0,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 10,
-        "xpath": 0,
+        "locator": 1,
+        "xpath": 4,
         "css": 0
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "pages/my-profile-page.ts",
+      "file": "src/main/pages/agreement/agreement/item-return.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 40,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 12,
+        "locator": 25,
+        "xpath": 43,
+        "css": 2
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/loaner-agreement.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 17,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 4,
+        "locator": 19,
+        "xpath": 52,
+        "css": 0
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/auto-pay.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 2,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 1,
+        "locator": 2,
+        "xpath": 0,
+        "css": 2
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/create-customer.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 42,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 2,
+        "locator": 58,
+        "xpath": 133,
+        "css": 9
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/customer-information.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 14,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 3,
+        "locator": 13,
+        "xpath": 29,
+        "css": 1
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/customer-search.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 23,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 3,
+        "locator": 40,
+        "xpath": 43,
+        "css": 9
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/daily-activity-planner.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 15,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 5,
+        "locator": 24,
+        "xpath": 30,
+        "css": 4
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/docu-sign.page.ts",
       "kind": "page_method_layer",
       "locator_counts": {
         "getByRole": 0,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 15,
+        "locator": 4,
+        "xpath": 7,
+        "css": 1
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/home.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
         "xpath": 0,
         "css": 0
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "pages/overview-page.ts",
+      "file": "src/main/pages/agreement/inventory/inventory-information.page.ts",
       "kind": "page_method_layer",
       "locator_counts": {
         "getByRole": 4,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 11,
+        "locator": 2,
+        "xpath": 4,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/payment-search.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 1,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 1,
+        "locator": 5,
+        "xpath": 18,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/reverse-payment.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 22,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 26,
+        "xpath": 87,
+        "css": 2
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/schedule-delivery.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 55,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 15,
+        "locator": 71,
+        "xpath": 163,
+        "css": 14
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/take-payment.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 50,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 11,
+        "locator": 82,
+        "xpath": 137,
+        "css": 14
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/cashmanagment/cash-managment.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 31,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 13,
+        "locator": 58,
+        "xpath": 111,
+        "css": 2
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/create-customer.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 82,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 32,
+        "locator": 127,
+        "xpath": 178,
+        "css": 42
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/customer-information.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 34,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 6,
+        "locator": 59,
+        "xpath": 101,
+        "css": 20
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/customer-search.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 9,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 4,
+        "xpath": 4,
+        "css": 3
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/home.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 5,
+        "locator": 6,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/payment-search.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 1,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 2,
+        "locator": 3,
+        "xpath": 0,
+        "css": 2
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/pending-approvals.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 4,
+        "xpath": 10,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/dapevents/create-store-event.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 15,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 2,
+        "locator": 14,
+        "xpath": 27,
+        "css": 0
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/dapevents/daily-activity-planner.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 53,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 13,
+        "locator": 56,
+        "xpath": 94,
+        "css": 11
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/dapevents/home.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 1,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
         "xpath": 0,
         "css": 0
       },
       "anti_patterns": []
     },
     {
-      "file": "pages/payment-methods-page.ts",
+      "file": "src/main/pages/dapevents/schedule-delivery.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 48,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 10,
+        "locator": 59,
+        "xpath": 109,
+        "css": 17
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/dashboard/dashboard.page.ts",
       "kind": "page_method_layer",
       "locator_counts": {
         "getByRole": 3,
         "getByTestId": 0,
         "getByLabel": 0,
-        "getByText": 0,
-        "locator": 30,
-        "xpath": 0,
-        "css": 9
+        "getByText": 2,
+        "locator": 5,
+        "xpath": 14,
+        "css": 0
       },
       "anti_patterns": [
-        "blind_waitForTimeout"
+        "force_true_click_or_action"
       ]
     },
     {
-      "file": "pages/payments-page.ts",
+      "file": "src/main/pages/inventory/home.page.ts",
       "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 8,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 16,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "pages/shop-marketplace-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 38,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 18,
-        "xpath": 0,
-        "css": 4
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "pages/shop-online-page.ts",
-      "kind": "page_method_layer",
-      "locator_counts": {
-        "getByRole": 24,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 15,
-        "locator": 9,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "playwright.config.ts",
-      "kind": "code",
       "locator_counts": {
         "getByRole": 0,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 0,
-        "xpath": 1,
-        "css": 0
+        "locator": 3,
+        "xpath": 4,
+        "css": 1
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "specs/acima-broken-links-test.plan.md",
-      "kind": "code",
+      "file": "src/main/pages/inventory/inventory-information.page.ts",
+      "kind": "page_method_layer",
       "locator_counts": {
-        "getByRole": 0,
+        "getByRole": 22,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 0,
-        "xpath": 12,
-        "css": 0
+        "locator": 17,
+        "xpath": 16,
+        "css": 3
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "specs/acima-mexico-test.plan.md",
-      "kind": "code",
+      "file": "src/main/pages/inventory/item-search.page.ts",
+      "kind": "page_method_layer",
       "locator_counts": {
-        "getByRole": 0,
+        "getByRole": 20,
         "getByTestId": 0,
         "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 5,
+        "getByText": 2,
+        "locator": 19,
+        "xpath": 19,
         "css": 0
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "step-definitions/common/shared.steps.ts",
-      "kind": "utility_helper_layer",
+      "file": "src/main/pages/inventory/items-being-serviced.page.ts",
+      "kind": "page_method_layer",
       "locator_counts": {
         "getByRole": 0,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
         "locator": 1,
-        "xpath": 0,
+        "xpath": 5,
         "css": 0
       },
-      "anti_patterns": []
-    },
-    {
-      "file": "step-definitions/mobile/acima-advantage.steps.ts",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 13,
-        "xpath": 1,
-        "css": 2
-      },
       "anti_patterns": [
-        "blind_waitForTimeout"
+        "force_true_click_or_action"
       ]
     },
     {
-      "file": "step-definitions/mobile/broken-links.steps.ts",
-      "kind": "code",
+      "file": "src/main/pages/inventory/manual-po-create.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 10,
+        "getByTestId": 0,
+        "getByLabel": 1,
+        "getByText": 5,
+        "locator": 37,
+        "xpath": 22,
+        "css": 9
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/manual-po.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 3,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 1,
+        "locator": 14,
+        "xpath": 35,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/po-receiving.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 6,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 2,
+        "locator": 32,
+        "xpath": 66,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/print-edit-price-tags.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 14,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 34,
+        "xpath": 60,
+        "css": 3
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/payment/credit-card-chargeback.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 9,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 16,
+        "xpath": 18,
+        "css": 0
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/payment/epo-payment.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 6,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 2,
+        "locator": 8,
+        "xpath": 14,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/payment/payment-search.page.ts",
+      "kind": "page_method_layer",
       "locator_counts": {
         "getByRole": 2,
         "getByTestId": 0,
         "getByLabel": 0,
-        "getByText": 0,
-        "locator": 1,
-        "xpath": 0,
-        "css": 0
+        "getByText": 1,
+        "locator": 15,
+        "xpath": 33,
+        "css": 3
       },
       "anti_patterns": [
-        "blind_waitForTimeout"
+        "force_true_click_or_action"
       ]
     },
     {
-      "file": "step-definitions/mobile/login.steps.ts",
-      "kind": "code",
+      "file": "src/main/pages/payment/return-check.page.ts",
+      "kind": "page_method_layer",
       "locator_counts": {
-        "getByRole": 0,
+        "getByRole": 6,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 2,
-        "xpath": 0,
-        "css": 1
+        "locator": 11,
+        "xpath": 13,
+        "css": 0
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "step-definitions/mobile/payment-methods.steps.ts",
-      "kind": "code",
+      "file": "src/main/pages/payment/reverse-payment.page.ts",
+      "kind": "page_method_layer",
       "locator_counts": {
-        "getByRole": 0,
+        "getByRole": 1,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 16,
-        "xpath": 0,
-        "css": 2
+        "locator": 12,
+        "xpath": 52,
+        "css": 0
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "step-definitions/mobile/payment.steps.ts",
-      "kind": "code",
+      "file": "src/main/pages/payment/take-payment.page.ts",
+      "kind": "page_method_layer",
       "locator_counts": {
-        "getByRole": 0,
+        "getByRole": 57,
         "getByTestId": 0,
         "getByLabel": 0,
-        "getByText": 0,
-        "locator": 13,
+        "getByText": 5,
+        "locator": 143,
+        "xpath": 161,
+        "css": 21
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/shared/home.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 4,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 1,
+        "locator": 1,
+        "xpath": 6,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/shared/login.page.ts",
+      "kind": "page_method_layer",
+      "locator_counts": {
+        "getByRole": 6,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 3,
+        "locator": 10,
         "xpath": 0,
         "css": 4
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "step-definitions/mobile/profile.steps.ts",
-      "kind": "code",
+      "file": "src/main/pages/shared/microsoft-login.page.ts",
+      "kind": "page_method_layer",
       "locator_counts": {
-        "getByRole": 0,
+        "getByRole": 20,
         "getByTestId": 0,
         "getByLabel": 0,
-        "getByText": 0,
-        "locator": 1,
+        "getByText": 8,
+        "locator": 17,
         "xpath": 0,
-        "css": 0
+        "css": 8
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "step-definitions/ui/acima-advantage.steps.ts",
-      "kind": "code",
+      "file": "src/main/ui_base/base.page.ts",
+      "kind": "page_method_layer",
       "locator_counts": {
-        "getByRole": 0,
+        "getByRole": 10,
         "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 3,
-        "xpath": 0,
-        "css": 0
+        "getByLabel": 1,
+        "getByText": 3,
+        "locator": 13,
+        "xpath": 12,
+        "css": 2
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
     },
     {
-      "file": "step-definitions/ui/broken-links.steps.ts",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 5,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 3,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "step-definitions/ui/dashboard.steps.ts",
-      "kind": "code",
+      "file": "src/test/resources/fixtures/accountmanagement/account-management-case-runners.ts",
+      "kind": "fixture_layer",
       "locator_counts": {
         "getByRole": 1,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
         "locator": 3,
-        "xpath": 0,
-        "css": 1
+        "xpath": 8,
+        "css": 0
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "force_true_click_or_action",
+        "test_skip_only_or_fixme"
+      ]
     },
     {
-      "file": "step-definitions/ui/login.steps.ts",
-      "kind": "code",
+      "file": "src/test/resources/fixtures/accountmanagement/account-management-part-2-case-runners.ts",
+      "kind": "fixture_layer",
       "locator_counts": {
-        "getByRole": 0,
+        "getByRole": 1,
         "getByTestId": 0,
         "getByLabel": 0,
         "getByText": 0,
-        "locator": 2,
+        "locator": 0,
         "xpath": 0,
-        "css": 1
+        "css": 0
       },
-      "anti_patterns": []
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
     },
     {
-      "file": "step-definitions/ui/mexico-payment-methods.steps.ts",
-      "kind": "code",
+      "file": "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "kind": "fixture_layer",
       "locator_counts": {
-        "getByRole": 6,
+        "getByRole": 7,
         "getByTestId": 0,
         "getByLabel": 0,
-        "getByText": 3,
+        "getByText": 5,
         "locator": 6,
+        "xpath": 24,
+        "css": 0
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action",
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/resources/fixtures/agreement/agreement-workflow.ts",
+      "kind": "fixture_layer",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 1,
+        "css": 0
+      },
+      "anti_patterns": []
+    },
+    {
+      "file": "src/test/resources/fixtures/mpo/test-fixture.ts",
+      "kind": "fixture_layer",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
         "xpath": 0,
-        "css": 2
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/test/resources/fixtures/payment/payment-source-flows.ts",
+      "kind": "fixture_layer",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 3,
+        "xpath": 6,
+        "css": 0
       },
       "anti_patterns": [
         "blind_waitForTimeout"
       ]
     },
     {
-      "file": "step-definitions/ui/payment.steps.ts",
-      "kind": "code",
+      "file": "src/test/resources/fixtures/sla/sla-source-flows.ts",
+      "kind": "fixture_layer",
       "locator_counts": {
         "getByRole": 0,
         "getByTestId": 0,
         "getByLabel": 0,
-        "getByText": 0,
-        "locator": 1,
-        "xpath": 0,
+        "getByText": 1,
+        "locator": 0,
+        "xpath": 1,
         "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "step-definitions/ui/profile.steps.ts",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 1,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "step-definitions/ui/shop-marketplace.steps.ts",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 6,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 4,
-        "xpath": 0,
-        "css": 1
       },
       "anti_patterns": [
         "blind_waitForTimeout"
       ]
     },
     {
-      "file": "step-definitions/ui/shop-online.steps.ts",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 3,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "tests/api/customer.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "test_skip_only_or_fixme"
-      ]
-    },
-    {
-      "file": "tests/api/lease.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "test_skip_only_or_fixme"
-      ]
-    },
-    {
-      "file": "tests/api/payment.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "test_skip_only_or_fixme"
-      ]
-    },
-    {
-      "file": "tests/smoke/api-smoke.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "test_skip_only_or_fixme"
-      ]
-    },
-    {
-      "file": "tests/smoke/ui-smoke.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 1,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "test_skip_only_or_fixme"
-      ]
-    },
-    {
-      "file": "tests/ui/acima-advantage.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 3,
-        "xpath": 2,
-        "css": 1
-      },
-      "anti_patterns": [
-        "blind_waitForTimeout",
-        "test_skip_only_or_fixme",
-        "inline_locator_inside_spec"
-      ]
-    },
-    {
-      "file": "tests/ui/benefit-plus.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "test_skip_only_or_fixme"
-      ]
-    },
-    {
-      "file": "tests/ui/dashboard.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 2,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "inline_locator_inside_spec"
-      ]
-    },
-    {
-      "file": "tests/ui/login.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 3,
-        "xpath": 0,
-        "css": 1
-      },
-      "anti_patterns": [
-        "inline_locator_inside_spec"
-      ]
-    },
-    {
-      "file": "tests/ui/payment.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 3,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "test_skip_only_or_fixme",
-        "inline_locator_inside_spec"
-      ]
-    },
-    {
-      "file": "tests/ui/profile.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 1,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "inline_locator_inside_spec"
-      ]
-    },
-    {
-      "file": "tests/ui/shop-marketplace.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 3,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 0,
-        "css": 0
-      },
-      "anti_patterns": [
-        "blind_waitForTimeout",
-        "inline_locator_inside_spec"
-      ]
-    },
-    {
-      "file": "tests/unit/teams/teamsNotifier.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 5,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 4,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "tests/unit/teams/testRunAggregator.spec.ts",
-      "kind": "spec",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 7,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "utils/teams/README.md",
-      "kind": "code",
-      "locator_counts": {
-        "getByRole": 0,
-        "getByTestId": 0,
-        "getByLabel": 0,
-        "getByText": 0,
-        "locator": 0,
-        "xpath": 2,
-        "css": 0
-      },
-      "anti_patterns": []
-    },
-    {
-      "file": "utils/teams/teamsPayloadBuilder.ts",
+      "file": "src/test/resources/reporters/playwright-html-timestamp-reporter.ts",
       "kind": "code",
       "locator_counts": {
         "getByRole": 0,
@@ -2409,25 +1538,282 @@
         "css": 0
       },
       "anti_patterns": []
-    }
-  ],
-  "anti_pattern_files": [
+    },
     {
-      "file": ".claude/skills/playwright-cli/references/video-recording.md",
+      "file": "src/test/specs/accountmanagement/am-activity-log-actions.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/accountmanagement/am-activity-log-filters.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-contact-logs.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-list-actions-and-print.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 1,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 3,
+        "xpath": 8,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action",
+        "test_skip_only_or_fixme",
+        "inline_locator_inside_spec"
+      ]
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-list-commitment-filters.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-list-customer-filters.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/agreement/agreement-switch-out.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-additional.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 18,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 6,
+        "locator": 2,
+        "xpath": 5,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action",
+        "test_skip_only_or_fixme",
+        "inline_locator_inside_spec"
+      ]
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-charge-off.generated.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 1,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "test_skip_only_or_fixme",
+        "inline_locator_inside_spec"
+      ]
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-primary.generated.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/agreement/loaner-agreement.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 1,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "force_true_click_or_action",
+        "test_skip_only_or_fixme",
+        "inline_locator_inside_spec"
+      ]
+    },
+    {
+      "file": "src/test/specs/cashmanagment/mx-cash-managment.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/customer/create-customer.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 1,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "inline_locator_inside_spec"
+      ]
+    },
+    {
+      "file": "src/test/specs/customerOrders/customer-order-flow.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 2,
+        "css": 0
+      },
+      "anti_patterns": []
+    },
+    {
+      "file": "src/test/specs/inventory/inventory-charge-off.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
       "anti_patterns": [
         "blind_waitForTimeout"
       ]
     },
     {
-      "file": ".github/agents/healer.agent.md",
+      "file": "src/test/specs/inventory/print-edit-price-tags.spec.ts",
+      "kind": "spec",
+      "locator_counts": {
+        "getByRole": 0,
+        "getByTestId": 0,
+        "getByLabel": 0,
+        "getByText": 0,
+        "locator": 0,
+        "xpath": 0,
+        "css": 0
+      },
+      "anti_patterns": [
+        "blind_waitForTimeout"
+      ]
+    }
+  ],
+  "anti_pattern_files": [
+    {
+      "file": ".github/agents/playwright-test-healer.agent.md",
       "anti_patterns": [
         "test_skip_only_or_fixme"
       ]
     },
     {
-      "file": ".github/agents/playwright-test-healer.agent.md",
+      "file": ".github/agents/test-fixer.agent.md",
       "anti_patterns": [
-        "test_skip_only_or_fixme"
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
       ]
     },
     {
@@ -2443,6 +1829,24 @@
       ]
     },
     {
+      "file": "agents/test-fixer/FIX_REPORT.md",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "agents/test-fixer/fix-report.json",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "agents/test-fixer/locator-suggestions.md",
+      "anti_patterns": [
+        "blind_waitForTimeout"
+      ]
+    },
+    {
       "file": "agents/test-fixer/strategies/brittle-wait.ts",
       "anti_patterns": [
         "blind_waitForTimeout"
@@ -2455,115 +1859,463 @@
       ]
     },
     {
-      "file": "debug-login-flow.js",
+      "file": "src/main/pages/accountmanagement/account-management/am-activity-log.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/accountmanagement/home.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/accountmanagement/take-payment.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-details.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-item-search.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-reinstatement.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-split.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-switchout.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-transfer-receive.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-transfer.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-view.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/item-return.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/loaner-agreement.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/auto-pay.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/create-customer.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/customer-information.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/customer-search.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/daily-activity-planner.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/docu-sign.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/home.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/inventory/inventory-information.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/payment-search.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/reverse-payment.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/schedule-delivery.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/agreement/take-payment.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/cashmanagment/cash-managment.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/create-customer.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/customer-information.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/customer-search.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/home.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/payment-search.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/customer/pending-approvals.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/dapevents/create-store-event.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/dapevents/daily-activity-planner.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/dapevents/schedule-delivery.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/dashboard/dashboard.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/home.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/inventory-information.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/item-search.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/items-being-serviced.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/manual-po-create.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/manual-po.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/po-receiving.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/inventory/print-edit-price-tags.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/payment/credit-card-chargeback.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/payment/epo-payment.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/payment/payment-search.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/payment/return-check.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/payment/reverse-payment.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/payment/take-payment.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/shared/home.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/shared/login.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/pages/shared/microsoft-login.page.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/main/ui_base/base.page.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/test/resources/fixtures/accountmanagement/account-management-case-runners.ts",
+      "anti_patterns": [
+        "force_true_click_or_action",
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/resources/fixtures/accountmanagement/account-management-part-2-case-runners.ts",
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout",
+        "force_true_click_or_action",
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/resources/fixtures/mpo/test-fixture.ts",
+      "anti_patterns": [
+        "force_true_click_or_action"
+      ]
+    },
+    {
+      "file": "src/test/resources/fixtures/payment/payment-source-flows.ts",
       "anti_patterns": [
         "blind_waitForTimeout"
       ]
     },
     {
-      "file": "e2e/example.spec.ts",
+      "file": "src/test/resources/fixtures/sla/sla-source-flows.ts",
       "anti_patterns": [
+        "blind_waitForTimeout"
+      ]
+    },
+    {
+      "file": "src/test/specs/accountmanagement/am-activity-log-actions.spec.ts",
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/accountmanagement/am-activity-log-filters.spec.ts",
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-contact-logs.spec.ts",
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-list-actions-and-print.spec.ts",
+      "anti_patterns": [
+        "force_true_click_or_action",
+        "test_skip_only_or_fixme",
         "inline_locator_inside_spec"
       ]
     },
     {
-      "file": "pages/home-page.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/mobile/mobile-base-page.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/mobile/mobile-dashboard-page.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/mobile/mobile-home-page.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/mobile/mobile-login-page.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/mobile/mobile-payment-methods-page.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "pages/payment-methods-page.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "step-definitions/mobile/acima-advantage.steps.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "step-definitions/mobile/broken-links.steps.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "step-definitions/ui/mexico-payment-methods.steps.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "step-definitions/ui/shop-marketplace.steps.ts",
-      "anti_patterns": [
-        "blind_waitForTimeout"
-      ]
-    },
-    {
-      "file": "tests/api/customer.spec.ts",
+      "file": "src/test/specs/accountmanagement/past-due-list-commitment-filters.spec.ts",
       "anti_patterns": [
         "test_skip_only_or_fixme"
       ]
     },
     {
-      "file": "tests/api/lease.spec.ts",
+      "file": "src/test/specs/accountmanagement/past-due-list-customer-filters.spec.ts",
       "anti_patterns": [
         "test_skip_only_or_fixme"
       ]
     },
     {
-      "file": "tests/api/payment.spec.ts",
+      "file": "src/test/specs/agreement/agreement-switch-out.spec.ts",
       "anti_patterns": [
         "test_skip_only_or_fixme"
       ]
     },
     {
-      "file": "tests/smoke/api-smoke.spec.ts",
+      "file": "src/test/specs/agreement/agreements-additional.spec.ts",
       "anti_patterns": [
-        "test_skip_only_or_fixme"
+        "force_true_click_or_action",
+        "test_skip_only_or_fixme",
+        "inline_locator_inside_spec"
       ]
     },
     {
-      "file": "tests/smoke/ui-smoke.spec.ts",
-      "anti_patterns": [
-        "test_skip_only_or_fixme"
-      ]
-    },
-    {
-      "file": "tests/ui/acima-advantage.spec.ts",
+      "file": "src/test/specs/agreement/agreements-charge-off.generated.spec.ts",
       "anti_patterns": [
         "blind_waitForTimeout",
         "test_skip_only_or_fixme",
@@ -2571,41 +2323,41 @@
       ]
     },
     {
-      "file": "tests/ui/benefit-plus.spec.ts",
+      "file": "src/test/specs/agreement/agreements-primary.generated.spec.ts",
       "anti_patterns": [
         "test_skip_only_or_fixme"
       ]
     },
     {
-      "file": "tests/ui/dashboard.spec.ts",
+      "file": "src/test/specs/agreement/loaner-agreement.spec.ts",
       "anti_patterns": [
-        "inline_locator_inside_spec"
-      ]
-    },
-    {
-      "file": "tests/ui/login.spec.ts",
-      "anti_patterns": [
-        "inline_locator_inside_spec"
-      ]
-    },
-    {
-      "file": "tests/ui/payment.spec.ts",
-      "anti_patterns": [
+        "force_true_click_or_action",
         "test_skip_only_or_fixme",
         "inline_locator_inside_spec"
       ]
     },
     {
-      "file": "tests/ui/profile.spec.ts",
+      "file": "src/test/specs/cashmanagment/mx-cash-managment.spec.ts",
+      "anti_patterns": [
+        "test_skip_only_or_fixme"
+      ]
+    },
+    {
+      "file": "src/test/specs/customer/create-customer.spec.ts",
       "anti_patterns": [
         "inline_locator_inside_spec"
       ]
     },
     {
-      "file": "tests/ui/shop-marketplace.spec.ts",
+      "file": "src/test/specs/inventory/inventory-charge-off.spec.ts",
       "anti_patterns": [
-        "blind_waitForTimeout",
-        "inline_locator_inside_spec"
+        "blind_waitForTimeout"
+      ]
+    },
+    {
+      "file": "src/test/specs/inventory/print-edit-price-tags.spec.ts",
+      "anti_patterns": [
+        "blind_waitForTimeout"
       ]
     }
   ],
@@ -2618,169 +2370,212 @@
   "base_url_from_gui": "",
   "routes_seen_in_tests": [
     {
-      "file": ".claude/skills/playwright-cli/references/running-code.md",
-      "route": "https://example.com/login"
+      "file": "src/main/pages/accountmanagement/account-management/am-activity-log.page.ts",
+      "route": "${baseUrl}/menu/dashboard/homepage"
     },
     {
-      "file": ".claude/skills/playwright-cli/references/test-generation.md",
-      "route": "https://example.com/login"
+      "file": "src/main/pages/accountmanagement/account-management/am-activity-log.page.ts",
+      "route": "${baseUrl}/menu/am/activity-log"
     },
     {
-      "file": ".claude/skills/playwright-cli/references/video-recording.md",
-      "route": "https://demo.playwright.dev/todomvc"
+      "file": "src/main/pages/agreement/schedule-delivery.page.ts",
+      "route": "about:blank"
     },
     {
-      "file": "debug-login-flow.js",
-      "route": "https://qa.www.rac.acima.com/en"
+      "file": "src/main/pages/agreement/take-payment.page.ts",
+      "route": "${this.baseUrlFromCurrentPage()}/menu/agreement/info/details/${customerId}/${agreementId}"
     },
     {
-      "file": "e2e/example.spec.ts",
-      "route": "https://playwright.dev/"
+      "file": "src/main/pages/inventory/manual-po.page.ts",
+      "route": "${origin}/menu/mpo/pos"
     },
     {
-      "file": "e2e/example.spec.ts",
-      "route": "https://playwright.dev/"
+      "file": "src/main/pages/payment/take-payment.page.ts",
+      "route": "${origin}/menu/payment1/paymentinformation/${customerId}/0"
     },
     {
-      "file": "pages/mobile/mobile-login-page.ts",
-      "route": "https://qa.www.rac.acima.com/dashboard"
+      "file": "src/main/ui_base/base.page.ts",
+      "route": "about:blank"
     },
     {
-      "file": "step-definitions/common/shared.steps.ts",
-      "route": "${env.uiUrl}/marketplace"
+      "file": "src/test/resources/fixtures/accountmanagement/account-management-part-2-case-runners.ts",
+      "route": "about:blank"
     },
     {
-      "file": "step-definitions/common/shared.steps.ts",
-      "route": "${env.uiUrl}/shop-online"
+      "file": "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "route": "${context.baseUrl}/menu/agreement/rental/itemsearch/${customerId}"
     },
     {
-      "file": "step-definitions/mobile/acima-advantage.steps.ts",
-      "route": "https://qa.www.rac.acima.com/dashboard"
+      "file": "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "route": "${context.baseUrl}/menu/payment1/paymentinformation/${customerId}/0"
     },
     {
-      "file": "step-definitions/ui-common/shared.steps.ts",
-      "route": "${env.uiUrl}/marketplace"
+      "file": "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "route": "${context.baseUrl}/menu/agreement/info/details/${agreement.customerId}/${agreement.agreementId}"
+    },
+    {
+      "file": "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "route": "${baseUrl}/menu/agreement/info/details/${agreement.customerId}/${agreement.agreementId}"
+    },
+    {
+      "file": "src/test/resources/fixtures/agreement/agreement-workflow.ts",
+      "route": "about:blank"
+    },
+    {
+      "file": "src/test/resources/fixtures/cashmanagment/cashmanagment-source-flows.ts",
+      "route": "about:blank"
+    },
+    {
+      "file": "src/test/resources/fixtures/docusign/docusign-source-flows.ts",
+      "route": "${baseUrl}/menu/inventory/${inventoryNumber}/inventoryinformation"
+    },
+    {
+      "file": "src/test/resources/fixtures/e2e/e2e-source-flows.ts",
+      "route": "${baseUrl}/menu/payment1/paymentinformation/${agreementId}/0"
+    },
+    {
+      "file": "src/test/resources/fixtures/mexico/mexico-source-flows.ts",
+      "route": "about:blank"
+    },
+    {
+      "file": "src/test/resources/fixtures/sla/sla-source-flows.ts",
+      "route": "about:blank"
+    },
+    {
+      "file": "src/test/specs/agreement/agreement-switch-out.spec.ts",
+      "route": "${baseUrl}/menu/agreement/info/details/${agreement.customerId}/${agreement.agreementId}"
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-additional.spec.ts",
+      "route": "${baseUrl}/menu/payment1/paymentinformation/${customerId}/0"
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-additional.spec.ts",
+      "route": "${baseUrl}/menu/agreement/info/details/${agreement!.customerId}/${agreement!.agreementId}"
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-charge-off.generated.spec.ts",
+      "route": "about:blank"
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-charge-off.generated.spec.ts",
+      "route": "about:blank"
+    },
+    {
+      "file": "src/test/specs/agreement/loaner-agreement.spec.ts",
+      "route": "${baseUrl!}/menu/agreement/info/details/${agreement.customerId}/${agreement.agreementId}"
     }
   ],
   "external_urls_seen": [
-    "http://10.252.41.230:4444",
-    "http://adaptivecards.io/schemas/adaptive-card.json",
-    "http://www.acbenefitsplus.com/Benefits",
-    "http://www.acbenefitsplus.com/Benefits?davuid=1004031777705444332&amp;dasrc=web",
-    "http://www.acbenefitsplus.com/Benefits?davuid=1004031777705444332&amp;dasrc=web&amp;utm_medium=web-b&amp;utm_source=partner-page",
-    "http://www.acbenefitsplus.com/Benefits?davuid=1006341777626818648&amp;dasrc=web",
-    "http://www.acbenefitsplus.com/Benefits?davuid=1007791776671348273&amp;dasrc=web",
-    "http://www.acbenefitsplus.com/Benefits?davuid=1008301776683697100&amp;dasrc=web",
-    "https://acimacareers.com/",
-    "https://acimacareers.com/?davuid=1004031777705444332&amp;dasrc=web",
-    "https://acimacareers.com/?davuid=1004031777705444332&amp;dasrc=web&amp;utm_medium=web-b&amp;utm_source=partner-page",
-    "https://acimacareers.com/?davuid=1006341777626818648&amp;dasrc=web",
-    "https://acimacareers.com/?davuid=1007791776671348273&amp;dasrc=web",
-    "https://acimacareers.com/?davuid=1008301776683697100&amp;dasrc=web",
-    "https://acimacredit.my.site.com/retailerapplication/?davuid=1004031777705444332&amp;dasrc=web&amp;utm_medium=web-b&amp;utm_source=partner-page&amp;utm_content=get-started-button",
-    "https://acimacredit.my.site.com/retailerapplication/?davuid=1005021776875885709&amp;dasrc=web",
-    "https://acimaprivacy.truyo.com/consumer/index",
-    "https://acimaprivacy.truyo.com/consumer/index?davuid=1004031777705444332&amp;dasrc=web",
-    "https://acimaprivacy.truyo.com/consumer/index?davuid=1004031777705444332&amp;dasrc=web&amp;utm_medium=web-b&amp;utm_source=partner-page",
-    "https://acimaprivacy.truyo.com/consumer/index?davuid=1006341777626818648&amp;dasrc=web",
-    "https://acimaprivacy.truyo.com/consumer/index?davuid=1007791776671348273&amp;dasrc=web",
-    "https://acimaprivacy.truyo.com/consumer/index?davuid=1008301776683697100&amp;dasrc=web",
-    "https://api-sandbox.acimacredit.com",
-    "https://api-stage.acimacredit.com",
-    "https://api.acimacredit.com",
-    "https://api.example.com/**",
+    "https://${username}:${accessKey}@${HUB_ENDPOINT}",
     "https://api.openai.com",
-    "https://app.com?variant=a",
-    "https://app.com?variant=b",
-    "https://app.example.com",
-    "https://app.example.com/checkout",
-    "https://app.example.com/dashboard",
-    "https://app.example.com/login",
-    "https://apps.apple.com/us/app/acima-leasing/id1570917482",
-    "https://artifacts.example.com/playwright-report/index.html",
-    "https://authn.sandbox.acima.com/realms/customer/protocol/openid-connect/auth?scope=openid%20profile%20email%20phone%20acr&amp;response_type=code&amp;client_id=salesforce-commerce&amp;redirect_uri=https://gbqtyu78.api.commercecloud.salesforce.com/shoppe",
-    "https://ci.example.com/1",
-    "https://ci.example.com/42",
-    "https://ci.example.com/artifacts/report.html",
-    "https://ci.example.com/job/111",
-    "https://ci.example.com/report",
-    "https://ci.example.com/report/42",
-    "https://ci/job/88",
-    "https://customer.acima.com",
-    "https://customer.acima.com.",
-    "https://demo.playwright.dev/todomvc",
-    "https://dev.azure.com/org/project/_build/results?buildId=1234",
-    "https://docs.example.com",
-    "https://example.com",
-    "https://example.com/",
-    "https://example.com/form",
-    "https://example.com/login",
-    "https://example.com/other",
-    "https://example.com/page",
-    "https://example.com/page/\\${i}\\",
-    "https://example.com/webhook",
-    "https://github.com",
-    "https://github.com/sponsors/Boshen",
-    "https://github.com/sponsors/Brooooooklyn",
-    "https://github.com/sponsors/broofa",
-    "https://github.com/sponsors/csstools",
-    "https://github.com/sponsors/ctavan",
-    "https://investor.upbound.com/",
-    "https://investor.upbound.com/?davuid=1004031777705444332&amp;dasrc=web",
-    "https://investor.upbound.com/?davuid=1004031777705444332&amp;dasrc=web&amp;utm_medium=web-b&amp;utm_source=partner-page",
-    "https://investor.upbound.com/?davuid=1006341777626818648&amp;dasrc=web",
-    "https://investor.upbound.com/?davuid=1007791776671348273&amp;dasrc=web",
-    "https://investor.upbound.com/?davuid=1008301776683697100&amp;dasrc=web",
-    "https://locations.acima.com/",
-    "https://locations.acima.com/?davuid=1004031777705444332&amp;dasrc=web",
-    "https://locations.acima.com/?davuid=1004031777705444332&amp;dasrc=web&amp;utm_medium=web-b&amp;utm_source=partner-page",
-    "https://locations.acima.com/?davuid=1006341777626818648&amp;dasrc=web",
-    "https://locations.acima.com/?davuid=1007791776671348273&amp;dasrc=web",
-    "https://locations.acima.com/?davuid=1008301776683697100&amp;dasrc=web",
-    "https://opencollective.com/csstools",
-    "https://opencollective.com/cucumber",
-    "https://paradox.ai",
-    "https://paypal.me/skorotkiewicz",
-    "https://play.google.com/store/apps/details?id=com.acima.leasing",
-    "https://play.google.com/store/apps/details?id=com.acima.leasing&amp;pli=1"
+    "https://dotenvx.com",
+    "https://github.com/privatenumber/get-tsconfig?sponsor=1",
+    "https://github.com/privatenumber/resolve-pkg-maps?sponsor=1",
+    "https://github.com/sponsors/nodeca",
+    "https://github.com/sponsors/puzrin",
+    "https://playwright.dev/docs/api/class-page",
+    "https://qa-menu-racpad.rentacenter.com",
+    "https://qa.racpad.app",
+    "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/netbsd-arm64/-/netbsd-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/openbsd-arm64/-/openbsd-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/openharmony-arm64/-/openharmony-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@playwright/test/-/test-1.60.0.tgz",
+    "https://registry.npmjs.org/@types/js-yaml/-/js-yaml-4.0.9.tgz",
+    "https://registry.npmjs.org/@types/node/-/node-22.15.21.tgz",
+    "https://registry.npmjs.org/@types/pg/-/pg-8.20.0.tgz",
+    "https://registry.npmjs.org/argparse/-/argparse-2.0.1.tgz",
+    "https://registry.npmjs.org/dotenv/-/dotenv-17.4.0.tgz",
+    "https://registry.npmjs.org/esbuild/-/esbuild-0.27.7.tgz",
+    "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz",
+    "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz",
+    "https://registry.npmjs.org/get-tsconfig/-/get-tsconfig-4.13.7.tgz",
+    "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.0.tgz",
+    "https://registry.npmjs.org/pg-cloudflare/-/pg-cloudflare-1.3.0.tgz",
+    "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.12.0.tgz",
+    "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+    "https://registry.npmjs.org/pg-pool/-/pg-pool-3.13.0.tgz",
+    "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.13.0.tgz",
+    "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+    "https://registry.npmjs.org/pg/-/pg-8.20.0.tgz",
+    "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+    "https://registry.npmjs.org/playwright-core/-/playwright-core-1.60.0.tgz",
+    "https://registry.npmjs.org/playwright/-/playwright-1.60.0.tgz",
+    "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+    "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+    "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+    "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+    "https://registry.npmjs.org/resolve-pkg-maps/-/resolve-pkg-maps-1.0.0.tgz",
+    "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+    "https://registry.npmjs.org/tsx/-/tsx-4.21.0.tgz",
+    "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
+    "https://registry.npmjs.org/undici-types/-/undici-types-6.21.0.tgz",
+    "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+    "https://upbd.atlassian.net"
   ],
   "business_domain_keyword_hints": {
-    "login": 84,
-    "payment": 84,
-    "dashboard": 43,
-    "policy": 39,
-    "profile": 36,
-    "approval": 28,
-    "checkout": 24,
-    "search": 23,
-    "claim": 16,
-    "logout": 16,
-    "workflow": 13,
-    "order": 10,
+    "payment": 137,
+    "search": 75,
+    "login": 70,
+    "order": 59,
+    "workflow": 38,
+    "approval": 37,
+    "dashboard": 21,
+    "policy": 19,
+    "checkout": 13,
+    "logout": 12,
     "invoice": 9,
-    "quote": 2,
-    "admin": 1,
-    "cart": 1
+    "quote": 7,
+    "profile": 5,
+    "cart": 2,
+    "admin": 1
   },
   "auth_session_hints": {
-    "cookie": 65,
-    "auth": 32,
-    "sso": 28,
-    "token": 19,
-    "session": 19,
-    "otp": 10,
-    "oauth": 5,
-    "jwt": 1
+    "auth": 97,
+    "token": 50,
+    "sso": 39,
+    "session": 17,
+    "otp": 16,
+    "cookie": 9,
+    "oauth": 3,
+    "mfa": 1
   },
   "api_backend_hints": {
-    "/api": 23,
-    "api/": 23,
-    "request.": 5,
-    "fetch(": 4
+    "api/": 32,
+    "/api": 10,
+    "fetch(": 4,
+    "request.": 2,
+    "waitForResponse": 2
   },
   "note": "This is static AUT understanding from tests/config/docs. MCP/headed execution adds runtime page/accessibility evidence after failures."
 }</pre></section><section class='card'><h2>Architecture Recommendations</h2><pre>[
+  "Page method layer is not clearly visible. AI should avoid large spec patches and suggest extracting reusable methods if repeated steps exist.",
+  "Dedicated pageObjects/locator layer is not clearly visible. Existing locator style must be learned from pages/helpers before patching.",
   "Brittle locator ratio is high. Use MCP/accessibility evidence to migrate unstable locators carefully in related failed scope.",
+  "Some imports could not be resolved. Configure tsconfig alias mapping or confirm framework root to improve safe patch scope.",
   "Before any automatic fix, resolve failed spec dependency chain and patch only the related spec/page/pageObject/helper/testData files."
 ]</pre></section><section class='card'><h2>Rca Self Healing Policy</h2><pre>{
   "explain_failed_tests": "Use execution logs, failed inventory, dependency chain, RAG chunks, MCP evidence and framework memory to classify root cause.",

@@ -51,6 +51,7 @@ http://<VM177-IP>:8080/astraheal-ai
 - `docs/06_STARTUP_SCRIPTS_REFERENCE.md`
 - `docs/07_VALIDATION_AND_TROUBLESHOOTING.md`
 - `docs/31_ADD_NEW_TESTS_MULTI_SOURCE_BDD_ATLASSIAN.md`
+- `docs/32_EXCEL_FUNCTIONAL_TESTCASE_GENERATION_VALIDATION_FIX.md`
 
 Legacy reference documents are moved under:
 

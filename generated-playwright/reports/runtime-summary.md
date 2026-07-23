@@ -1,18 +1,16 @@
 # Runtime Log Summary
 
-Events: 684
+Events: 142
 
 ## Current
 
-- Stage: existing_framework_self_healing
+- Stage: existing_framework
 - Status: done
-- Message: Safe patch was applied. Now click Run failed tests again for validation.
+- Message: Existing framework understanding completed. GUI can now execute existing specs without generating new testcases.
 
 ## Self-learning suggestions
 
-- Review the latest failed stage first; do not continue to Playwright generation/execution until the active source context is correct.
+- No suggestions yet.
 
 ## Recent errors
 
-- 2026-07-15T20:28:49.638865+00:00 `distributed_execution`: shard-03: [1A[2K[chromium] › tests\smoke\ui-smoke.spec.ts:293:7 › Smoke – Spanish Language › Spanish version of home page loads without errors @smoke
-- 2026-07-15T20:31:52.821668+00:00 `distributed_execution`: shard-03: [1A[2K[18/20] [chromium] › tests\ui\benefit-plus.spec.ts:82:7 › Benefit Plus – Customer Portal › Benefit+ agreement error when name does not match @regression

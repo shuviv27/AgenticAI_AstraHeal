@@ -1,501 +1,434 @@
 <!doctype html><html><head><meta charset='utf-8'><title>Framework Intelligence V2</title>
 <style>body{font-family:Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#0f172a}.card{background:#fff;border:1px solid #dbe3ef;border-radius:14px;padding:16px;margin:14px 0}pre{white-space:pre-wrap;background:#0f172a;color:#dbeafe;border-radius:10px;padding:14px;overflow:auto}code{background:#e2e8f0;padding:2px 6px;border-radius:6px}</style></head><body>
-<h1>Existing Framework Intelligence V2</h1><p>Framework: <code>C:\PROJECTS\qa_acima_testautomation_execution_fixed\qa_acima_fixed</code></p><section class='card'><h2>Architecture</h2><pre>{
+<h1>Existing Framework Intelligence V2</h1><p>Framework: <code>/mnt/data/work/racpad/qa_racpad_ts_automation</code></p><section class='card'><h2>Architecture</h2><pre>{
   "directory_model": {
     "spec_dirs": [
-      "e2e",
-      "specs",
-      "tests",
-      "tests/ai-generated",
-      "tests/api",
-      "tests/mobile",
-      "tests/smoke",
-      "tests/ui",
-      "tests/unit",
-      "tests/unit/teams"
+      "src/test/resources/data-loader/e2e",
+      "src/test/resources/fixtures/e2e",
+      "src/test/resources/testData/e2e",
+      "src/test/specs",
+      "src/test/specs/e2e"
     ],
     "page_dirs": [
-      "pages"
+      "src/main/pages"
     ],
-    "page_object_dirs": [
-      "pageObjects"
-    ],
-    "config_dirs": [
-      "config"
-    ],
-    "api_dirs": [
-      "api",
-      "api/services",
-      "features/api",
-      "step-definitions/api",
-      "test-data/api",
-      "tests/api"
-    ],
-    "ui_base_dirs": [],
+    "page_object_dirs": [],
     "fixture_dirs": [
-      "fixtures"
+      "src/test/resources/fixtures"
     ],
     "test_data_dirs": [
-      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/html/data",
-      "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/html/data",
-      "reports/existing-framework/html/data",
-      "test-data"
+      "src/test/resources/testData"
     ],
     "utility_dirs": [
       "agents/failure-analyzer/lib",
-      "agents/failure-analyzer/utils",
-      "step-definitions/common",
-      "utils"
-    ],
-    "reporter_dirs": [
-      "agents/failure-analyzer/reporter",
-      "reporters"
-    ]
-  },
-  "structure_discovery": {
-    "ok": true,
-    "generated_at": "2026-07-16T02:16:51",
-    "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
-    "scan_strategy": "recursive_config_plus_path_plus_content_evidence",
-    "candidate_spec_count": 23,
-    "executable_spec_count": 23,
-    "executable_specs": [
-      "e2e/example.spec.ts",
-      "e2e/seed.spec.ts",
-      "tests/ai-generated/new_feature.spec.ts",
-      "tests/api/customer.spec.ts",
-      "tests/api/lease.spec.ts",
-      "tests/api/payment.spec.ts",
-      "tests/mobile/mobile-home.spec.ts",
-      "tests/seed.spec.ts",
-      "tests/smoke/api-smoke.spec.ts",
-      "tests/smoke/ui-smoke.spec.ts",
-      "tests/ui/acima-advantage.spec.ts",
-      "tests/ui/benefit-plus.spec.ts",
-      "tests/ui/dashboard.spec.ts",
-      "tests/ui/login.spec.ts",
-      "tests/ui/payment.spec.ts",
-      "tests/ui/profile.spec.ts",
-      "tests/ui/shop-marketplace.spec.ts",
-      "tests/ui/shop-online.spec.ts",
-      "tests/ui/static-pages.spec.ts",
-      "tests/unit/seed.spec.ts",
-      "tests/unit/teams/teamsNotifier.spec.ts",
-      "tests/unit/teams/teamsPayloadBuilder.spec.ts",
-      "tests/unit/teams/testRunAggregator.spec.ts"
-    ],
-    "spec_evidence": [
-      {
-        "path": "e2e/example.spec.ts",
-        "accepted": true,
-        "reason": "conventional_or_enterprise_test_area",
-        "test_root": "e2e",
-        "configured_test_dir": "",
-        "content_proof": false
-      },
-      {
-        "path": "e2e/seed.spec.ts",
-        "accepted": true,
-        "reason": "conventional_or_enterprise_test_area",
-        "test_root": "e2e",
-        "configured_test_dir": "",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ai-generated/new_feature.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/api/customer.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/api/lease.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/api/payment.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/mobile/mobile-home.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/seed.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/smoke/api-smoke.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/smoke/ui-smoke.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ui/acima-advantage.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ui/benefit-plus.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ui/dashboard.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ui/login.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ui/payment.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ui/profile.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ui/shop-marketplace.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ui/shop-online.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/ui/static-pages.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests",
-        "configured_test_dir": "tests",
-        "content_proof": false
-      },
-      {
-        "path": "tests/unit/seed.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests/unit",
-        "configured_test_dir": "tests/unit",
-        "content_proof": false
-      },
-      {
-        "path": "tests/unit/teams/teamsNotifier.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests/unit",
-        "configured_test_dir": "tests/unit",
-        "content_proof": false
-      },
-      {
-        "path": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests/unit",
-        "configured_test_dir": "tests/unit",
-        "content_proof": false
-      },
-      {
-        "path": "tests/unit/teams/testRunAggregator.spec.ts",
-        "accepted": true,
-        "reason": "configured_playwright_test_dir",
-        "test_root": "tests/unit",
-        "configured_test_dir": "tests/unit",
-        "content_proof": false
-      }
-    ],
-    "rejected_spec_candidates": [],
-    "configured_test_dirs": [
-      "tests",
-      "tests/unit",
-      ".features-gen/ui",
-      ".features-gen/api",
-      ".features-gen/mobile"
-    ],
-    "discovered_test_roots": [
-      "e2e",
-      "tests",
-      "tests/unit"
-    ],
-    "acceptance_reason_counts": {
-      "conventional_or_enterprise_test_area": 2,
-      "configured_playwright_test_dir": 21
-    },
-    "component_directory_model": {
-      "spec_dirs": [
-        "e2e",
-        "specs",
-        "tests",
-        "tests/ai-generated",
-        "tests/api",
-        "tests/mobile",
-        "tests/smoke",
-        "tests/ui",
-        "tests/unit",
-        "tests/unit/teams"
-      ],
-      "page_dirs": [
-        "pages"
-      ],
-      "page_object_dirs": [
-        "pageObjects"
-      ],
-      "config_dirs": [
-        "config"
-      ],
-      "api_dirs": [
-        "api",
-        "api/services",
-        "features/api",
-        "step-definitions/api",
-        "test-data/api",
-        "tests/api"
-      ],
-      "ui_base_dirs": [],
-      "fixture_dirs": [
-        "fixtures"
-      ],
-      "test_data_dirs": [
-        "reports/existing-framework/distributed-runs/run-20260716-015622/shard-02/html/data",
-        "reports/existing-framework/distributed-runs/run-20260716-015622/shard-04/html/data",
-        "reports/existing-framework/html/data",
-        "test-data"
-      ],
-      "utility_dirs": [
-        "agents/failure-analyzer/lib",
-        "agents/failure-analyzer/utils",
-        "step-definitions/common",
-        "utils"
-      ],
-      "reporter_dirs": [
-        "agents/failure-analyzer/reporter",
-        "reporters"
-      ]
-    },
-    "source_layout": {
-      "has_src": false,
-      "has_src_main": false,
-      "has_src_test": false,
-      "has_src_test_specs": false,
-      "has_root_tests": true
-    },
-    "safety_rules": [
-      "Ignore dependency, build, report, result, cache, backup and history directories.",
-      "Keep all legacy tests/** discovery behavior.",
-      "Accept custom locations only when Playwright config or executable test content proves the file is runnable.",
-      "Never infer a source patch target from filename alone; dependency mapping remains required."
+      "agents/failure-analyzer/utils"
     ]
   },
   "pom_compliance": {
-    "score": 90,
-    "grade": "strong",
+    "score": 68,
+    "grade": "moderate",
     "rule": "Specs should call reusable page methods; page methods should use pageObjects/locator modules. RCA patches should prefer pageObjects/pages/helpers over specs."
   },
-  "spec_count": 48,
-  "executable_spec_count": 23,
+  "spec_count": 60,
   "import_graph_sample": {
-    "e2e/example.spec.ts": [],
-    "e2e/seed.spec.ts": [],
-    "features/api/customer.feature": [],
-    "features/api/lease.feature": [],
-    "features/api/payment.feature": [],
-    "features/broken-links.feature": [],
-    "features/mobile/acima-advantage.feature": [],
-    "features/mobile/broken-links.feature": [],
-    "features/mobile/dashboard.feature": [],
-    "features/mobile/home.feature": [],
-    "features/mobile/login.feature": [],
-    "features/mobile/payment-methods.feature": [],
-    "features/mobile/payment.feature": [],
-    "features/mobile/profile.feature": [],
-    "features/ui/acima-advantage.feature": [],
-    "features/ui/benefit-plus.feature": [],
-    "features/ui/broken-links.feature": [],
-    "features/ui/dashboard.feature": [],
-    "features/ui/home.feature": [],
-    "features/ui/login.feature": [],
-    "features/ui/mexico-simple.feature": [],
-    "features/ui/mexico.feature": [],
-    "features/ui/payment.feature": [],
-    "features/ui/profile.feature": [],
-    "features/ui/shop-marketplace.feature": [],
-    "features/ui/shop-online.feature": [],
-    "features/ui/static-pages.feature": [],
-    "tests/ai-generated/new_feature.spec.ts": [
-      "pages/HomePage.ts"
+    "src/test/specs/accountmanagement/account-management-part-2.generated-base.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/test/resources/fixtures/accountmanagement/account-management-part-2-case-runners.ts",
+      "src/test/resources/fixtures/accountmanagement/regression-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts"
     ],
-    "tests/api/customer.spec.ts": [
-      "api/types/customer.types.ts",
-      "fixtures/api.fixture.ts",
-      "utils/verify.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/accountmanagement/account-management-part-2.generated.spec.ts": [
+      "src/test/resources/fixtures/accountmanagement/account-management-part-2-case-runners.ts",
+      "src/test/resources/fixtures/accountmanagement/regression-suite-annotations.ts",
+      "src/test/resources/fixtures/accountmanagement/regression-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts"
     ],
-    "tests/api/lease.spec.ts": [
-      "api/types/lease.types.ts",
-      "fixtures/api.fixture.ts",
-      "utils/verify.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/accountmanagement/account-management.generated-base.spec.ts": [
+      "src/test/resources/fixtures/accountmanagement/account-management-case-runners.ts",
+      "src/test/resources/fixtures/accountmanagement/regression-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts"
     ],
-    "tests/api/payment.spec.ts": [
-      "api/types/payment.types.ts",
-      "config/env.ts",
-      "fixtures/api.fixture.ts",
-      "utils/verify.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/accountmanagement/am-activity-log-actions.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/accountmanagement/account-management/am-activity-log.page.ts",
+      "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
+      "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
+      "src/main/pages/accountmanagement/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/data-loader/accountmanagement/test-case-link.ts",
+      "src/test/resources/data-loader/accountmanagement/yaml-data-loader.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts"
     ],
-    "tests/mobile/mobile-home.spec.ts": [
-      "pages/mobile/mobile-home-page.ts"
+    "src/test/specs/accountmanagement/am-activity-log-filters.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/accountmanagement/account-management/am-activity-log.page.ts",
+      "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
+      "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
+      "src/main/pages/accountmanagement/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/data-loader/accountmanagement/test-case-link.ts",
+      "src/test/resources/data-loader/accountmanagement/yaml-data-loader.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts"
     ],
-    "tests/seed.spec.ts": [],
-    "tests/smoke/api-smoke.spec.ts": [
-      "api/types/customer.types.ts",
-      "api/types/lease.types.ts",
-      "api/types/payment.types.ts",
-      "fixtures/api.fixture.ts",
-      "utils/verify.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/accountmanagement/mx-account-management.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
+      "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
+      "src/main/pages/accountmanagement/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts"
     ],
-    "tests/smoke/ui-smoke.spec.ts": [
-      "config/environments.ts",
-      "fixtures/base.fixture.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/accountmanagement/past-due-contact-logs.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
+      "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
+      "src/main/pages/accountmanagement/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/data-loader/accountmanagement/test-case-link.ts",
+      "src/test/resources/data-loader/accountmanagement/yaml-data-loader.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts"
     ],
-    "tests/ui/acima-advantage.spec.ts": [
-      "pages/acima-advantage-page.ts",
-      "pages/login-page.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/accountmanagement/past-due-list-actions-and-print.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
+      "src/main/pages/accountmanagement/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/data-loader/accountmanagement/test-case-link.ts",
+      "src/test/resources/data-loader/accountmanagement/yaml-data-loader.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts"
     ],
-    "tests/ui/benefit-plus.spec.ts": [
-      "config/environments.ts",
-      "fixtures/base.fixture.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/accountmanagement/past-due-list-commitment-filters.spec.ts": [
+      "src/main/api/agreement/agreement-db.ts",
+      "src/main/config/environment.ts",
+      "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
+      "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
+      "src/main/pages/accountmanagement/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/data-loader/accountmanagement/test-case-link.ts",
+      "src/test/resources/data-loader/accountmanagement/yaml-data-loader.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts",
+      "src/test/resources/fixtures/agreement/macros/payment-macro.ts"
     ],
-    "tests/ui/dashboard.spec.ts": [
-      "config/environments.ts",
-      "fixtures/base.fixture.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/accountmanagement/past-due-list-customer-filters.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
+      "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
+      "src/main/pages/accountmanagement/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/data-loader/accountmanagement/test-case-link.ts",
+      "src/test/resources/data-loader/accountmanagement/yaml-data-loader.ts",
+      "src/test/resources/fixtures/accountmanagement/test-fixture.ts"
     ],
-    "tests/ui/login.spec.ts": [
-      "fixtures/base.fixture.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/agreement/agreement-switch-out.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/agreement/agreement/agreement-details.page.ts",
+      "src/main/pages/agreement/agreement/agreement-item-search.page.ts",
+      "src/main/pages/agreement/agreement/agreement-switchout.page.ts",
+      "src/main/pages/agreement/agreement/item-return.page.ts",
+      "src/main/pages/agreement/schedule-delivery.page.ts",
+      "src/test/resources/data-loader/agreement/yaml-data-loader.ts",
+      "src/test/resources/data-loader/agreement/yaml-token-resolver.ts",
+      "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "src/test/resources/fixtures/agreement/agreement-workflow.ts",
+      "src/test/resources/fixtures/agreement/macros/agreement-bean.ts",
+      "src/test/resources/fixtures/agreement/macros/payment-macro.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-annotations.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/agreement/test-fixture.ts"
     ],
-    "tests/ui/payment.spec.ts": [
-      "fixtures/base.fixture.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/agreement/agreements-additional.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/agreement/agreement/agreement-details.page.ts",
+      "src/main/pages/agreement/agreement/agreement-item-search.page.ts",
+      "src/main/pages/agreement/agreement/agreement-switchout.page.ts",
+      "src/main/pages/agreement/agreement/agreement-transfer-receive.page.ts",
+      "src/main/pages/agreement/agreement/agreement-transfer.page.ts",
+      "src/main/pages/agreement/agreement/agreement-view.page.ts",
+      "src/main/pages/agreement/auto-pay.page.ts",
+      "src/main/pages/agreement/customer-information.page.ts",
+      "src/main/pages/agreement/customer-search.page.ts",
+      "src/main/pages/agreement/daily-activity-planner.page.ts",
+      "src/main/pages/agreement/docu-sign.page.ts",
+      "src/main/pages/agreement/home.page.ts",
+      "src/main/pages/agreement/inventory/inventory-information.page.ts",
+      "src/main/pages/agreement/payment-search.page.ts",
+      "src/main/pages/agreement/schedule-delivery.page.ts",
+      "src/main/pages/agreement/take-payment.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/fixtures/agreement/agreement-workflow.ts",
+      "src/test/resources/fixtures/agreement/macros/payment-macro.ts",
+      "src/test/resources/fixtures/agreement/macros/purchase-order-macro.ts",
+      "src/test/resources/fixtures/agreement/migration-suppression.ts",
+      "src/test/resources/fixtures/agreement/test-fixture.ts"
     ],
-    "tests/ui/profile.spec.ts": [
-      "config/environments.ts",
-      "fixtures/base.fixture.ts",
-      "utils/yaml-loader.ts"
+    "src/test/specs/agreement/agreements-charge-off.generated.spec.ts": [
+      "src/main/api/agreement/agreement-db.ts",
+      "src/main/config/environment.ts",
+      "src/main/pages/agreement/home.page.ts",
+      "src/main/pages/agreement/schedule-delivery.page.ts",
+      "src/main/pages/agreement/take-payment.page.ts",
+      "src/main/pages/inventory/inventory-information.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/data-loader/agreement/yaml-data-loader.ts",
+      "src/test/resources/data-loader/agreement/yaml-token-resolver.ts",
+      "src/test/resources/fixtures/agreement/macros/payment-macro.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-annotations.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/agreement/smoke-data-resolver.ts",
+      "src/test/resources/fixtures/agreement/test-fixture.ts"
     ],
-    "tests/ui/shop-marketplace.spec.ts": [
-      "config/environments.ts",
-      "pages/shop-marketplace-page.ts"
+    "src/test/specs/agreement/agreements-part-2.generated.spec.ts": [
+      "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-annotations.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/agreement/test-fixture.ts"
     ],
-    "tests/ui/shop-online.spec.ts": [
-      "config/environments.ts",
-      "pages/shop-online-page.ts"
+    "src/test/specs/agreement/agreements-primary.generated.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/test/resources/data-loader/agreement/yaml-data-loader.ts",
+      "src/test/resources/data-loader/agreement/yaml-token-resolver.ts",
+      "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-annotations.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/agreement/test-fixture.ts"
     ],
-    "tests/ui/static-pages.spec.ts": [
-      "config/environments.ts",
-      "fixtures/base.fixture.ts"
+    "src/test/specs/agreement/agreements.generated.spec.ts": [
+      "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-annotations.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/agreement/test-fixture.ts"
     ],
-    "tests/unit/seed.spec.ts": [],
-    "tests/unit/teams/teamsNotifier.spec.ts": [
-      "utils/teams/models.ts",
-      "utils/teams/teamsNotifier.ts"
+    "src/test/specs/agreement/loaner-agreement.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/agreement/agreement/agreement-details.page.ts",
+      "src/main/pages/agreement/agreement/agreement-item-search.page.ts",
+      "src/main/pages/agreement/agreement/item-return.page.ts",
+      "src/main/pages/agreement/agreement/loaner-agreement.page.ts",
+      "src/main/pages/agreement/schedule-delivery.page.ts",
+      "src/test/resources/data-loader/agreement/yaml-data-loader.ts",
+      "src/test/resources/data-loader/agreement/yaml-token-resolver.ts",
+      "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+      "src/test/resources/fixtures/agreement/agreement-workflow.ts",
+      "src/test/resources/fixtures/agreement/macros/payment-macro.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-annotations.ts",
+      "src/test/resources/fixtures/agreement/regression-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/agreement/test-fixture.ts"
     ],
-    "tests/unit/teams/teamsPayloadBuilder.spec.ts": [
-      "utils/teams/models.ts",
-      "utils/teams/teamsPayloadBuilder.ts"
+    "src/test/specs/browserstack/browserstack-hub-url.spec.ts": [
+      "src/test/resources/fixtures/browserstack/browserstack-source-flows.ts",
+      "src/test/resources/fixtures/browserstack/browserstack-test-inventory.ts"
     ],
-    "tests/unit/teams/testRunAggregator.spec.ts": [
-      "utils/teams/testRunAggregator.ts"
+    "src/test/specs/cashmanagment/cash-managment.spec.ts": [
+      "src/test/resources/fixtures/cashmanagment/cashmanagment-source-flows.ts",
+      "src/test/resources/fixtures/cashmanagment/cashmanagment-test-inventory.ts",
+      "src/test/resources/fixtures/cashmanagment/test-fixture.ts"
+    ],
+    "src/test/specs/cashmanagment/debug-paidin-moneyorder.spec.ts": [],
+    "src/test/specs/cashmanagment/mx-cash-managment.spec.ts": [],
+    "src/test/specs/customer/assign-alerts.spec.ts": [
+      "src/test/resources/fixtures/customer/customer-source-flows.ts",
+      "src/test/resources/fixtures/customer/test-fixture.ts"
+    ],
+    "src/test/specs/customer/create-customer-mexico.spec.ts": [],
+    "src/test/specs/customer/create-customer.spec.ts": [
+      "src/test/resources/fixtures/agreement/macros/payment-macro.ts",
+      "src/test/resources/fixtures/customer/customer-source-flows.ts",
+      "src/test/resources/fixtures/customer/test-fixture.ts"
+    ],
+    "src/test/specs/customer/customer-edit.spec.ts": [
+      "src/test/resources/fixtures/customer/customer-source-flows.ts",
+      "src/test/resources/fixtures/customer/test-fixture.ts"
+    ],
+    "src/test/specs/customer/customer-page.spec.ts": [
+      "src/test/resources/fixtures/customer/customer-source-flows.ts",
+      "src/test/resources/fixtures/customer/test-fixture.ts"
+    ],
+    "src/test/specs/customer/mx-edit-customer.spec.ts": [],
+    "src/test/specs/customerOrders/customer-order-flow.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/customer/take-payment.page.ts",
+      "src/test/resources/fixtures/customer/customer-source-flows.ts",
+      "src/test/resources/fixtures/customer/test-fixture.ts"
+    ],
+    "src/test/specs/dapevents/dap-customer-event.spec.ts": [
+      "src/test/resources/fixtures/dapevents/dap-source-flows.ts",
+      "src/test/resources/fixtures/dapevents/test-fixture.ts"
+    ],
+    "src/test/specs/dapevents/dap-event-task.spec.ts": [
+      "src/test/resources/fixtures/dapevents/dap-source-flows.ts",
+      "src/test/resources/fixtures/dapevents/test-fixture.ts"
+    ],
+    "src/test/specs/dapevents/dap-events-mexico.spec.ts": [
+      "src/test/resources/fixtures/dapevents/dap-source-flows.ts",
+      "src/test/resources/fixtures/dapevents/test-fixture.ts"
+    ],
+    "src/test/specs/dapevents/dap-store-event.spec.ts": [
+      "src/test/resources/fixtures/dapevents/dap-source-flows.ts",
+      "src/test/resources/fixtures/dapevents/test-fixture.ts"
+    ],
+    "src/test/specs/dashboard/dashboard.spec.ts": [
+      "src/test/resources/fixtures/dashboard/dashboard-source-flows.ts",
+      "src/test/resources/fixtures/dashboard/test-fixture.ts"
+    ],
+    "src/test/specs/dashboard/mx-dashboard.spec.ts": [],
+    "src/test/specs/docusign/create-agreement-instore-and-email.spec.ts": [
+      "src/test/resources/fixtures/docusign/docusign-source-flows.ts",
+      "src/test/resources/fixtures/docusign/test-fixture.ts"
+    ],
+    "src/test/specs/docusign/create-agreement-with-manual-signature.spec.ts": [
+      "src/test/resources/fixtures/docusign/docusign-source-flows.ts",
+      "src/test/resources/fixtures/docusign/test-fixture.ts"
+    ],
+    "src/test/specs/e2e/customer2delivery.spec.ts": [
+      "src/test/resources/fixtures/e2e/e2e-source-flows.ts",
+      "src/test/resources/fixtures/e2e/e2e-test-inventory.ts",
+      "src/test/resources/fixtures/e2e/test-fixture.ts"
+    ],
+    "src/test/specs/e2e/e2e-docusign.spec.ts": [
+      "src/test/resources/fixtures/e2e/e2e-source-flows.ts",
+      "src/test/resources/fixtures/e2e/e2e-test-inventory.ts",
+      "src/test/resources/fixtures/e2e/test-fixture.ts"
+    ],
+    "src/test/specs/e2e/e2e-txt2pay.spec.ts": [
+      "src/test/resources/fixtures/e2e/e2e-source-flows.ts",
+      "src/test/resources/fixtures/e2e/e2e-test-inventory.ts",
+      "src/test/resources/fixtures/e2e/test-fixture.ts"
+    ],
+    "src/test/specs/inventory/inventory-charge-off.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/inventory/inventory-information.page.ts",
+      "src/main/pages/inventory/item-search.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/fixtures/inventory/inventory-source-flows.ts",
+      "src/test/resources/fixtures/inventory/test-fixture.ts"
+    ],
+    "src/test/specs/inventory/inventory-search.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/inventory/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/fixtures/inventory/test-fixture.ts"
+    ],
+    "src/test/specs/inventory/inventory-status-change.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/inventory/home.page.ts",
+      "src/main/pages/inventory/inventory-information.page.ts",
+      "src/main/pages/inventory/item-search.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/fixtures/inventory/inventory-source-flows.ts",
+      "src/test/resources/fixtures/inventory/test-fixture.ts"
+    ],
+    "src/test/specs/inventory/inventory-transfer.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/agreement/agreement/agreement-details.page.ts",
+      "src/main/pages/agreement/take-payment.page.ts",
+      "src/main/pages/inventory/home.page.ts",
+      "src/main/pages/inventory/inventory-information.page.ts",
+      "src/main/pages/inventory/item-search.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/fixtures/inventory/inventory-source-flows.ts",
+      "src/test/resources/fixtures/inventory/test-fixture.ts"
+    ],
+    "src/test/specs/inventory/manual-po-create.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/inventory/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/fixtures/inventory/test-fixture.ts"
+    ],
+    "src/test/specs/inventory/new-package-item-search.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/inventory/home.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/fixtures/inventory/test-fixture.ts"
+    ],
+    "src/test/specs/inventory/print-edit-price-tags.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/main/pages/inventory/inventory-information.page.ts",
+      "src/main/pages/inventory/item-search.page.ts",
+      "src/main/pages/inventory/print-edit-price-tags.page.ts",
+      "src/main/pages/shared/microsoft-login.page.ts",
+      "src/test/resources/fixtures/inventory/inventory-source-flows.ts",
+      "src/test/resources/fixtures/inventory/test-fixture.ts"
+    ],
+    "src/test/specs/mexico/agreement-in-mexico.spec.ts": [
+      "src/test/resources/fixtures/mexico/mexico-source-flows.ts",
+      "src/test/resources/fixtures/mexico/mexico-test-inventory.ts",
+      "src/test/resources/fixtures/mexico/test-fixture.ts"
+    ],
+    "src/test/specs/mexico/inventory-mx.spec.ts": [
+      "src/test/resources/fixtures/mexico/mexico-source-flows.ts",
+      "src/test/resources/fixtures/mexico/mexico-test-inventory.ts",
+      "src/test/resources/fixtures/mexico/test-fixture.ts"
+    ],
+    "src/test/specs/mpo/manual-po-create.spec.ts": [
+      "src/test/resources/fixtures/mpo/mpo-source-flows.ts",
+      "src/test/resources/fixtures/mpo/mpo-test-inventory.ts",
+      "src/test/resources/fixtures/mpo/test-fixture.ts"
+    ],
+    "src/test/specs/mpo/mx-manual-po-create.spec.ts": [
+      "src/test/resources/fixtures/mpo/mpo-source-flows.ts",
+      "src/test/resources/fixtures/mpo/mpo-test-inventory.ts",
+      "src/test/resources/fixtures/mpo/test-fixture.ts"
+    ],
+    "src/test/specs/payment/payment.module.spec.ts": [
+      "src/main/config/environment.ts",
+      "src/test/resources/fixtures/payment/payment-source-flows.ts",
+      "src/test/resources/fixtures/payment/payment-suite-manifest-loader.ts",
+      "src/test/resources/fixtures/payment/test-fixture.ts"
+    ],
+    "src/test/specs/reports/reporting-cash-management-transactions.spec.ts": [
+      "src/test/resources/fixtures/reports/reports-source-flows.ts",
+      "src/test/resources/fixtures/reports/reports-test-inventory.ts",
+      "src/test/resources/fixtures/reports/test-fixture.ts"
+    ],
+    "src/test/specs/reports/reporting-operations.spec.ts": [
+      "src/test/resources/fixtures/reports/reports-source-flows.ts",
+      "src/test/resources/fixtures/reports/reports-test-inventory.ts",
+      "src/test/resources/fixtures/reports/test-fixture.ts"
+    ],
+    "src/test/specs/reports/reporting.spec.ts": [
+      "src/test/resources/fixtures/reports/reports-source-flows.ts",
+      "src/test/resources/fixtures/reports/reports-test-inventory.ts",
+      "src/test/resources/fixtures/reports/test-fixture.ts"
+    ],
+    "src/test/specs/sla/edit-customer-route-sla.spec.ts": [
+      "src/test/resources/fixtures/sla/sla-source-flows.ts",
+      "src/test/resources/fixtures/sla/sla-test-inventory.ts",
+      "src/test/resources/fixtures/sla/test-fixture.ts"
+    ],
+    "src/test/specs/sla/hold-and-unhold-inventory-sla.spec.ts": [
+      "src/test/resources/fixtures/sla/sla-source-flows.ts",
+      "src/test/resources/fixtures/sla/sla-test-inventory.ts",
+      "src/test/resources/fixtures/sla/test-fixture.ts"
+    ],
+    "src/test/specs/sla/inventory-charge-off-sla.spec.ts": [
+      "src/test/resources/fixtures/sla/sla-source-flows.ts",
+      "src/test/resources/fixtures/sla/sla-test-inventory.ts",
+      "src/test/resources/fixtures/sla/test-fixture.ts"
+    ],
+    "src/test/specs/sla/rate-deduction-sla.spec.ts": [
+      "src/test/resources/fixtures/sla/sla-source-flows.ts",
+      "src/test/resources/fixtures/sla/sla-test-inventory.ts",
+      "src/test/resources/fixtures/sla/test-fixture.ts"
+    ],
+    "src/test/specs/sla/sla.spec.ts": [
+      "src/test/resources/fixtures/sla/sla-source-flows.ts",
+      "src/test/resources/fixtures/sla/sla-test-inventory.ts",
+      "src/test/resources/fixtures/sla/test-fixture.ts"
+    ],
+    "src/test/specs/tools/ui-compilation-sample.spec.ts": [
+      "src/test/resources/fixtures/tools/tools-source-flows.ts",
+      "src/test/resources/fixtures/tools/tools-test-inventory.ts"
     ]
   }
 }</pre></section><section class='card'><h2>Technology Stack</h2><pre>{
-  "package_name": "acima-playwright-automation",
+  "package_name": "qa_racpad_ts_automation",
   "detected_stack": [
-    "cucumber_bdd",
-    "dotenv",
     "playwright",
     "typescript"
   ],
-  "dependency_count": 16,
+  "dependency_count": 3,
   "important_dependencies": {
-    "@cucumber/cucumber": "^12.8.3",
-    "@playwright/test": "^1.59.1",
-    "dotenv": "^16.6.1",
-    "playwright": "^1.59.1",
-    "playwright-bdd": "^8.5.1",
-    "playwright-mcp": "^0.0.10",
-    "ts-node": "^10.9.2",
+    "@playwright/test": "^1.60.0",
     "typescript": "^5.9.3"
   },
   "config_files": [
@@ -503,1229 +436,2212 @@
     "tsconfig.json"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "playwright test --project=chromium --project=api --project=unit",
-    "test:ui": "playwright test tests/ui --project=chromium",
-    "test:api": "playwright test tests/api --project=api",
-    "test:smoke": "playwright test tests/smoke --project=chromium --project=api",
-    "test:smoke:ui": "playwright test tests/smoke/ui-smoke.spec.ts --project=chromium",
-    "test:smoke:api": "playwright test tests/smoke/api-smoke.spec.ts --project=api",
-    "test:smoke:all": "playwright test --grep @smoke --project=chromium --project=api",
-    "test:regression": "playwright test --grep @regression --project=chromium --project=api",
-    "test:headed": "playwright test --project=chromium --headed",
-    "test:debug": "playwright test --project=chromium --debug",
-    "test:report": "playwright show-report",
-    "test:qa": "cross-env ENV=qa playwright test --project=chromium --project=api --project=unit",
-    "test:stage": "cross-env ENV=stage playwright test --project=chromium --project=api --project=unit",
-    "test:prod": "cross-env ENV=prod playwright test --project=chromium --project=api --project=unit",
-    "bdd:gen": "bddgen",
-    "bdd:gen:ui": "bddgen --project bdd-ui-chromium",
-    "bdd:gen:api": "bddgen --project bdd-api",
-    "test:bdd": "bddgen &amp;&amp; playwright test --project=bdd-ui-chromium --project=bdd-api",
-    "test:bdd:ui": "bddgen &amp;&amp; playwright test --project bdd-ui-chromium",
-    "test:bdd:api": "bddgen &amp;&amp; playwright test --project bdd-api",
-    "test:bdd:smoke": "bddgen &amp;&amp; playwright test --project=bdd-ui-chromium --project=bdd-api --grep @smoke",
-    "test:bdd:regression": "bddgen &amp;&amp; playwright test --project=bdd-ui-chromium --project=bdd-api --grep @regression",
-    "codegen": "playwright codegen",
-    "install:browsers": "playwright install",
-    "agent:analyze": "playwright test",
-    "agent:fix": "ts-node agents/test-fixer/cli.ts",
-    "agent:fix:dry": "ts-node agents/test-fixer/cli.ts --dry-run",
-    "agent:fix:all": "ts-node agents/test-fixer/cli.ts --all",
-    "agent:flakiness": "ts-node agents/failure-analyzer/cli/run-flakiness.ts",
-    "agent:rca": "ts-node agents/failure-analyzer/cli/run-rca.ts",
-    "agent:heal": "ts-node agents/failure-analyzer/cli/run-self-heal.ts",
-    "agent:predict": "ts-node agents/failure-analyzer/cli/run-predictive.ts",
-    "test:unit": "playwright test --project unit --reporter list",
-    "test:unit:teams": "playwright test tests/unit/teams/ --project unit --reporter list",
-    "notify:teams": "ts-node -e \"require('./utils/teams/teamsNotifier')\""
+    "install:all": "npm install --workspaces",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:ui": "playwright test",
+    "test:project": "playwright test --project",
+    "test:smoke": "playwright test --grep @smoke --workers=1",
+    "test:smoke:list": "playwright test --list --grep @smoke --reporter=list",
+    "test:customer-order": "playwright test src/test/specs/customerOrders/customer-order-flow.spec.ts -g \"CustomerOrderFlow.createCustomerOrder\"",
+    "test:customer-order:headed": "playwright test src/test/specs/customerOrders/customer-order-flow.spec.ts -g \"CustomerOrderFlow.createCustomerOrder\" --headed",
+    "test:db": "npm run test -w db",
+    "report:extent": "playwright show-report reports/html",
+    "secure:bootstrap:legacy": "npm run secure:bootstrap-legacy -w shared --",
+    "secure:seal": "npm run secure:seal -w shared --",
+    "secure:unseal": "npm run secure:unseal -w shared --",
+    "secure:print": "npm run secure:print -w shared --"
   }
 }</pre></section><section class='card'><h2>Triggering Flows</h2><pre>{
   "npm_scripts": {
-    "build": "tsc -p tsconfig.json --noEmit",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "playwright test --project=chromium --project=api --project=unit",
-    "test:ui": "playwright test tests/ui --project=chromium",
-    "test:api": "playwright test tests/api --project=api",
-    "test:smoke": "playwright test tests/smoke --project=chromium --project=api",
-    "test:smoke:ui": "playwright test tests/smoke/ui-smoke.spec.ts --project=chromium",
-    "test:smoke:api": "playwright test tests/smoke/api-smoke.spec.ts --project=api",
-    "test:smoke:all": "playwright test --grep @smoke --project=chromium --project=api",
-    "test:regression": "playwright test --grep @regression --project=chromium --project=api",
-    "test:headed": "playwright test --project=chromium --headed",
-    "test:debug": "playwright test --project=chromium --debug",
-    "test:report": "playwright show-report",
-    "test:qa": "cross-env ENV=qa playwright test --project=chromium --project=api --project=unit",
-    "test:stage": "cross-env ENV=stage playwright test --project=chromium --project=api --project=unit",
-    "test:prod": "cross-env ENV=prod playwright test --project=chromium --project=api --project=unit",
-    "bdd:gen": "bddgen",
-    "bdd:gen:ui": "bddgen --project bdd-ui-chromium",
-    "bdd:gen:api": "bddgen --project bdd-api",
-    "test:bdd": "bddgen &amp;&amp; playwright test --project=bdd-ui-chromium --project=bdd-api",
-    "test:bdd:ui": "bddgen &amp;&amp; playwright test --project bdd-ui-chromium",
-    "test:bdd:api": "bddgen &amp;&amp; playwright test --project bdd-api",
-    "test:bdd:smoke": "bddgen &amp;&amp; playwright test --project=bdd-ui-chromium --project=bdd-api --grep @smoke",
-    "test:bdd:regression": "bddgen &amp;&amp; playwright test --project=bdd-ui-chromium --project=bdd-api --grep @regression",
-    "codegen": "playwright codegen",
-    "install:browsers": "playwright install",
-    "agent:analyze": "playwright test",
-    "agent:fix": "ts-node agents/test-fixer/cli.ts",
-    "agent:fix:dry": "ts-node agents/test-fixer/cli.ts --dry-run",
-    "agent:fix:all": "ts-node agents/test-fixer/cli.ts --all",
-    "agent:flakiness": "ts-node agents/failure-analyzer/cli/run-flakiness.ts",
-    "agent:rca": "ts-node agents/failure-analyzer/cli/run-rca.ts",
-    "agent:heal": "ts-node agents/failure-analyzer/cli/run-self-heal.ts",
-    "agent:predict": "ts-node agents/failure-analyzer/cli/run-predictive.ts",
-    "test:unit": "playwright test --project unit --reporter list",
-    "test:unit:teams": "playwright test tests/unit/teams/ --project unit --reporter list",
-    "notify:teams": "ts-node -e \"require('./utils/teams/teamsNotifier')\""
+    "install:all": "npm install --workspaces",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:ui": "playwright test",
+    "test:project": "playwright test --project",
+    "test:smoke": "playwright test --grep @smoke --workers=1",
+    "test:smoke:list": "playwright test --list --grep @smoke --reporter=list",
+    "test:customer-order": "playwright test src/test/specs/customerOrders/customer-order-flow.spec.ts -g \"CustomerOrderFlow.createCustomerOrder\"",
+    "test:customer-order:headed": "playwright test src/test/specs/customerOrders/customer-order-flow.spec.ts -g \"CustomerOrderFlow.createCustomerOrder\" --headed",
+    "test:db": "npm run test -w db",
+    "report:extent": "playwright show-report reports/html",
+    "secure:bootstrap:legacy": "npm run secure:bootstrap-legacy -w shared --",
+    "secure:seal": "npm run secure:seal -w shared --",
+    "secure:unseal": "npm run secure:unseal -w shared --",
+    "secure:print": "npm run secure:print -w shared --"
   },
   "ci_workflow_files": [
-    ".github/workflows/common.yml",
     ".github/workflows/copilot-setup-steps.yml",
-    ".github/workflows/p1.yml",
-    ".github/workflows/playwright.yml",
-    ".github/workflows/regression.yml",
-    ".github/workflows/smoke.yml"
+    ".github/workflows/ui-pw-us-acct-mgmt-reg.yml",
+    ".github/workflows/ui-pw-us-agreement-reg.yml",
+    ".github/workflows/ui-pw-us-cashmanagment-reg.yml",
+    ".github/workflows/ui-pw-us-customer-reg.yml",
+    ".github/workflows/ui-pw-us-dapevents-reg.yml",
+    ".github/workflows/ui-pw-us-inventory-reg.yml",
+    ".github/workflows/ui-pw-us-payment-reg.yml",
+    ".github/workflows/ui-pw-us-reports-reg.yml",
+    ".github/workflows/ui-pw-us-sla-reg.yml",
+    ".github/workflows/ui-pw-us-tools-reg.yml",
+    ".github/workflows/ui-smoke.yml"
   ],
   "sample_test_titles": [
-    "has title",
-    "get started link",
-    "seed",
-    "new_feature flow",
-    "GET payment methods returns 200",
-    "GET payment details for lease returns 200",
-    "GET new payment options returns 200",
-    "GET lease dashboard returns 200",
-    "POST make a payment returns 200 or 201",
-    "GET payment methods without customer ID returns 400",
-    "Mobile home page loads with correct title",
-    "Hamburger menu opens and contains navigation items",
-    "Login button visible and functional",
-    "Hero section and footer present",
-    "Shop and Help submenus work via hamburger",
-    "seed",
-    "GET /customer/detail – returns 200 with valid response body",
-    "GET /customer/detail – invalid GUID returns 400 or 404",
-    "GET /customer/detail/customer_details – section endpoint returns 200",
-    "API base URL is reachable and returns a response",
-    "Home page loads with visible main banner and header navigation",
-    "Footer links are present on the home page",
-    "Login with valid credentials navigates to Customer Portal",
-    "Logout redirects back to Acima home page",
-    "Dashboard loads and displays active agreement details",
-    "Sidebar navigation – Payments link is accessible",
-    "Payment Methods page loads after adding the bank account",
-    "Make a Payment page renders payment type options",
-    "Profile page loads with correct header and profile section",
-    "Spanish version of home page loads without errors",
-    "Full journey: login → dashboard → navigate to payments → logout",
-    "Verify Acima Advantage button exists and page loads",
-    "Verify Refer a Friend functionality @refer-friend",
-    "Verify Earn More in Mobile App functionality @earn-more",
-    "Verify Spanish language support @spanish",
-    "Benefit+ NOT displayed for ineligible customer",
-    "Active Benefit+ membership displays correctly",
-    "Enroll in Benefit+ successfully",
-    "Benefit+ agreement error when name does not match",
-    "Benefit+ cancellation screen displays correctly",
-    "Benefit+ agreement shows in Spanish when language switched",
-    "Dashboard with ACTIVE agreement",
-    "Dashboard with PAST DUE agreement",
-    "Dashboard with Catch Up Plan agreement",
-    "View Lease button visible on dashboard",
-    "Dashboard shows sold lease status message",
-    "Dashboard content displayed in Spanish",
-    "Verify left sidebar navigation in desktop view",
-    "Successful login with valid credentials",
-    "Login with past-due account",
-    "Logout clears session",
-    "Profile dropdown options visible after login",
-    "Make a Payment – Next Renewal flow",
-    "Make a Payment – Payoff (Today",
-    "Payment Methods page loads correctly",
-    "Add Credit/Debit Card as payment method",
-    "Add Bank Account as payment method",
-    "Verify payment summary section in desktop view",
-    "Profile page loads with correct data",
-    "Profile page content shown in Spanish",
-    "Profile page data matches API response",
-    "Navigate directly to Shop Marketplace page",
-    "Navigate from home to Shop Marketplace via dropdown menu",
-    "Validate Shop Marketplace page comprehensive structure",
-    "Navigate directly to Shop Online page",
-    "Navigate from homepage to Shop Online",
-    "Validate Shop Online page comprehensive structure",
-    "Validate retailer categories and search functionality",
-    "Validate FAQ and Footer sections",
-    "Home page loads and main banner is visible",
-    "Overview page – Main Banner section valid",
-    "Overview page – Ways to Shop section valid",
-    "Overview page – Shopping Experience section valid",
-    "Overview page – Mobile App section valid",
-    "Shop Nearby Stores page loads correctly",
-    "Shop Online Stores page loads correctly",
-    "Shop Marketplace page loads correctly",
-    "Footer links are present on page",
-    "Switch to Spanish language and back to English",
-    "Spanish home page loads correctly"
+    "SPOS-2069 print call log report",
+    "SPOS-2099 AM activity log filter by date and time",
+    "SPOS-7251 AM Activity Log filter by language",
+    "SPOS-7250 AM Activity Log phone dropdown",
+    "SPOS-2066 add customer log in contact information",
+    "SPOS-2044 add customer log in contact information field visit",
+    "SPOS-2065 add reference log in contact information",
+    "SPOS-2056 filter past due list by autopay customers",
+    "SPOS-2103 refresh the past due list"
   ],
   "hook_counts": {
     "beforeAll": 0,
-    "beforeEach": 12,
+    "beforeEach": 2,
     "afterEach": 0,
     "afterAll": 0
   },
   "execution_entrypoints": [
-    "test",
     "test:ui",
-    "test:api",
+    "test:project",
     "test:smoke",
-    "test:smoke:ui",
-    "test:smoke:api",
-    "test:smoke:all",
-    "test:regression",
-    "test:headed",
-    "test:debug",
-    "test:report",
-    "test:qa",
-    "test:stage",
-    "test:prod",
-    "test:bdd",
-    "test:bdd:ui",
-    "test:bdd:api",
-    "test:bdd:smoke",
-    "test:bdd:regression",
-    "codegen",
-    "install:browsers",
-    "agent:analyze",
-    "test:unit",
-    "test:unit:teams"
+    "test:smoke:list",
+    "test:customer-order",
+    "test:customer-order:headed",
+    "test:db",
+    "report:extent"
   ]
 }</pre></section><section class='card'><h2>Normal Flows</h2><pre>{
   "summary": {
-    "files_with_flow": 42,
-    "locator_calls": 578,
-    "ui_actions": 187,
-    "assertions": 267
+    "files_with_flow": 96,
+    "locator_calls": 2684,
+    "ui_actions": 2130,
+    "assertions": 782
   },
   "flow_files_sample": [
     {
-      "file": "e2e/example.spec.ts",
-      "sample_methods": [],
-      "locator_calls": 2,
-      "ui_actions": 3,
-      "assertions": 2
-    },
-    {
-      "file": "pageObjects/HomePage.objects.ts",
+      "file": "src/main/pages/accountmanagement/account-management/am-activity-log.page.ts",
       "sample_methods": [
-        "constructor"
+        "open",
+        "if",
+        "clickApplyButton",
+        "selectDaysLate",
+        "selectLanguage",
+        "selectRoute",
+        "selectAmActivity",
+        "selectPhone",
+        "selectCoworker",
+        "selectDateRange",
+        "selectTimeRange",
+        "clickPrintButton",
+        "hasResults",
+        "if",
+        "isValueInRange",
+        "for",
+        "getRowCount",
+        "waitForLoaded",
+        "waitForResultsToLoad",
+        "selectFilterDropdownByLabel",
+        "for",
+        "if",
+        "if",
+        "if",
+        "if"
       ],
-      "locator_calls": 2,
-      "ui_actions": 0,
-      "assertions": 0
+      "locator_calls": 24,
+      "ui_actions": 25,
+      "assertions": 10
     },
     {
-      "file": "pages/HomePage.ts",
+      "file": "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
       "sample_methods": [
-        "constructor",
-        "performPerformUploadedFileSampleTestCases",
-        "performPerformExcelExtractionWarningModulenotfounderrorNo"
+        "getCustomerName",
+        "hasExistingCommitment",
+        "navigateToCustomer",
+        "getTextConversionPhoneText",
+        "clickCustomerInfoExpandIcon",
+        "validateAutoFillAddress",
+        "clickTakePaymentButton",
+        "getCommitmentDateTime",
+        "getDaysPastDueText",
+        "if",
+        "clickPrintLetterButton",
+        "expectSelectLetterDialog",
+        "confirmSelectLetterDialog",
+        "expectPrintPreviewDialog",
+        "if",
+        "clickNextButton",
+        "for",
+        "clickPreviousButton",
+        "for",
+        "removeAllSavedAlerts",
+        "if",
+        "tryRemoveAllSavedAlerts",
+        "if",
+        "getConfiguredAlertCount",
+        "getSavedAlertCount"
+      ],
+      "locator_calls": 147,
+      "ui_actions": 93,
+      "assertions": 68
+    },
+    {
+      "file": "src/main/pages/accountmanagement/account-management/past-due-list.page.ts",
+      "sample_methods": [
+        "clickApplyButton",
+        "selectCommitmentStatus",
+        "selectDaysLate",
+        "selectCustomerWithCallActivity",
+        "selectBestTimeToCall",
+        "selectLanguage",
+        "selectRoute",
+        "selectCommunicationType",
+        "selectCommitmentDates",
+        "selectDueDates",
+        "selectAutopayCustomers",
+        "if",
+        "clickRefreshCallListButton",
+        "if",
+        "getPastDueListHeaderCount",
+        "clearFilters",
+        "hasResults",
+        "for",
+        "getRowCount",
+        "getPastDueCustomerName",
+        "getPastDueCustomerRefs",
+        "findPastDueCustomerIndexByName",
+        "findPastDueCustomerIndexById",
+        "findFirstPaymentDefaultCustomerIndex",
+        "openCustomerByIndex"
+      ],
+      "locator_calls": 48,
+      "ui_actions": 22,
+      "assertions": 16
+    },
+    {
+      "file": "src/main/pages/accountmanagement/home.page.ts",
+      "sample_methods": [
+        "openPastDueList",
+        "if",
+        "openAmActivityLog",
+        "openAccountManagementMenu",
+        "if",
+        "expectAccountManagementSubMenuLinks"
       ],
       "locator_calls": 0,
-      "ui_actions": 2,
-      "assertions": 0
+      "ui_actions": 6,
+      "assertions": 3
     },
     {
-      "file": "pages/acima-advantage-page.ts",
+      "file": "src/main/pages/accountmanagement/take-payment.page.ts",
       "sample_methods": [
-        "acimaAdvantageButton",
-        "acimaAdvantagePageHeader",
-        "startEarningButton",
-        "enrollNowButton",
-        "acimaDollarsOption",
-        "referAFriendOption",
-        "referAFriendButton",
-        "referAFriendPageHeader",
-        "copyLinkButton",
-        "copiedConfirmation",
-        "referralLinkField",
-        "earnMoreInMobileAppButton",
-        "mobileAppContent",
         "constructor",
-        "clickAcimaAdvantageButton",
-        "for",
-        "catch",
-        "catch",
-        "validateAcimaAdvantagePageVisible",
-        "clickStartEarningButton",
-        "clickEnrollNowButton",
-        "validateAcimaDollarsOptionEnabled",
-        "validateReferAFriendOptionEnabled",
-        "clickReferAFriendButton",
-        "validateReferAFriendPageVisible"
-      ],
-      "locator_calls": 23,
-      "ui_actions": 8,
-      "assertions": 0
-    },
-    {
-      "file": "pages/acima-home-page.ts",
-      "sample_methods": [
-        "headerNav",
-        "shopDropdown",
-        "helpDropdown",
-        "loginLink",
-        "geoLocationModal",
-        "geoLocationCloseButton",
-        "languageDropdown",
-        "englishOption",
-        "spanishOption",
-        "acceptCookieButton",
-        "setLocationLink",
-        "storeLocatorInput",
-        "updateLocationButton",
-        "shopNearbyLink",
-        "shopOnlineLink",
-        "shopMarketplaceLink",
-        "profileMenuButton",
-        "logoutMenuItem",
-        "footerLinks",
-        "mainBanner",
-        "carouselIndicators",
-        "constructor",
-        "checkAndCloseGeoLocationPopup",
+        "open",
+        "confirmInitialPaymentPromptIfPresent",
+        "openPaymentHistoryFromOtherActions",
         "if",
-        "acceptCookiesIfPresent"
-      ],
-      "locator_calls": 28,
-      "ui_actions": 13,
-      "assertions": 0
-    },
-    {
-      "file": "pages/base-page.ts",
-      "sample_methods": [
-        "constructor",
-        "log",
-        "logStep",
-        "logPass",
-        "logFail",
-        "logBusiness",
-        "navigateTo",
-        "for",
-        "catch",
-        "getTitle",
-        "getCurrentUrl",
-        "goBack",
-        "refresh",
-        "click",
-        "clickWithJs",
-        "fill",
-        "clearAndFill",
-        "getText",
-        "getValue",
-        "selectByValue",
-        "selectByText",
-        "selectByIndex",
-        "getSelectedOptionText",
-        "waitForVisible",
-        "waitForHidden"
-      ],
-      "locator_calls": 5,
-      "ui_actions": 11,
-      "assertions": 9
-    },
-    {
-      "file": "pages/benefit-plus-page.ts",
-      "sample_methods": [
-        "benefitPlusNavLink",
-        "benefitPlusRouteContent",
-        "benefitPlusSection",
-        "enrollButton",
-        "benefitPlusBadge",
-        "cancelMembershipButton",
-        "confirmCancelButton",
-        "agreementCheckbox",
-        "nameInputOnAgreement",
-        "submitAgreementButton",
-        "enrollmentSuccessMsg",
-        "cancellationSuccessMsg",
-        "membershipStatus",
-        "agreementPageTitle",
-        "nameMatchError",
-        "cancellationScreen",
-        "constructor",
-        "validateBenefitPlusNotDisplayed",
-        "validateActiveMembership",
-        "validateBenefitPlusVisible",
-        "isEnrollButtonVisible",
-        "clickEnroll",
-        "signAgreement",
+        "tryOpenPaymentHistoryFromOtherActions",
         "if",
-        "enrollInBenefitPlus"
+        "for",
+        "if",
+        "if",
+        "if",
+        "findPaymentHistoryReceiptNumber",
+        "for",
+        "if",
+        "waitForPaymentHistoryDialog",
+        "if",
+        "clickVisiblePaymentHistoryOption",
+        "if",
+        "for",
+        "if",
+        "revealOtherActionsButton",
+        "if",
+        "resolvePaymentHistoryReceiptColumnIndex",
+        "for",
+        "normalizeReceiptNumber"
       ],
-      "locator_calls": 20,
-      "ui_actions": 10,
+      "locator_calls": 125,
+      "ui_actions": 83,
+      "assertions": 18
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-details.page.ts",
+      "sample_methods": [
+        "fillAgreementDetails",
+        "if",
+        "fillPromoAgreementDetails",
+        "entersecuritydeposit",
+        "if",
+        "fillRequiredAgreementDetails",
+        "expectAgreementSourceVisible",
+        "expectLdwValueReasonable",
+        "if",
+        "clickPreviousButton",
+        "getSwitchoutAgreementTotal",
+        "expectFieldsDisabled",
+        "for",
+        "fillSwitchoutAgreementDetails",
+        "if",
+        "handleInventoryInvalidInformationAndRetry",
+        "manualSignature",
+        "captureInitialPaymentValues",
+        "verifyInitialPaymentValues",
+        "if",
+        "if",
+        "if",
+        "if",
+        "if",
+        "validateInitialPaymentCalculation"
+      ],
+      "locator_calls": 92,
+      "ui_actions": 78,
+      "assertions": 17
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-item-search.page.ts",
+      "sample_methods": [
+        "openRental",
+        "openPromo",
+        "searchItemWithRequiredFieldsCriteria",
+        "basicSearchItemWithRequiredFieldsCriteria",
+        "searchItemWithRequiredFields",
+        "searchItemAddToAgreement",
+        "if",
+        "if",
+        "packageSearchItemWithRequiredFieldsCriteria",
+        "if",
+        "if",
+        "searchPackageItemAndAdd",
+        "if",
+        "if",
+        "searchAndAddItem",
+        "if",
+        "searchAndAddItemByModel",
+        "if",
+        "addAnotherItem",
+        "addFirstAvailableItemWithoutSearch",
+        "if",
+        "if",
+        "continueToAgreementDetails",
+        "for",
+        "if"
+      ],
+      "locator_calls": 117,
+      "ui_actions": 66,
+      "assertions": 32
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-reinstatement.page.ts",
+      "sample_methods": [
+        "startReinstatement",
+        "handleAuthenticationPopup"
+      ],
+      "locator_calls": 9,
+      "ui_actions": 9,
       "assertions": 1
     },
     {
-      "file": "pages/home-page.ts",
+      "file": "src/main/pages/agreement/agreement/agreement-split.page.ts",
       "sample_methods": [
-        "headerContainer",
-        "loginButton",
-        "shopNavItem",
-        "howItWorksNavItem",
-        "helpNavItem",
-        "heroSection",
-        "primaryCta",
-        "footerContainer",
-        "footerLinks",
-        "languageToggle",
-        "constructor",
-        "navigateToHomePage",
-        "navigateToSpanishHomePage",
-        "validatePageTitleContainsBrand",
-        "validatePageUrlContains",
-        "validateHeaderVisible",
-        "validateLoginButtonVisible",
-        "validateNavigationItemsVisible",
-        "validateHeroSectionVisible",
+        "openCustomerAgreementHistory",
+        "splitAgreementWorkflow",
+        "isRacExchangeButtonVisible",
+        "handleAuthorizationPrompt",
         "if",
-        "validateFooterHasLinks",
-        "validateLanguageToggleAvailable",
         "if",
-        "validateSpanishPageUrl",
-        "validateSpanishContentVisible"
+        "if",
+        "handlePinPrompt",
+        "if",
+        "continueIncompleteVerificationIfPresent",
+        "confirmSplitDialogIfPresent",
+        "openAddCoCustomerEntry",
+        "for",
+        "activateAgreementHistoryContext",
+        "for",
+        "if",
+        "waitForCustomerProfileReady",
+        "for",
+        "if",
+        "resolvePin"
       ],
-      "locator_calls": 24,
+      "locator_calls": 32,
+      "ui_actions": 29,
+      "assertions": 5
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/agreement-switchout.page.ts",
+      "sample_methods": [
+        "startSwitchOut",
+        "for",
+        "if",
+        "isSwitchOutConfirmed",
+        "cancelSwitchOut",
+        "openAgreementActivityTab",
+        "handleIncompleteVerificationContinue",
+        "answerAddCoCustomerPrompt",
+        "waitForSwitchOutButtonToBeEnabled",
+        "if",
+        "for",
+        "if"
+      ],
+      "locator_calls": 13,
       "ui_actions": 8,
-      "assertions": 6
-    },
-    {
-      "file": "pages/login-page.ts",
-      "sample_methods": [
-        "loginCta",
-        "customerLoginLink",
-        "ssoButton",
-        "customerPortalText",
-        "signInWithUsernameInsteadLink",
-        "usernameInput",
-        "passwordInput",
-        "continueButton",
-        "submitButton",
-        "dashboardContainer",
-        "leaseDetailSection",
-        "makeAPaymentButton",
-        "nextPaymentSection",
-        "earlyPurchaseSection",
-        "paymentsMadeSection",
-        "paymentsPageTitle",
-        "portalLoadingIndicator",
-        "portalIdentityProviderError",
-        "portalRouteContent",
-        "paymentConfirmed",
-        "pastDueHeading",
-        "leftSidebarPayments",
-        "leftSidebarProfile",
-        "leftSidebarLeases",
-        "viewLeaseAgreementLink"
-      ],
-      "locator_calls": 60,
-      "ui_actions": 23,
-      "assertions": 0
-    },
-    {
-      "file": "pages/mexico-customer-portal-page.ts",
-      "sample_methods": [
-        "constructor",
-        "mxOrigin",
-        "navigateToMexicoPath",
-        "clickSignInWithUsernameInsteadOnMxPortal",
-        "signInToMxPortal",
-        "clickEnviarButton",
-        "signInFromMexicoHome",
-        "waitForDashboard",
-        "isOnAuthnPage",
-        "clearMexicoSession",
-        "sideNavLink",
-        "clickSideNav",
-        "assertSideNavActive",
-        "paymentMethodsHeading",
-        "addPaymentMethodButton",
-        "paymentMethodsList",
-        "cardRowEndingIn",
-        "defaultBadge",
-        "cardTypeLabel",
-        "addFormHeading",
-        "addFormBackButton",
-        "addFormTab",
-        "addFormGuardarButton",
-        "addFormCancelarButton",
-        "addFormMonthDropdown"
-      ],
-      "locator_calls": 30,
-      "ui_actions": 18,
       "assertions": 2
     },
     {
-      "file": "pages/mexico-page.ts",
+      "file": "src/main/pages/agreement/agreement/agreement-transfer-receive.page.ts",
       "sample_methods": [
-        "headerNavigation",
-        "loginDropdownButton",
-        "heroSection",
-        "footerLinks",
-        "cookieConsentDialog",
-        "skipToContentLink",
-        "audioEyeStatus",
-        "navigateToMexicoHomePage",
-        "navigateToMexicoPath",
-        "navigateToLoginPortal",
-        "validatePageLoaded",
-        "validateMexicoUrl",
-        "validateUrlContains",
-        "validateTitleContains",
-        "validatePageBodyContains",
-        "validateCookieConsentVisible",
-        "validateCookieConsentContainsText",
-        "validateCookieConsentButton",
-        "validateHeroHeading",
-        "validateHeroDescriptionContains",
-        "validateFeatureListContains",
-        "validateHomepageSectionVisible",
-        "validateHomepageStepVisible",
-        "validateNavButtonVisible",
-        "validateNavLogoPresent"
+        "constructor",
+        "open",
+        "acceptTransferByAgreementNumber",
+        "waitForReceiveUiTick",
+        "selectTransferRequestTabIfPresent",
+        "waitForIncomingTransfer",
+        "if",
+        "confirmVisibleDialog"
       ],
-      "locator_calls": 48,
+      "locator_calls": 7,
       "ui_actions": 6,
-      "assertions": 37
+      "assertions": 3
     },
     {
-      "file": "pages/mobile/mobile-base-page.ts",
+      "file": "src/main/pages/agreement/agreement/agreement-transfer.page.ts",
       "sample_methods": [
         "constructor",
-        "tap",
+        "waitForTransferUiTick",
         "for",
-        "catch",
-        "catch",
-        "longPress",
-        "swipeUp",
-        "swipeDown",
-        "swipeLeft",
-        "swipeRight",
-        "scrollWithinElement",
-        "openHamburgerMenu",
-        "closeHamburgerMenu",
-        "tapNavItem",
-        "tapBottomNavTab",
-        "dismissBottomSheet",
-        "acceptOkIfTermsPopupPresent",
+        "if",
+        "handleAuthenticationLoginPopup",
         "if",
         "if",
         "if",
-        "waitForMobilePageReady",
-        "pullToRefresh"
+        "confirmVisibleDialog",
+        "enterPinIfPrompted",
+        "if",
+        "for"
       ],
-      "locator_calls": 12,
-      "ui_actions": 1,
-      "assertions": 0
-    },
-    {
-      "file": "pages/mobile/mobile-dashboard-page.ts",
-      "sample_methods": [
-        "dashboardContainer",
-        "leaseDetailSection",
-        "nextPaymentCard",
-        "earlyPurchaseCard",
-        "paymentsMadeCard",
-        "pastDueHeading",
-        "makeAPaymentButton",
-        "viewLeaseButton",
-        "soldStatusBanner",
-        "spanishContent",
-        "catchUpPlanSection",
-        "constructor",
-        "validateDashboardLoaded",
-        "validateLeaseDetailVisible",
-        "validateNextPaymentCardVisible",
-        "if",
-        "validateEarlyPurchaseCardVisible",
-        "validatePaymentsMadeCardVisible",
-        "validatePastDueBannerVisible",
-        "validateViewLeaseLinkVisible",
-        "validateSoldStatusIfPresent",
-        "if",
-        "validateSpanishContentIfPresent",
-        "validateCatchUpPlanSectionVisible",
-        "tapMakeAPayment"
-      ],
-      "locator_calls": 11,
-      "ui_actions": 0,
-      "assertions": 0
-    },
-    {
-      "file": "pages/mobile/mobile-home-page.ts",
-      "sample_methods": [
-        "geoLocationModal",
-        "geoLocationCloseButton",
-        "acceptCookieButton",
-        "profileMenuButton",
-        "logoutMenuItem",
-        "mainBanner",
-        "hamburgerMenu",
-        "mobileNavDrawer",
-        "loginButton",
-        "languageToggle",
-        "heroSection",
-        "footerContainer",
-        "footerLinks",
-        "shopYourWaySection",
-        "shoppingIsEasySection",
-        "constructor",
-        "checkAndCloseGeoLocationPopup",
-        "if",
-        "acceptCookiesIfPresent",
-        "if",
-        "logoutIfUserIsLoggedIn",
-        "if",
-        "if",
-        "validateMainBannerVisible",
-        "navigateToHomePage"
-      ],
-      "locator_calls": 33,
-      "ui_actions": 2,
+      "locator_calls": 16,
+      "ui_actions": 15,
       "assertions": 4
     },
     {
-      "file": "pages/mobile/mobile-login-page.ts",
+      "file": "src/main/pages/agreement/agreement/agreement-view.page.ts",
       "sample_methods": [
-        "loginCta",
-        "customerLoginMenuItem",
-        "usernameInput",
-        "phoneInput",
-        "ssnInput",
-        "passwordInput",
-        "submitButton",
-        "signInWithTextButton",
-        "dashboardContainer",
-        "leaseDetailSection",
-        "nextPaymentSection",
-        "pastDueHeading",
-        "logoutOption",
-        "makeAPaymentButton",
-        "paymentsPageTitle",
-        "constructor",
-        "clickLoginButton",
-        "selectCustomerLoginOption",
-        "clickSignInWithUsernameInstead",
-        "catch",
+        "open",
+        "clickItem"
+      ],
+      "locator_calls": 1,
+      "ui_actions": 2,
+      "assertions": 1
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/item-return.page.ts",
+      "sample_methods": [
+        "stabilizeReturnUi",
+        "waitForDialogToClose",
+        "waitForLoadingToSettle",
+        "navigateToReinstatableItem",
+        "if",
+        "openCustomerProfilePage",
+        "for",
+        "if",
+        "expectReturnPopupUi",
+        "answerCustomerInStorePrompt",
+        "ensureReturnReasonDialogReady",
+        "for",
         "if",
         "if",
-        "catch",
-        "clickSignInWithTextMessage",
+        "if",
+        "if",
+        "if",
+        "selectReturnReason",
+        "for",
+        "for",
+        "if",
+        "readReturnReasonValue",
+        "for",
+        "if",
+        "isPlaceholderDropdownValue"
+      ],
+      "locator_calls": 77,
+      "ui_actions": 50,
+      "assertions": 17
+    },
+    {
+      "file": "src/main/pages/agreement/agreement/loaner-agreement.page.ts",
+      "sample_methods": [
+        "stabilizeLoanerUi",
+        "openAgreementHistoryViewIfPresent",
+        "if",
+        "pinPromptDialog",
+        "countAgreementRows",
+        "collectAgreementHistory",
+        "for",
+        "if",
+        "handleAuthenticationPopup",
+        "handleAuthenticationPopupWithPolling",
+        "if",
+        "openLoanerActionSurface",
+        "waitForLoanerItemSearchOrFail",
+        "if",
+        "openInventoryOrServiceItem",
+        "if",
+        "fillVisibleField",
+        "if",
+        "fillServiceRequestFallback",
         "if"
       ],
-      "locator_calls": 21,
-      "ui_actions": 10,
-      "assertions": 0
+      "locator_calls": 40,
+      "ui_actions": 24,
+      "assertions": 4
     },
     {
-      "file": "pages/mobile/mobile-payment-methods-page.ts",
+      "file": "src/main/pages/agreement/auto-pay.page.ts",
       "sample_methods": [
-        "pageHeader",
-        "addPaymentMethodButton",
-        "creditDebitCardButton",
-        "bankAccountButton",
-        "nameOnCardInput",
-        "ccIframe",
-        "monthDropdown",
-        "yearDropdown",
-        "cvvInput",
-        "addressInput",
-        "cityInput",
-        "postalCodeInput",
-        "saveCardButton",
-        "bankNameInput",
-        "routingNumberInput",
-        "accountNumberInput",
-        "confirmAccountInput",
-        "saveBankButton",
-        "bankAccountSuccessMsg",
-        "paymentMethodsList",
         "constructor",
-        "validatePaymentMethodsPageLoaded",
-        "tapAddPaymentMethod",
-        "selectCreditDebitCard",
-        "fillCreditCardDetails"
+        "enrollAutoPay",
+        "isEnrollmentSuccessful",
+        "checkIfVisible"
       ],
-      "locator_calls": 27,
-      "ui_actions": 10,
-      "assertions": 0
-    },
-    {
-      "file": "pages/mobile/mobile-payments-page.ts",
-      "sample_methods": [
-        "paymentsPageTitle",
-        "paymentRadioButtons",
-        "paymentMethodDropdown",
-        "paymentMethodList",
-        "reviewPaymentRows",
-        "paymentTotalRow",
-        "paymentTotalDropdown",
-        "paymentBreakdownItems",
-        "continueButton",
-        "submitPaymentButton",
-        "paymentProcessingTitle",
-        "paymentConfirmedMsg",
-        "nextPaymentAmount",
-        "payoffAmount",
-        "constructor",
-        "validatePaymentsPageLoaded",
-        "selectPaymentType",
-        "for",
-        "selectPaymentMethodFromDropdown",
-        "if",
-        "validateReviewPaymentPage",
-        "expandPaymentBreakdown",
-        "tapContinue",
-        "submitPayment",
-        "validatePaymentProcessing"
-      ],
-      "locator_calls": 15,
-      "ui_actions": 0,
-      "assertions": 0
-    },
-    {
-      "file": "pages/mobile/mobile-profile-page.ts",
-      "sample_methods": [
-        "profilePageHeader",
-        "profileSection",
-        "firstNameField",
-        "lastNameField",
-        "emailField",
-        "phoneField",
-        "editProfileButton",
-        "saveProfileButton",
-        "cancelButton",
-        "profileUpdateSuccess",
-        "constructor",
-        "validateProfilePageLoaded",
-        "validateProfileSectionVisible",
-        "if",
-        "for",
-        "if",
-        "if",
-        "getFirstName",
-        "getLastName",
-        "getEmail",
-        "getPhone",
-        "tapEditProfile",
-        "updateFirstName",
-        "updateLastName",
-        "updateEmail"
-      ],
-      "locator_calls": 10,
-      "ui_actions": 0,
-      "assertions": 0
-    },
-    {
-      "file": "pages/my-profile-page.ts",
-      "sample_methods": [
-        "profilePageHeader",
-        "firstNameField",
-        "lastNameField",
-        "emailField",
-        "phoneField",
-        "addressField",
-        "editProfileButton",
-        "saveProfileButton",
-        "cancelButton",
-        "profileUpdateSuccess",
-        "changePasswordButton",
-        "currentPasswordInput",
-        "newPasswordInput",
-        "confirmPasswordInput",
-        "profileSection",
-        "constructor",
-        "validateProfilePageLoaded",
-        "validateProfileSectionVisible",
-        "getFirstName",
-        "getLastName",
-        "getEmail",
-        "getPhone",
-        "clickEditProfile",
-        "updateFirstName",
-        "updateLastName"
-      ],
-      "locator_calls": 15,
-      "ui_actions": 3,
-      "assertions": 0
-    },
-    {
-      "file": "pages/overview-page.ts",
-      "sample_methods": [
-        "mainBanner",
-        "waysToShopSection",
-        "shoppingExperience",
-        "mobileAppSection",
-        "waysToShopText",
-        "constructor",
-        "for",
-        "openAndValidateLinks",
-        "if",
-        "if",
-        "clickVisibleLinkByHref",
-        "for",
-        "if",
-        "resolveHref",
-        "validateMainBanner",
-        "validateWaysToShopSection",
-        "validateShoppingExperienceSection",
-        "validateMobileAppSection"
-      ],
-      "locator_calls": 15,
-      "ui_actions": 1,
-      "assertions": 0
-    },
-    {
-      "file": "pages/payment-methods-page.ts",
-      "sample_methods": [
-        "addPaymentMethodButton",
-        "paymentMethodPageHeader",
-        "paymentMethodsPageLoaded",
-        "loadingIndicator",
-        "creditDebitCardButton",
-        "nameOnCardInput",
-        "ccIframe",
-        "monthDropdown",
-        "yearDropdown",
-        "cvvInput",
-        "addressInput",
-        "cityInput",
-        "stateDropdown",
-        "postalCodeInput",
-        "savePaymentMethodButton",
-        "ccListOnPage",
-        "bankAccountButton",
-        "bankNameInput",
-        "routingNumberInput",
-        "accountNumberInput",
-        "confirmAccountInput",
-        "accountTypeButton",
-        "checkingAccountOption",
-        "savingsAccountOption",
-        "saveBankButton"
-      ],
-      "locator_calls": 33,
-      "ui_actions": 19,
-      "assertions": 0
-    },
-    {
-      "file": "pages/payments-page.ts",
-      "sample_methods": [
-        "paymentList",
-        "paymentRadioButtons",
-        "paymentMethodDropdown",
-        "paymentMethodList",
-        "nextPaymentComponent",
-        "todaysPurchaseAmount",
-        "acimaDollarsComponent",
-        "reviewPaymentRows",
-        "paymentTotalDropdown",
-        "paymentBreakdownItems",
-        "paymentCollapseRows",
-        "paymentsTotalRow",
-        "paymentsProcessingTitle",
-        "continueButton",
-        "submitPaymentButton",
-        "paymentConfirmedMsg",
-        "constructor",
-        "selectPaymentType",
-        "if",
-        "for",
-        "selectAnyPaymentType",
-        "selectPaymentMethodFromDropdown",
-        "if",
-        "if",
-        "if"
-      ],
-      "locator_calls": 24,
-      "ui_actions": 7,
-      "assertions": 0
-    },
-    {
-      "file": "pages/shop-marketplace-page.ts",
-      "sample_methods": [
-        "mainHeading",
-        "shopMenuItem",
-        "shopDropdownMenu",
-        "shopMarketplaceLink",
-        "headerContainer",
-        "acimaLogo",
-        "languageSelector",
-        "setLocationButton",
-        "loginButton",
-        "mobileAppBanner",
-        "creditCardBanner",
-        "leaseApprovalBanner",
-        "shopNowLink",
-        "popularRetailersHeading",
-        "popularRetailersSeeAllLink",
-        "retailerLogos",
-        "onlineCategoriesHeading",
-        "categoriesSeeAllLink",
-        "categoryCarousel",
-        "furnitureCategory",
-        "mattressesCategory",
-        "homeElectronicsCategory",
-        "computersMobileCategory",
-        "appliancesCategory",
-        "autoWheelTireCategory"
-      ],
-      "locator_calls": 56,
+      "locator_calls": 5,
       "ui_actions": 4,
-      "assertions": 46
-    },
-    {
-      "file": "pages/shop-online-page.ts",
-      "sample_methods": [
-        "mainHeading",
-        "breadcrumb",
-        "shopBreadcrumbLink",
-        "retailersBreadcrumb",
-        "nearMeTab",
-        "onlineTab",
-        "acimaLogo",
-        "languageSelector",
-        "setLocationButton",
-        "loginButton",
-        "searchTextbox",
-        "categoriesHeading",
-        "toggleCategoriesButton",
-        "allCategoryCheckbox",
-        "furnitureCategoryCheckbox",
-        "mattressesCategoryCheckbox",
-        "resetFiltersButton",
-        "furnitureSection",
-        "furnitureHeading",
-        "furnitureSeeAllLink",
-        "mattressesHeading",
-        "homeElectronicsHeading",
-        "computersElectronicsHeading",
-        "appliancesHeading",
-        "faqHeading"
-      ],
-      "locator_calls": 48,
-      "ui_actions": 6,
-      "assertions": 40
-    },
-    {
-      "file": "step-definitions/ui/static-pages.steps.ts",
-      "sample_methods": [],
-      "locator_calls": 0,
-      "ui_actions": 1,
       "assertions": 2
     },
     {
-      "file": "tests/api/customer.spec.ts",
+      "file": "src/main/pages/agreement/charge-off-reason-map.ts",
+      "sample_methods": [
+        "if",
+        "for",
+        "if",
+        "normalizeChargeOffReason"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 0
+    },
+    {
+      "file": "src/main/pages/agreement/create-customer.page.ts",
+      "sample_methods": [
+        "open",
+        "openCustomerDetails",
+        "enterBasicCustomerInformation",
+        "validateCustomer",
+        "handleEnteredAddressPopupIfPresent",
+        "handleDecisionEngineApprovedPopup",
+        "handleCustomerWorkflowDialogs",
+        "for",
+        "if",
+        "advanceCustomerInformationMandatory",
+        "if",
+        "tryAdvanceViaNewCustomer",
+        "for",
+        "for",
+        "completeAdditionalCustomerInformation",
+        "for",
+        "if",
+        "handleDecisionEngineApprovedPopupIfPresent",
+        "if",
+        "completeEmployerInformation",
+        "expectCustomerCreated",
+        "searchCoCustomerWithFirstLastDob",
+        "for",
+        "if",
+        "if"
+      ],
+      "locator_calls": 102,
+      "ui_actions": 90,
+      "assertions": 11
+    },
+    {
+      "file": "src/main/pages/agreement/customer-information.page.ts",
+      "sample_methods": [
+        "open",
+        "if",
+        "addRACCoworkerAndHandleSla",
+        "if",
+        "validateAgreementDeliveryAddress",
+        "countAgreementRows",
+        "openAgreementHistorySection",
+        "clickBasicInformationEdit",
+        "handleAuthenticationLoginPopup",
+        "if",
+        "for",
+        "if",
+        "enterPinAndClickContinue",
+        "handleAuthenticationPopup",
+        "if",
+        "if",
+        "if",
+        "if",
+        "escapeRegExp"
+      ],
+      "locator_calls": 30,
+      "ui_actions": 27,
+      "assertions": 13
+    },
+    {
+      "file": "src/main/pages/agreement/customer-search.page.ts",
+      "sample_methods": [
+        "open",
+        "searchByName",
+        "searchByNameAndSsn",
+        "searchBySsn",
+        "searchByFirstName",
+        "fillSsnFilters",
+        "clearSsnFilters",
+        "fillMaskedSsnInput",
+        "openCustomerByStatus",
+        "for",
+        "if",
+        "assignAllAlerts",
+        "for",
+        "getAssignedAlertCount",
+        "if",
+        "if",
+        "for",
+        "if",
+        "expectAgreementActionButtonsVisible",
+        "selectFirstResult",
+        "selectFirstResultAndWaitForActions",
+        "if",
+        "if",
+        "for",
+        "if"
+      ],
+      "locator_calls": 66,
+      "ui_actions": 75,
+      "assertions": 13
+    },
+    {
+      "file": "src/main/pages/agreement/daily-activity-planner.page.ts",
+      "sample_methods": [
+        "waitForPlannerUiTick",
+        "changeDate",
+        "if",
+        "signAndConfirmDeliveryForAgreement",
+        "for",
+        "getCustomerEventStatusColor",
+        "while",
+        "if",
+        "clickOnSelectedTile",
+        "isSignAndConfirmActionVisible",
+        "clickOnAgreementNo",
+        "while",
+        "openEventTile",
+        "resolveEventLabelForStatus",
+        "for",
+        "for",
+        "for",
+        "if",
+        "if",
+        "for",
+        "if",
+        "if",
+        "resolveEventLabel",
+        "for",
+        "for"
+      ],
+      "locator_calls": 44,
+      "ui_actions": 36,
+      "assertions": 6
+    },
+    {
+      "file": "src/main/pages/agreement/docu-sign.page.ts",
+      "sample_methods": [
+        "signDocumentUsingUrl",
+        "if",
+        "if",
+        "parseDocuSignUrl"
+      ],
+      "locator_calls": 4,
+      "ui_actions": 5,
+      "assertions": 0
+    },
+    {
+      "file": "src/main/pages/agreement/home.page.ts",
+      "sample_methods": [
+        "openDashboard",
+        "openPastDueList",
+        "openDapEvents",
+        "openCustomerSearch",
+        "openPaymentSearch",
+        "openInventorySearch",
+        "openCashManagement"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 5,
+      "assertions": 3
+    },
+    {
+      "file": "src/main/pages/agreement/inventory/inventory-information.page.ts",
+      "sample_methods": [
+        "clickNotRentReady",
+        "clickRentReady",
+        "enterPinAndContinue",
+        "if",
+        "for",
+        "enterPinAndContinueIfPrompted",
+        "if",
+        "isNotRentReadyButtonVisible",
+        "getStatus",
+        "ensureDesiredStatus",
+        "if",
+        "waitForStatus",
+        "verifyInventoryStatus",
+        "waitForProcessingToFinish",
+        "if"
+      ],
+      "locator_calls": 6,
+      "ui_actions": 9,
+      "assertions": 7
+    },
+    {
+      "file": "src/main/pages/agreement/payment-search.page.ts",
+      "sample_methods": [
+        "open",
+        "if",
+        "searchByAgreementNumber",
+        "if",
+        "for",
+        "openFirstTakePaymentResult",
+        "for",
+        "if",
+        "openReversePaymentSearch",
+        "hasSearchResults",
+        "for"
+      ],
+      "locator_calls": 7,
+      "ui_actions": 8,
+      "assertions": 3
+    },
+    {
+      "file": "src/main/pages/agreement/reverse-payment.page.ts",
+      "sample_methods": [
+        "selectAgreementByStoreNumber",
+        "for",
+        "if",
+        "for",
+        "if",
+        "for",
+        "if",
+        "fillVisibleReasonTextarea",
+        "clickOKbuttonAndInstore",
+        "selectReason",
+        "save",
+        "openReverseEditor",
+        "for",
+        "answerPrompt",
+        "resolveReverseConfirmationPrompts",
+        "isDueDateRollbackPromptVisible",
+        "clickPromptIfVisible",
+        "hasReasonEditor",
+        "hasAuthenticationPrompt",
+        "isReverseReceiptVisible",
+        "hasReverseFlowUi",
+        "dismissReverseReceiptPopup",
+        "handleAuthenticationPopup",
+        "clickVisibleYesButtonIfPresent",
+        "escapeRegExp"
+      ],
+      "locator_calls": 48,
+      "ui_actions": 36,
+      "assertions": 6
+    },
+    {
+      "file": "src/main/pages/agreement/schedule-delivery.page.ts",
+      "sample_methods": [
+        "open",
+        "for",
+        "if",
+        "if",
+        "stabilizeAction",
+        "waitForLocatorToDisappear",
+        "waitForDialogToClose",
+        "pinPromptDialog",
+        "authorizationDialog",
+        "chargeOffDialog",
+        "waitForDeliveryUiTick",
+        "if",
+        "if",
+        "if",
+        "if",
+        "expectChargeOffNotEligibleMessage",
+        "if",
+        "if",
+        "hasChargeOffButton",
+        "if",
+        "if",
+        "scheduleDelivery",
+        "if",
+        "scheduleDeliveryFinalDelivery",
+        "if"
+      ],
+      "locator_calls": 135,
+      "ui_actions": 139,
+      "assertions": 19
+    },
+    {
+      "file": "src/main/pages/agreement/take-payment.page.ts",
+      "sample_methods": [
+        "constructor",
+        "stabilizeUi",
+        "waitForLocatorToDisappear",
+        "waitForDialogToClose",
+        "pinPromptDialog",
+        "authorizationDialog",
+        "open",
+        "confirmInitialPaymentPromptIfPresent",
+        "if",
+        "openPaymentHistoryFromOtherActions",
+        "if",
+        "tryOpenPaymentHistoryFromOtherActions",
+        "if",
+        "for",
+        "if",
+        "if",
+        "if",
+        "findPaymentHistoryReceiptNumber",
+        "for",
+        "if",
+        "waitForPaymentHistoryDialog",
+        "if",
+        "clickVisiblePaymentHistoryOption",
+        "if",
+        "for"
+      ],
+      "locator_calls": 133,
+      "ui_actions": 77,
+      "assertions": 21
+    },
+    {
+      "file": "src/main/pages/cashmanagment/cash-managment.page.ts",
+      "sample_methods": [
+        "constructor",
+        "waitForCashManagementReady",
+        "enterCashPaidIn",
+        "enterCheckPaidIn",
+        "enterMoneyOrderPaidIn",
+        "enterCashPaidOut",
+        "enterDropDetails",
+        "getMaxDropAllowedAmount",
+        "enterfinalDrop",
+        "drawerAudit",
+        "currentTill",
+        "cashBeingDropped",
+        "enterReconcileDetails",
+        "for",
+        "for",
+        "if",
+        "if",
+        "handleOverShortAmountDialog",
+        "if",
+        "reprintDropForm",
+        "clickDropdinstoreMenu",
+        "verifyNoncashWidget",
+        "for",
+        "if",
+        "handletimelessthanpopup"
+      ],
+      "locator_calls": 102,
+      "ui_actions": 50,
+      "assertions": 35
+    },
+    {
+      "file": "src/main/pages/cashmanagment/store-multi-list-grid.page.ts",
+      "sample_methods": [
+        "validatePaidInToDrawerLink"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 1
+    },
+    {
+      "file": "src/main/pages/customer/create-customer.page.ts",
+      "sample_methods": [
+        "openSearch",
+        "createCustomer",
+        "clickCustomerInformationNext",
+        "if",
+        "clickNextNextAndSelectNotNow",
+        "completeIncomeInformationAndContinue",
+        "completeResidenceInformationAndContinue",
+        "if",
+        "if",
+        "completeReferenceInformationAndFinish",
+        "if",
+        "clickCurrentStepNext",
+        "if",
+        "dismissMandatoryFieldsDialogIfPresent",
+        "isIncomeStepVisible",
+        "isResidenceStepVisible",
+        "isReferenceStepVisible",
+        "prepareIncomeInformationForNext",
+        "prepareResidenceInformationForNext",
+        "if",
+        "if",
+        "prepareReferenceInformationAndFinish",
+        "if",
+        "enterBasicCustomerInformation",
+        "basicInformation"
+      ],
+      "locator_calls": 214,
+      "ui_actions": 125,
+      "assertions": 28
+    },
+    {
+      "file": "src/main/pages/customer/customer-information.page.ts",
+      "sample_methods": [
+        "verifyEditCustomer",
+        "verifyNameFieldIsEnabled",
+        "getFacturaNameValue",
+        "getDisplayedCustomerNameParts",
+        "clickEditAddress",
+        "validateAutoFillAddress",
+        "validateNoSecondNameField",
+        "validatePhoneNumberCountryCode",
+        "editIdentity",
+        "editResidence",
+        "editReferenceDetails",
+        "editIncomeDetails",
+        "ensureIncomeScheduleDetails",
+        "legal",
+        "clickCommunicationPreferenceEdit",
+        "for",
+        "if",
+        "selectRouteValue",
+        "if",
+        "getRouteValue",
+        "setRouteValueThroughDom",
+        "if",
+        "if",
+        "if",
+        "openAndEditTab"
+      ],
+      "locator_calls": 99,
+      "ui_actions": 73,
+      "assertions": 7
+    },
+    {
+      "file": "src/main/pages/customer/customer-search.page.ts",
+      "sample_methods": [
+        "searchByLastName",
+        "selectExpiredCustomerFromTable",
+        "selectDeclinedCustomerFromTable",
+        "clickRunDecisionEngineButton",
+        "clickVerifyApprovedPopup",
+        "isDecisionStatusVisible",
+        "clickFirstCustomerNameAndValidateNavigation",
+        "dismissSourceIncompleteCustomerPopupIfPresent",
+        "waitForDecisionEngineResult",
+        "hasDecisionStatusVisible"
+      ],
+      "locator_calls": 13,
+      "ui_actions": 9,
+      "assertions": 2
+    },
+    {
+      "file": "src/main/pages/customer/home.page.ts",
+      "sample_methods": [
+        "navigateToCreateCustomerPage",
+        "navigateToCustomerSearchPage",
+        "navigateToCustomerById",
+        "hoveOverCustomerTab",
+        "clickAgreement",
+        "clickPaymentTab",
+        "verifySubModules",
+        "verifySubModulesLink",
+        "verifyCustomerInfoTabsAreDisplayed",
+        "verifyDashboardDropdownLabelsAreDisplayed",
+        "verifyDashboardHeadersAreDisplayed",
+        "verifyMenuModules",
+        "for",
+        "for",
+        "findVisibleElement",
+        "findVisibleElementOrAlias",
+        "waitForCreateCustomerPageReady",
+        "escapeRegExp"
+      ],
+      "locator_calls": 11,
+      "ui_actions": 10,
+      "assertions": 9
+    },
+    {
+      "file": "src/main/pages/customer/payment-search.page.ts",
+      "sample_methods": [
+        "enterCustomerName",
+        "verifyCustomerSearchResults",
+        "for",
+        "waitForSearchResults"
+      ],
+      "locator_calls": 6,
+      "ui_actions": 3,
+      "assertions": 1
+    },
+    {
+      "file": "src/main/pages/customer/pending-approvals.page.ts",
+      "sample_methods": [
+        "open",
+        "enterFirstAndLastNameAndSave",
+        "clickFirstNameInList"
+      ],
+      "locator_calls": 4,
+      "ui_actions": 5,
+      "assertions": 3
+    },
+    {
+      "file": "src/main/pages/dapevents/create-store-event.page.ts",
+      "sample_methods": [
+        "navigateToCreateStoreEvent",
+        "if",
+        "createStoreEvent",
+        "completeStoreEvent",
+        "cancelStoreEvent",
+        "editStoreEvent",
+        "getEventStatusColor",
+        "createdStoreTitleLabel",
+        "createdStoreTitleLink",
+        "openCreatedStoreEvent",
+        "for",
+        "if",
+        "if",
+        "if",
+        "while",
+        "if",
+        "if",
+        "waitForCreatedStoreEvent",
+        "findCreatedStoreEventLink",
+        "for",
+        "if",
+        "openStoreEventChooser",
+        "for",
+        "selectCoWorkersRequired",
+        "if"
+      ],
+      "locator_calls": 31,
+      "ui_actions": 33,
+      "assertions": 9
+    },
+    {
+      "file": "src/main/pages/dapevents/daily-activity-planner.page.ts",
+      "sample_methods": [
+        "clickOnDapEvents",
+        "clickOnDapEventsTab",
+        "if",
+        "if",
+        "for",
+        "createDapEventTask",
+        "completeDapEventTask",
+        "cancelDapEventTask",
+        "cancelDapCustomerEvent",
+        "rescheduleDapCustomerEvent",
+        "if",
+        "signAndConfirmDeliveryForAgreement",
+        "signAndConfirmDelivery",
+        "editTaskEvent",
+        "getCustomerEventStatusColor",
+        "getCustomerEventCompletedStatusColor",
+        "getTaskEventStatusColor",
+        "doManualSignature",
+        "changeDate",
+        "if",
+        "if",
+        "verifyAsigneeDropdown",
+        "if",
+        "getCustomerEventRescheduleStatusColor",
+        "reOpenDapCustomerEvent"
+      ],
+      "locator_calls": 124,
+      "ui_actions": 92,
+      "assertions": 14
+    },
+    {
+      "file": "src/main/pages/dapevents/home.page.ts",
+      "sample_methods": [
+        "clickStoreTab",
+        "if"
+      ],
+      "locator_calls": 1,
+      "ui_actions": 0,
+      "assertions": 0
+    },
+    {
+      "file": "src/main/pages/dapevents/schedule-delivery.page.ts",
+      "sample_methods": [
+        "open",
+        "expectChargeOffNotEligibleMessage",
+        "if",
+        "if",
+        "hasChargeOffButton",
+        "schedule_delivery",
+        "if",
+        "schedule_carryout",
+        "if",
+        "scheduleDelivery",
+        "rescheduleCurrentDelivery",
+        "completeFinalDelivery",
+        "for",
+        "if",
+        "if",
+        "if",
+        "for",
+        "scheduleDeliveryWithoutCoworkerDetails",
+        "scheduleDeliveryLoanerAgreement",
+        "schedulePickupOrCarryInAndConfirm",
+        "addOtherAddress",
+        "expectSelectedAddress",
+        "openAgreementActivityTab",
+        "hasAgreementActivityEntry",
+        "openDeliveryMethodTabIfPresent"
+      ],
+      "locator_calls": 117,
+      "ui_actions": 133,
+      "assertions": 21
+    },
+    {
+      "file": "src/main/pages/dashboard/dashboard.page.ts",
+      "sample_methods": [
+        "expectLoaded",
+        "verifyStoreActionItemCustomer",
+        "verifySalesLeadSection",
+        "verifyOnlineTransactionSection",
+        "handleDropReconciliationPopup",
+        "ensureDashboardVisible"
+      ],
+      "locator_calls": 10,
+      "ui_actions": 2,
+      "assertions": 8
+    },
+    {
+      "file": "src/main/pages/inventory/home.page.ts",
+      "sample_methods": [
+        "clickInventoryTab",
+        "openInventoryTabMenu",
+        "for",
+        "navigateToRentalAgreementItemSearch",
+        "waitForAllSpinnersToDisappear",
+        "resolveInventoryNavigationTarget",
+        "clickNavigationTarget",
+        "if"
+      ],
+      "locator_calls": 3,
+      "ui_actions": 4,
+      "assertions": 2
+    },
+    {
+      "file": "src/main/pages/inventory/inventory-information.page.ts",
+      "sample_methods": [
+        "open",
+        "clickNotRentReady",
+        "clickRentReady",
+        "clickChargeOff",
+        "clickHoldButton",
+        "clickUnHoldButton",
+        "selectChargeOffReason",
+        "clickSave",
+        "confirmSubmitYes",
+        "enterPinAndContinue",
+        "if",
+        "for",
+        "if",
+        "for",
+        "if",
+        "enterPinAndClickContinue",
+        "waitForAllSpinnersToDisappear",
+        "getStatus",
+        "isRentReadyButtonVisible",
+        "isNotRentReadyButtonVisible",
+        "isChargedOffButtonVisible",
+        "isUnHoldButtonVisible",
+        "isCancelChargeOffButtonVisible",
+        "isRecoverButtonVisible",
+        "expectRecoverButtonHidden"
+      ],
+      "locator_calls": 39,
+      "ui_actions": 45,
+      "assertions": 27
+    },
+    {
+      "file": "src/main/pages/inventory/inventory-multi-list-grid.page.ts",
+      "sample_methods": [
+        "clickSearchInventory",
+        "clickNewPackageItemSearch",
+        "clickManualPO",
+        "clickPrintEditPriceTags",
+        "clickPOReceiving",
+        "clickPOReverse"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 6,
+      "assertions": 0
+    },
+    {
+      "file": "src/main/pages/inventory/item-search.page.ts",
+      "sample_methods": [
+        "navigateToInventorySearchPage",
+        "navigateToInventoryTransferReceivePage",
+        "search",
+        "if",
+        "clickNewPackageButton",
+        "if",
+        "if",
+        "addSearchResultToPackage",
+        "if",
+        "openItemWithStatus",
+        "if",
+        "openItemWithFallbackStatus",
+        "if",
+        "if",
+        "for",
+        "for",
+        "if",
+        "searchItemwithRequiredFieldsCriteria",
+        "selectCheckboxesInsideTablePrecedingToElement",
+        "isNoResultsMessageDisplayed",
+        "hasSearchResults",
+        "getSearchResultsCount",
+        "isResultDisplayed",
+        "getAgreementRate",
+        "getCurrentStoreNumber"
+      ],
+      "locator_calls": 41,
+      "ui_actions": 42,
+      "assertions": 10
+    },
+    {
+      "file": "src/main/pages/inventory/items-being-serviced.page.ts",
+      "sample_methods": [
+        "open",
+        "getFirstServiceNumber",
+        "clickFirstServiceNumber"
+      ],
+      "locator_calls": 1,
+      "ui_actions": 2,
+      "assertions": 2
+    },
+    {
+      "file": "src/main/pages/inventory/manual-po-create.page.ts",
+      "sample_methods": [
+        "waitForPageReady",
+        "waitForFormReady",
+        "areAllElementsPresent",
+        "for",
+        "for",
+        "fillForm",
+        "clickSubmitPOButton",
+        "for",
+        "if",
+        "if",
+        "if",
+        "if",
+        "checkPOSubmittedMessage",
+        "if",
+        "if",
+        "if",
+        "clickPopUpOkButton",
+        "if",
+        "if",
+        "clickSaveAsDraftButton",
+        "if",
+        "for",
+        "if",
+        "editPOCreateForm",
+        "selectValueFromDropDownType2WithLabel"
+      ],
+      "locator_calls": 53,
+      "ui_actions": 38,
+      "assertions": 6
+    },
+    {
+      "file": "src/main/pages/inventory/manual-po.page.ts",
+      "sample_methods": [
+        "waitForPageReady",
+        "clickCreatePO",
+        "navigateToManualPOCreatePage",
+        "checkSelectedStore",
+        "checkManualPOandCancel",
+        "if",
+        "if",
+        "clickTabDraftPO",
+        "waitForDraftListReady",
+        "getDraftPOData",
+        "checkDraftPOandDelete",
+        "clickDraftPOLink",
+        "getDraftPoRow",
+        "getDraftPoNumberLocator",
+        "ensureManualPoListLoaded",
+        "if",
+        "escapeXpathText",
+        "escapeRegExp"
+      ],
+      "locator_calls": 18,
+      "ui_actions": 15,
+      "assertions": 10
+    },
+    {
+      "file": "src/main/pages/inventory/po-receiving.page.ts",
+      "sample_methods": [
+        "navigateToPurchaseOrders",
+        "openManualReceiving",
+        "if",
+        "selectManualPO",
+        "clickReceive",
+        "confirmSuccess",
+        "if",
+        "openPreviouslyReceivedPO",
+        "if",
+        "selectPreviouslyReceivedPO",
+        "clickReverse",
+        "clickYesReverseButton",
+        "if",
+        "confirmReversedSuccessMessage",
+        "if",
+        "selectManualPOReceivePartial",
+        "openPOReceivingAccordion",
+        "if",
+        "selectPO",
+        "if",
+        "enterBOL",
+        "selectPartialReceiveReason",
+        "if",
+        "if",
+        "if"
+      ],
+      "locator_calls": 40,
+      "ui_actions": 48,
+      "assertions": 18
+    },
+    {
+      "file": "src/main/pages/inventory/print-edit-price-tags.page.ts",
+      "sample_methods": [
+        "NavigateToPrintEditPriceTags",
+        "selectFirstItem",
+        "selectItem",
+        "selectItemByIndex",
+        "if",
+        "clickPrint",
+        "enterPinAndContinue",
+        "handlePriceTagFormsDialog",
+        "isPrintWindowOpened",
+        "isPrintPreviewDisplayed",
+        "if",
+        "cancelPrintPreview",
+        "clickpricetaglink",
+        "ensureRentReadyStatus",
+        "waitForCurrentPriceTagReady",
+        "okbutton",
+        "getCurrentWindowHandle",
+        "printpricetagbutton",
+        "for",
+        "handlePriceTagFormsInThePaperTrayPopup",
+        "clickYesOnpapertraypopup",
+        "handleprintwindow",
+        "if",
+        "if",
+        "for"
+      ],
+      "locator_calls": 48,
+      "ui_actions": 50,
+      "assertions": 25
+    },
+    {
+      "file": "src/main/pages/payment/credit-card-chargeback.page.ts",
+      "sample_methods": [
+        "constructor",
+        "open",
+        "for",
+        "if",
+        "if",
+        "if",
+        "if",
+        "openFromOperationsMenu",
+        "if",
+        "chargeBackFlow",
+        "fillChargeBackDetails",
+        "ensureFilterOpen",
+        "clickFirstAddIcon",
+        "for",
+        "if",
+        "selectChargebackReason",
+        "enterChargebackAmount",
+        "enterChargebackDate",
+        "enterSearchDateRange",
+        "formatDateOffset",
+        "clickSave",
+        "verifyReturnedCreditCardSuccessMessage"
+      ],
+      "locator_calls": 25,
+      "ui_actions": 36,
+      "assertions": 0
+    },
+    {
+      "file": "src/main/pages/payment/epo-payment.page.ts",
+      "sample_methods": [
+        "clickEPOButton",
+        "clickAcceptEPOLink",
+        "clickAcceptButton",
+        "validateTypeAndNextDueDateafterAcceptEPOPopup",
+        "handleDeliverypopupforEPO",
+        "clickEPOScheduleLink",
+        "VerifyEPOPercentage",
+        "VerifygetACTUALEPOValue",
+        "chooseInStorePaymentOriginIfPresent",
+        "if",
+        "dismissBlockingDialogs"
+      ],
+      "locator_calls": 16,
+      "ui_actions": 9,
+      "assertions": 6
+    },
+    {
+      "file": "src/main/pages/payment/payment-search.page.ts",
+      "sample_methods": [
+        "constructor",
+        "open",
+        "if",
+        "navigateToPaymentSearchPage",
+        "clickOnTakePayment",
+        "if",
+        "navigateToTakePaymentScreen",
+        "navigateToReversePaymentScreen",
+        "if",
+        "catch",
+        "searchWithAgreementNumberRecord",
+        "searchWithAgreementNumber",
+        "searchWithAgreementNumberInPaymentSearchScreen",
+        "searchWithFirstName",
+        "searchWithLastName",
+        "searchWithPhoneNumber",
+        "searchWithSSN",
+        "searchWithCity",
+        "searchWithDateOfBirth",
+        "if",
+        "searchWithZipcode",
+        "searchWithAddressLine1",
+        "verifyLastNameInSearchResults",
+        "verifyFirstNameInSearchResults",
+        "verifyPhoneNumberInSearchResults"
+      ],
+      "locator_calls": 18,
+      "ui_actions": 14,
+      "assertions": 13
+    },
+    {
+      "file": "src/main/pages/payment/return-check.page.ts",
+      "sample_methods": [
+        "constructor",
+        "open",
+        "for",
+        "if",
+        "if",
+        "if",
+        "if",
+        "openFromOperationsMenu",
+        "if",
+        "returnCheckFlow",
+        "fillReturnCheckDetails",
+        "clickFirstAddIcon",
+        "enterReturnedAmount",
+        "enterReturnedDate",
+        "selectReturnedReason",
+        "clickSave",
+        "verifyReturnedCheckSuccessMessage",
+        "selectReturnedStatus"
+      ],
+      "locator_calls": 17,
+      "ui_actions": 25,
+      "assertions": 2
+    },
+    {
+      "file": "src/main/pages/payment/reverse-payment.page.ts",
+      "sample_methods": [
+        "constructor",
+        "navigateToReversePaymentScreen",
+        "clickReverseButton",
+        "selectCheckboxofAgreementforReversePayment",
+        "reverseFlowAfterSelectingAgreement",
+        "selectAllExpandedRevenueSources",
+        "for",
+        "reverseFlowAfterSelectingAgreementForCheckMoneyOrder",
+        "reverseFlowAfterSelectingAgreementForCheckMoneyOrderCard",
+        "reverseFlowAfterChargeCardPayment",
+        "reversePaymentForCreditCardAgreement",
+        "selectonlyDonationAgreement",
+        "selectOnlyDonationRevenueSource",
+        "for",
+        "if",
+        "for",
+        "if",
+        "setCheckboxState",
+        "for",
+        "if",
+        "if",
+        "if",
+        "if",
+        "currentReverseAmountToReturn",
+        "normalizeCurrency"
+      ],
+      "locator_calls": 13,
+      "ui_actions": 15,
+      "assertions": 6
+    },
+    {
+      "file": "src/main/pages/payment/take-payment.page.ts",
+      "sample_methods": [
+        "constructor",
+        "clickinStorebuttonOnPaymentOriginPopup",
+        "enterRemainingAmountForPayment",
+        "if",
+        "clickOverPhoneButtonOnPaymentOriginPopup",
+        "for",
+        "for",
+        "if",
+        "if",
+        "selectpaymentoriginfieldvisit",
+        "navigateToTakePaymentPageAndSelectAgreement",
+        "searchAgreementFromPaymentSearchIfNeeded",
+        "putAgreementNoToYaml",
+        "if",
+        "if",
+        "if",
+        "if",
+        "uncheckAllCheckboxes",
+        "for",
+        "selectCheckboxesInsideTablePrecedingToElement",
+        "if",
+        "for",
+        "if",
+        "if",
+        "for"
+      ],
+      "locator_calls": 188,
+      "ui_actions": 130,
+      "assertions": 32
+    },
+    {
+      "file": "src/main/pages/shared/home.page.ts",
+      "sample_methods": [
+        "openDashboard",
+        "handleDropReconciliationPopup",
+        "if",
+        "openPastDueList",
+        "if",
+        "openDapEvents",
+        "clickStoreTab",
+        "openCustomerSearch",
+        "openPaymentSearch",
+        "openInventorySearch",
+        "openCashManagement",
+        "continueIncompleteVerificationIfPresent"
+      ],
+      "locator_calls": 6,
+      "ui_actions": 12,
+      "assertions": 4
+    },
+    {
+      "file": "src/main/pages/shared/login.page.ts",
+      "sample_methods": [
+        "logoutIfAuthenticated",
+        "login",
+        "if",
+        "submitPasswordStep",
+        "for",
+        "if",
+        "if",
+        "navigateToPasswordStep",
+        "for",
+        "completeMicrosoftPostLoginPrompt",
+        "for",
+        "if",
+        "clickMicrosoftButton",
+        "for",
+        "if",
+        "hasMicrosoftActionButton",
+        "for",
+        "waitForApplicationShell",
+        "for",
+        "hasAuthenticatedAppSurface",
+        "waitForMicrosoftTransition"
+      ],
+      "locator_calls": 19,
+      "ui_actions": 20,
+      "assertions": 5
+    },
+    {
+      "file": "src/main/pages/shared/microsoft-login.page.ts",
+      "sample_methods": [
+        "logoutIfAuthenticated",
+        "login",
+        "clickOnQAEnv",
+        "if",
+        "submitPasswordStep",
+        "for",
+        "if",
+        "enterMicrosoftPassword",
+        "for",
+        "if",
+        "if",
+        "if",
+        "catch",
+        "navigateToPasswordStep",
+        "completeMicrosoftPostLoginPrompt",
+        "for",
+        "handleKeepAccountSecurePrompt",
+        "clickMicrosoftButton",
+        "for",
+        "for",
+        "catch",
+        "hasMicrosoftActionButton",
+        "for",
+        "waitForApplicationShell",
+        "if"
+      ],
+      "locator_calls": 46,
+      "ui_actions": 19,
+      "assertions": 16
+    },
+    {
+      "file": "src/test/specs/accountmanagement/account-management-part-2.generated-base.spec.ts",
+      "sample_methods": [
+        "if",
+        "for",
+        "for",
+        "for",
+        "annotateBaseMethod",
+        "formatBaseMethodTitle",
+        "shortClassName"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 0
+    },
+    {
+      "file": "src/test/specs/accountmanagement/account-management.generated-base.spec.ts",
+      "sample_methods": [
+        "if",
+        "for",
+        "for",
+        "for",
+        "annotateBaseMethod",
+        "formatBaseMethodTitle",
+        "shortClassName"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 0
+    },
+    {
+      "file": "src/test/specs/accountmanagement/am-activity-log-actions.spec.ts",
+      "sample_methods": [
+        "for",
+        "for",
+        "if",
+        "if",
+        "if",
+        "toInt",
+        "digitsOnly",
+        "if",
+        "openCustomerWithEnabledLogAction",
+        "for",
+        "if",
+        "loginToAmActivityLog",
+        "installPrintInterceptor",
+        "didPrint",
+        "waitForPrint"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 2,
+      "assertions": 10
+    },
+    {
+      "file": "src/test/specs/accountmanagement/am-activity-log-filters.spec.ts",
+      "sample_methods": [
+        "for",
+        "if",
+        "if",
+        "for",
+        "for",
+        "loginToAmActivityLog",
+        "resolvePastDueDaysLateFilter"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 9
+    },
+    {
+      "file": "src/test/specs/accountmanagement/mx-account-management.spec.ts",
+      "sample_methods": [
+        "if",
+        "if",
+        "switch"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 5
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-contact-logs.spec.ts",
+      "sample_methods": [
+        "if",
+        "if",
+        "if",
+        "loginToPastDueList",
+        "toInt",
+        "openPastDueCustomerWithEnabledLogAction",
+        "for",
+        "if",
+        "openPastDueCustomerWithReferenceRows",
+        "for",
+        "if",
+        "catch"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 11
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-list-actions-and-print.spec.ts",
+      "sample_methods": [
+        "for",
+        "if",
+        "for",
+        "for",
+        "if",
+        "if",
+        "if",
+        "normalizeWorkedValue",
+        "loginToPastDueList",
+        "installPrintInterceptor",
+        "didPrint",
+        "waitForPrint",
+        "confirmPrintDialog",
+        "waitForPopupPrintPreview",
+        "if"
+      ],
+      "locator_calls": 4,
+      "ui_actions": 3,
+      "assertions": 11
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-list-commitment-filters.spec.ts",
+      "sample_methods": [
+        "for",
+        "if",
+        "if",
+        "if",
+        "for",
+        "if",
+        "for",
+        "if",
+        "loginToPastDueList",
+        "addCallActivityToFirstAvailableCustomer",
+        "if",
+        "normalizeCommitmentStatus",
+        "createPastDueDataForDaysLate",
+        "for"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 13
+    },
+    {
+      "file": "src/test/specs/accountmanagement/past-due-list-customer-filters.spec.ts",
+      "sample_methods": [
+        "for",
+        "if",
+        "for",
+        "for",
+        "for",
+        "if",
+        "loginToPastDueList",
+        "normalizeCallWindow",
+        "if"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 8
+    },
+    {
+      "file": "src/test/specs/agreement/agreement-switch-out.spec.ts",
+      "sample_methods": [
+        "if",
+        "if",
+        "buildSwitchOutTitle",
+        "requireSuiteCase",
+        "if",
+        "resolveSwitchOutTestData",
+        "resolveYamlSwitchOutTestData",
+        "prepareInlineCase",
+        "annotateInlineCase",
+        "attachInlineCaseContext",
+        "attachInlineTestData",
+        "createConfirmedAgreement",
+        "openAgreementDetails",
+        "searchReplacementInventory",
+        "ensureSwitchOutDeliveryConfirmed",
+        "sanitizeTestDataForReport",
+        "if",
+        "if",
+        "if",
+        "resolvePin",
+        "if",
+        "extractSimpleClassName",
+        "requireSwitchOutReplacementItemNumber"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 6
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-additional.spec.ts",
+      "sample_methods": [
+        "switch",
+        "runAutoPayEnroll",
+        "if",
+        "runCashPriceValidation",
+        "runMultipleAgreementsWithLdwTermination",
+        "terminateLdwAndTakePayment",
+        "if",
+        "runAgreementTransfer",
+        "runMexicoDecisionEngine",
+        "runMexicoCompetitorValidation",
+        "runMexicoLocalizationValidation",
+        "runMexicoDeExpirationValidation",
+        "runMexicoNoLdwReasonPopup",
+        "runMexicoChargeOffCancel",
+        "runCarryOutAgreementDapAndInventoryStatus",
+        "runMexicoPromoAgreementValidation",
+        "if",
+        "runPackageAgreement",
+        "if",
+        "runPromoAgreementChargeOff",
+        "runPromoAgreementSwitchOut",
+        "createPromoAgreementSourceFlow",
+        "createRentalAgreementSourceFlow",
+        "runRtoAgreementDocuSign",
+        "if"
+      ],
+      "locator_calls": 26,
+      "ui_actions": 13,
+      "assertions": 30
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-charge-off.generated.spec.ts",
+      "sample_methods": [
+        "for",
+        "for",
+        "if",
+        "buildSourceMethodTitle",
+        "annotateSourceMethod",
+        "resolveChargeOffTestData",
+        "if",
+        "switch",
+        "runChargeOffApprovalScenario",
+        "runChargeOffCancelScenario",
+        "runChargeOffNotEligibleScenario",
+        "runChargeOffPastDueScenario",
+        "runChargeOffCoaScenario",
+        "if",
+        "runWithChargeOffCandidate",
+        "catch",
+        "if",
+        "if",
+        "catch",
+        "loginToChargeOff",
+        "openChargeOffPage",
+        "for",
+        "if",
+        "if",
+        "attachSuiteCase"
+      ],
+      "locator_calls": 1,
+      "ui_actions": 3,
+      "assertions": 5
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-part-2.generated.spec.ts",
+      "sample_methods": [
+        "if",
+        "if",
+        "buildSuiteCaseKey"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 0
+    },
+    {
+      "file": "src/test/specs/agreement/agreements-primary.generated.spec.ts",
+      "sample_methods": [
+        "for",
+        "for",
+        "buildPrimaryMethodGroups",
+        "for",
+        "for",
+        "if",
+        "compareSuiteCases",
+        "if",
+        "buildPrimaryMethodKey",
+        "buildPrimaryTitle",
+        "extractSimpleClassName",
+        "resolveSuiteCaseData",
+        "if"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 0
+    },
+    {
+      "file": "src/test/specs/agreement/agreements.generated.spec.ts",
+      "sample_methods": [
+        "if",
+        "if",
+        "buildSuiteCaseKey"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 0
+    },
+    {
+      "file": "src/test/specs/agreement/loaner-agreement.spec.ts",
+      "sample_methods": [
+        "if",
+        "for",
+        "runLoanerAgreementFlow",
+        "if",
+        "resolveLoanerTestData",
+        "if",
+        "prepareYamlCase",
+        "annotateYamlCase",
+        "attachYamlCaseContext",
+        "attachYamlTestData",
+        "createConfirmedAgreement",
+        "if",
+        "attachAgreementHistory",
+        "clickNextButton",
+        "resolvePin",
+        "if",
+        "sanitizeTestDataForReport",
+        "if",
+        "if",
+        "if"
+      ],
+      "locator_calls": 1,
+      "ui_actions": 2,
+      "assertions": 5
+    },
+    {
+      "file": "src/test/specs/browserstack/browserstack-hub-url.spec.ts",
       "sample_methods": [
         "for"
       ],
       "locator_calls": 0,
       "ui_actions": 0,
-      "assertions": 5
+      "assertions": 0
     },
     {
-      "file": "tests/api/lease.spec.ts",
+      "file": "src/test/specs/customer/create-customer.spec.ts",
       "sample_methods": [
         "if"
       ],
-      "locator_calls": 0,
-      "ui_actions": 0,
-      "assertions": 5
-    },
-    {
-      "file": "tests/api/payment.spec.ts",
-      "sample_methods": [
-        "if"
-      ],
-      "locator_calls": 0,
-      "ui_actions": 0,
-      "assertions": 6
-    },
-    {
-      "file": "tests/smoke/api-smoke.spec.ts",
-      "sample_methods": [
-        "getTestIds",
-        "if",
-        "if"
-      ],
-      "locator_calls": 0,
+      "locator_calls": 1,
       "ui_actions": 0,
       "assertions": 13
     },
     {
-      "file": "tests/smoke/ui-smoke.spec.ts",
-      "sample_methods": [
-        "if"
-      ],
-      "locator_calls": 1,
-      "ui_actions": 4,
-      "assertions": 6
+      "file": "src/test/specs/customer/customer-page.spec.ts",
+      "sample_methods": [],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 3
     },
     {
-      "file": "tests/ui/acima-advantage.spec.ts",
+      "file": "src/test/specs/customerOrders/customer-order-flow.spec.ts",
       "sample_methods": [
-        "catch",
-        "if",
-        "if"
-      ],
-      "locator_calls": 3,
-      "ui_actions": 3,
-      "assertions": 0
-    },
-    {
-      "file": "tests/ui/benefit-plus.spec.ts",
-      "sample_methods": [
-        "if",
         "if"
       ],
       "locator_calls": 0,
-      "ui_actions": 1,
-      "assertions": 0
+      "ui_actions": 0,
+      "assertions": 3
     },
     {
-      "file": "tests/ui/dashboard.spec.ts",
+      "file": "src/test/specs/dapevents/dap-customer-event.spec.ts",
       "sample_methods": [],
-      "locator_calls": 2,
-      "ui_actions": 1,
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 4
+    },
+    {
+      "file": "src/test/specs/dapevents/dap-event-task.spec.ts",
+      "sample_methods": [],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 2
+    },
+    {
+      "file": "src/test/specs/dapevents/dap-events-mexico.spec.ts",
+      "sample_methods": [],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 2
+    },
+    {
+      "file": "src/test/specs/dapevents/dap-store-event.spec.ts",
+      "sample_methods": [],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 2
+    },
+    {
+      "file": "src/test/specs/dashboard/dashboard.spec.ts",
+      "sample_methods": [],
+      "locator_calls": 0,
+      "ui_actions": 0,
       "assertions": 1
     },
     {
-      "file": "tests/ui/login.spec.ts",
+      "file": "src/test/specs/docusign/create-agreement-instore-and-email.spec.ts",
+      "sample_methods": [
+        "for",
+        "if"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 0
+    },
+    {
+      "file": "src/test/specs/docusign/create-agreement-with-manual-signature.spec.ts",
+      "sample_methods": [
+        "for",
+        "if"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 0,
+      "assertions": 0
+    },
+    {
+      "file": "src/test/specs/inventory/inventory-charge-off.spec.ts",
       "sample_methods": [
         "if"
       ],
-      "locator_calls": 3,
+      "locator_calls": 0,
       "ui_actions": 1,
       "assertions": 2
     },
     {
-      "file": "tests/ui/payment.spec.ts",
+      "file": "src/test/specs/inventory/inventory-search.spec.ts",
       "sample_methods": [
-        "if",
-        "if",
-        "if",
         "if"
       ],
-      "locator_calls": 3,
-      "ui_actions": 3,
-      "assertions": 0
-    },
-    {
-      "file": "tests/ui/profile.spec.ts",
-      "sample_methods": [
-        "if",
-        "if"
-      ],
-      "locator_calls": 1,
-      "ui_actions": 2,
-      "assertions": 0
-    },
-    {
-      "file": "tests/ui/shop-marketplace.spec.ts",
-      "sample_methods": [
-        "catch",
-        "catch",
-        "catch"
-      ],
-      "locator_calls": 3,
-      "ui_actions": 4,
-      "assertions": 1
-    },
-    {
-      "file": "tests/ui/shop-online.spec.ts",
-      "sample_methods": [
-        "functionality",
-        "catch",
-        "catch",
-        "catch",
-        "catch"
-      ],
       "locator_calls": 0,
-      "ui_actions": 0,
-      "assertions": 0
-    },
-    {
-      "file": "tests/ui/static-pages.spec.ts",
-      "sample_methods": [],
-      "locator_calls": 0,
-      "ui_actions": 2,
+      "ui_actions": 1,
       "assertions": 3
     },
     {
-      "file": "tests/unit/teams/teamsNotifier.spec.ts",
+      "file": "src/test/specs/inventory/inventory-status-change.spec.ts",
       "sample_methods": [
-        "makeCard",
+        "if",
+        "if",
+        "if",
+        "if",
+        "resolveStoreNumberForInventorySetup",
+        "if"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 0
+    },
+    {
+      "file": "src/test/specs/inventory/inventory-transfer.spec.ts",
+      "sample_methods": [
+        "if",
+        "if",
+        "if",
+        "if"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 3,
+      "assertions": 4
+    },
+    {
+      "file": "src/test/specs/inventory/manual-po-create.spec.ts",
+      "sample_methods": [
+        "if",
+        "if"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 1
+    },
+    {
+      "file": "src/test/specs/inventory/new-package-item-search.spec.ts",
+      "sample_methods": [
+        "if"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 1
+    },
+    {
+      "file": "src/test/specs/inventory/print-edit-price-tags.spec.ts",
+      "sample_methods": [
+        "if",
+        "if"
+      ],
+      "locator_calls": 0,
+      "ui_actions": 1,
+      "assertions": 1
+    },
+    {
+      "file": "src/test/specs/payment/payment.module.spec.ts",
+      "sample_methods": [
+        "for",
+        "for",
+        "for",
+        "definePaymentSourceTest",
+        "if",
+        "resolveRunnableCases",
+        "if",
+        "if",
+        "if",
         "if"
       ],
       "locator_calls": 0,
       "ui_actions": 0,
-      "assertions": 16
+      "assertions": 0
     },
     {
-      "file": "tests/unit/teams/teamsPayloadBuilder.spec.ts",
+      "file": "src/test/specs/sla/sla.spec.ts",
       "sample_methods": [
-        "makeSummary",
-        "failure"
+        "if",
+        "if"
       ],
       "locator_calls": 0,
       "ui_actions": 0,
-      "assertions": 17
+      "assertions": 0
     },
     {
-      "file": "tests/unit/teams/testRunAggregator.spec.ts",
+      "file": "src/test/specs/tools/ui-compilation-sample.spec.ts",
       "sample_methods": [
-        "makeTest",
-        "makeResult",
-        "buildAggregatorWithResults",
-        "for",
-        "for",
-        "summarize"
+        "for"
       ],
       "locator_calls": 0,
       "ui_actions": 0,
-      "assertions": 43
+      "assertions": 0
     }
   ],
   "architecture_observation": "Specs should remain thin; page classes should hold business flows; pageObjects/locator modules should hold locator definitions."
 }</pre></section><section class='card'><h2>Backend Connections</h2><pre>{
   "api_candidate_files": [
-    ".claude/skills/playwright-cli/references/request-mocking.md",
+    ".qa-cache/existing-framework/agentic-memory/framework-understanding-memory.json",
     "README.md",
     "agents/failure-analyzer/lib/har-parser.ts",
     "agents/failure-analyzer/lib/openai-client.ts",
-    "api/api-client.ts",
-    "fixtures/api.fixture.ts",
-    "fixtures/bdd-api.fixture.ts",
-    "playwright.config.ts",
-    "step-definitions/api/customer.steps.ts",
-    "step-definitions/api/lease.steps.ts",
-    "step-definitions/api/payment.steps.ts",
-    "step-definitions/api/shared-api.steps.ts",
-    "step-definitions/mobile/broken-links.steps.ts",
-    "step-definitions/ui/broken-links.steps.ts",
-    "step-definitions/ui/mexico-payment-methods.steps.ts",
-    "tests/api/customer.spec.ts",
-    "tests/api/lease.spec.ts",
-    "tests/api/payment.spec.ts",
-    "tests/smoke/api-smoke.spec.ts"
+    "agents/jira_release_regression_agent.md",
+    "agents/test-fixer/locator-suggestions.md",
+    "src/main/api/agreement/racpad-api-client.ts",
+    "src/main/api/agreement/racpad-request-context.ts",
+    "src/main/api/docusign/gmail-reader.ts",
+    "src/main/api/docusign/types/imapflow.d.ts",
+    "src/main/pages/cashmanagment/cash-managment.page.ts",
+    "src/test/specs/accountmanagement/past-due-list-commitment-filters.spec.ts",
+    "tsconfig.json"
   ],
   "db_candidate_files": [
+    ".qa-cache/existing-framework/agentic-memory/framework-understanding-memory.json",
+    "README.md",
     "agents/failure-analyzer/README.md",
     "agents/failure-analyzer/classifier/rules.ts",
-    "agents/failure-analyzer/lib/history-store.ts"
+    "agents/failure-analyzer/lib/history-store.ts",
+    "db/src/client/db-client.ts",
+    "db/src/config/db-config.ts",
+    "db/src/examples/db-module-smoke.ts",
+    "package-lock.json"
   ],
   "detected_endpoint_samples": [
-    "https://qa.www.rac.acima.com/en\\",
-    "https://qa.www.rac.acima.com/en\\nCall",
-    "https://example.com",
-    "https://qa.www.rac.acima.com/\\nCall",
-    "https://qa.www.rac.acima.com/\\",
-    "https://qa.www.mx.acima.com/",
-    "https://github.com/sponsors/csstools",
-    "https://opencollective.com/csstools",
-    "https://opencollective.com/express",
-    "https://qa.www.rac.acima.com/en",
-    "https://github.com/sponsors/ljharb",
-    "https://playwright.dev",
-    "https://example.com/login",
-    "https://registry.npmjs.org/@radix-ui/react-slot/-/react-slot-1.2.3.tgz",
-    "https://github.com/sponsors/sindresorhus",
-    "https://qa.www.rac.acima.com/dashboard",
-    "http://adaptivecards.io/schemas/adaptive-card.json",
-    "https://example.com/webhook",
-    "https://ci.example.com/42",
-    "https://example.com/",
-    "https://app.example.com/login",
-    "https://github.com",
-    "https://api-sandbox.acimacredit.com",
-    "https://qa.www.rac.acima.com/es",
-    "https://artifacts.example.com/playwright-report/index.html",
-    "https://playwright.dev/",
-    "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz",
-    "https://github.com/sponsors/Brooooooklyn",
-    "https://github.com/chalk/ansi-styles?sponsor=1",
-    "https://www.facebook.com/AcimaMex/",
-    "https://www.instagram.com/acimamex",
-    "https://www.linkedin.com/company/acima-mexico/",
-    "https://ci.example.com/job/111",
-    "https://ci.example.com/1",
-    "https://example.com/page",
-    "https://api.example.com/**",
-    "https://example.com/form",
-    "https://example.com/other",
-    "https://example.com/page/\\${i}\\`",
-    "https://site1.com",
-    "https://site2.com",
-    "https://site3.com",
-    "https://app.com?variant=a",
-    "https://app.com?variant=b",
-    "https://docs.example.com",
-    "https://app.example.com/dashboard",
-    "https://app.example.com",
-    "https://slow-site.com",
-    "https://app.example.com/checkout",
-    "https://demo.playwright.dev/todomvc",
-    "https://www.typescriptlang.org",
-    "https://&lt;your-workflow-webhook&gt;",
-    "https://dev.azure.com/org/project/_build/results?buildId=1234",
     "https://api.openai.com`",
     "https://api.openai.com",
-    "https://api-stage.acimacredit.com",
-    "https://stage.www.rac.acima.com/en",
-    "https://stage.www.rac.acima.com/es",
-    "https://stage.www.mx.acima.com/",
-    "https://api.acimacredit.com",
-    "https://www.acima.com/en",
-    "https://www.acima.com/es",
-    "https://www.mx.acima.com/",
-    "https://registry.npmjs.org/@asamuzakjp/css-color/-/css-color-3.2.0.tgz",
-    "https://registry.npmjs.org/lru-cache/-/lru-cache-10.4.3.tgz",
-    "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.0.tgz",
-    "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.28.5.tgz",
-    "https://registry.npmjs.org/@colors/colors/-/colors-1.5.0.tgz",
-    "https://registry.npmjs.org/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz",
-    "https://registry.npmjs.org/@csstools/color-helpers/-/color-helpers-5.1.0.tgz",
-    "https://registry.npmjs.org/@csstools/css-calc/-/css-calc-2.1.4.tgz",
-    "https://registry.npmjs.org/@csstools/css-color-parser/-/css-color-parser-3.1.0.tgz",
-    "https://registry.npmjs.org/@csstools/css-parser-algorithms/-/css-parser-algorithms-3.0.5.tgz",
-    "https://registry.npmjs.org/@csstools/css-tokenizer/-/css-tokenizer-3.0.4.tgz",
-    "https://registry.npmjs.org/@cucumber/ci-environment/-/ci-environment-13.0.0.tgz",
-    "https://registry.npmjs.org/@cucumber/cucumber/-/cucumber-12.8.3.tgz",
-    "https://opencollective.com/cucumber",
-    "https://registry.npmjs.org/@cucumber/cucumber-expressions/-/cucumber-expressions-18.0.1.tgz",
-    "https://registry.npmjs.org/@cucumber/cucumber-expressions/-/cucumber-expressions-19.0.0.tgz",
-    "https://registry.npmjs.org/@cucumber/gherkin/-/gherkin-38.0.0.tgz"
+    "https://upbd.atlassian.net`",
+    "https://qa.racpad.app`",
+    "https://playwright.dev/docs/api/class-page",
+    "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/netbsd-arm64/-/netbsd-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/openbsd-arm64/-/openbsd-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/openharmony-arm64/-/openharmony-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.27.7.tgz",
+    "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.27.7.tgz",
+    "https://registry.npmjs.org/@playwright/test/-/test-1.60.0.tgz",
+    "https://registry.npmjs.org/@types/js-yaml/-/js-yaml-4.0.9.tgz",
+    "https://registry.npmjs.org/@types/node/-/node-22.15.21.tgz",
+    "https://registry.npmjs.org/@types/pg/-/pg-8.20.0.tgz",
+    "https://registry.npmjs.org/argparse/-/argparse-2.0.1.tgz",
+    "https://registry.npmjs.org/dotenv/-/dotenv-17.4.0.tgz",
+    "https://dotenvx.com",
+    "https://registry.npmjs.org/esbuild/-/esbuild-0.27.7.tgz",
+    "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz",
+    "https://registry.npmjs.org/get-tsconfig/-/get-tsconfig-4.13.7.tgz",
+    "https://github.com/privatenumber/get-tsconfig?sponsor=1",
+    "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.0.tgz",
+    "https://github.com/sponsors/puzrin",
+    "https://github.com/sponsors/nodeca",
+    "https://registry.npmjs.org/pg/-/pg-8.20.0.tgz",
+    "https://registry.npmjs.org/pg-cloudflare/-/pg-cloudflare-1.3.0.tgz",
+    "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.12.0.tgz",
+    "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+    "https://registry.npmjs.org/pg-pool/-/pg-pool-3.13.0.tgz",
+    "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.13.0.tgz",
+    "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+    "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+    "https://registry.npmjs.org/playwright/-/playwright-1.60.0.tgz",
+    "https://registry.npmjs.org/playwright-core/-/playwright-core-1.60.0.tgz",
+    "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+    "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+    "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+    "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+    "https://registry.npmjs.org/resolve-pkg-maps/-/resolve-pkg-maps-1.0.0.tgz",
+    "https://github.com/privatenumber/resolve-pkg-maps?sponsor=1",
+    "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+    "https://registry.npmjs.org/tsx/-/tsx-4.21.0.tgz",
+    "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz",
+    "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
+    "https://registry.npmjs.org/undici-types/-/undici-types-6.21.0.tgz",
+    "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+    "https://${username}:${accessKey}@${HUB_ENDPOINT}`;"
   ],
   "db_indicators": [
+    "DB_HOST",
     "MYSQL",
     "POSTGRES"
   ],
   "recommendation": "Validate backend/API health before patching UI scripts. For 401/403/500/empty payloads, classify as auth/data/environment/product issue unless the script wait strategy is wrong."
 }</pre></section><section class='card'><h2>Test Data Validation</h2><pre>{
-  "test_data_file_count": 11,
+  "test_data_file_count": 86,
   "files": [
     {
-      "file": "test-data/api/customer.yaml",
-      "status": "yaml_readable_not_strictly_validated",
-      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "file": "src/test/resources/fixtures/payment/payment-test-inventory.json",
+      "status": "invalid_json",
+      "detail": "JSONDecodeError: Unterminated string starting at: line 2418 column 20 (char 79992)",
       "sensitive_key_hints": []
     },
     {
-      "file": "test-data/mobile/dashboard/dashboard_page.yaml",
+      "file": "src/test/resources/testData/accountmanagement/account_management.yaml",
       "status": "yaml_readable_not_strictly_validated",
       "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
       "sensitive_key_hints": [
@@ -1733,13 +2649,7 @@
       ]
     },
     {
-      "file": "test-data/mobile/home/home_page.yaml",
-      "status": "yaml_readable_not_strictly_validated",
-      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
-      "sensitive_key_hints": []
-    },
-    {
-      "file": "test-data/mobile/login/login_page.yaml",
+      "file": "src/test/resources/testData/accountmanagement/account_management_am_activity.yaml",
       "status": "yaml_readable_not_strictly_validated",
       "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
       "sensitive_key_hints": [
@@ -1747,7 +2657,7 @@
       ]
     },
     {
-      "file": "test-data/mobile/payment/payment_page.yaml",
+      "file": "src/test/resources/testData/accountmanagement/account_management_mx.yaml",
       "status": "yaml_readable_not_strictly_validated",
       "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
       "sensitive_key_hints": [
@@ -1755,7 +2665,7 @@
       ]
     },
     {
-      "file": "test-data/mobile/profile/profile_page.yaml",
+      "file": "src/test/resources/testData/agreement/EPPAgreement.yaml",
       "status": "yaml_readable_not_strictly_validated",
       "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
       "sensitive_key_hints": [
@@ -1763,13 +2673,7 @@
       ]
     },
     {
-      "file": "test-data/ui/home/home_page.yaml",
-      "status": "yaml_readable_not_strictly_validated",
-      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
-      "sensitive_key_hints": []
-    },
-    {
-      "file": "test-data/ui/login/login_page.yaml",
+      "file": "src/test/resources/testData/agreement/addCoRenterAgreement.yaml",
       "status": "yaml_readable_not_strictly_validated",
       "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
       "sensitive_key_hints": [
@@ -1777,144 +2681,797 @@
       ]
     },
     {
-      "file": "test-data/ui/mexico/payment_methods.yaml",
+      "file": "src/test/resources/testData/agreement/agreement.yaml",
       "status": "yaml_readable_not_strictly_validated",
       "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
       "sensitive_key_hints": [
-        "password",
-        "token"
+        "password"
       ]
     },
     {
-      "file": "test-data/ui/shop-online/categories.yaml",
+      "file": "src/test/resources/testData/agreement/agreement1.yaml",
       "status": "yaml_readable_not_strictly_validated",
       "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
-      "sensitive_key_hints": []
+      "sensitive_key_hints": [
+        "password"
+      ]
     },
     {
-      "file": "test-data/ui/shop-online/page-elements.yaml",
+      "file": "src/test/resources/testData/agreement/agreementChargeOff.yaml",
       "status": "yaml_readable_not_strictly_validated",
       "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
-      "sensitive_key_hints": []
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/agreementChargeOff2.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/agreementChargeOffE2E.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/agreementMexico.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/agreementReinstatement.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/agreementSplit.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/agreementSwitchOut.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/agreementUiValidations.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/agreementsDifferentCombinations.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/agremeentCreatewithDifferentType.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/autoPayEnroll.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/loanerAgreement.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/multipleAgreements.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/multipleAgreementsSameStore.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/multipleAgreementsSuspense.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/multipleStoreAgreements.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/packageAgreementsDocSign.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/returnAgreements.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/rtoAgreementsDocSign.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/agreement/transferAgreementSLA.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/cashmanagment/cashManagment.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/cashmanagment/cashManagmentMx.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/customer/MxCustomerEdit.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/customer/customer.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/customer/customer2DeliveryE2E.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/customer/customer_create.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/customer/customer_order_flow.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/dapevents/dapEvents.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/dashboard/dashboard.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/dashboard/dashboardMx.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/docusign/e2eDocuSign.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/e2e/customer2DeliveryE2E.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/e2e/e2eDocuSign.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/e2e/txt2pay.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/inventory/inventory.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/inventory/inventorychargeoff.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/mexico/agreementMexico.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/mexico/inventorymx.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/mpo/Mpo.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/mpo/Mpo_mx.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/editschedule.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/epopayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/freeTimePayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/editschedule.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/epopayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/freeTimePayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/otherincome.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/pastDueCustomerPayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/payment.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/paymentsDifferentCombinations.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/paymentsearch.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/regularPayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/generated/reversePayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/mexicoPayment.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/otherincome.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/pastDueCustomerPayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/payment.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/paymentsDifferentCombinations.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/paymentsearch.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/regularPayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/removeamountdue.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/reversePayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/editschedule.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/epopayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/freeTimePayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/mexicoPayment.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/otherincome.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/pastDueCustomerPayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/payment.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/paymentsDifferentCombinations.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/paymentsearch.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/regularPayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/removeamountdue.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/payment/yaml/reversePayments.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/reports/reporting.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/reports/reportingCashManagementTransactions.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/reports/reportingOperations.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
+    },
+    {
+      "file": "src/test/resources/testData/sla/sla.yaml",
+      "status": "yaml_readable_not_strictly_validated",
+      "detail": "PyYAML is not required by this lightweight validator. Enterprise mode can add strict YAML schema validation.",
+      "sensitive_key_hints": [
+        "password"
+      ]
     }
   ],
   "update_strategy": "Only update testData files when RCA evidence proves data drift or missing seed data. Do not change expected business outcomes as data healing."
 }</pre></section><section class='card'><h2>Vdi Vm Vpn Knowledge</h2><pre>{
   "detected_vdi_vpn_hints": [
     {
-      "file": "fixtures/bdd-mobile.fixture.ts",
+      "file": ".qa-cache/existing-framework/rag/framework-rag-summary.json",
       "matched_terms": [
-        "rdp"
+        "vdi",
+        "vpn"
       ],
-      "preview": "// fixtures/bdd-mobile.fixture.ts // BDD fixture for mobile tests — extends playwright-bdd with mobile page objects. // All mobile step definitions import `test` from this fixture. import { test as base } from 'playwright-bdd'; import { MobileLoginPage } from '../pages/mobile/mobile-login-page'; import { MobileHomePage } from '../pages/mobile/mobile-home-page'; import { MobileDashboardPage } from '../pages/mobile/mobile-dashboard-page'; import { MobilePaymentsPage } from '../pages/mobile/mobile-"
+      "preview": "{ \"ok\": true, \"generated_at\": \"2026-07-08T18:44:08\", \"framework_path\": \"/mnt/data/work/racpad/qa_racpad_ts_automation\", \"chunk_count\": 891, \"file_count_indexed\": 405, \"cache_ownership\": \"framework_local\", \"framework_local_cache_dir\": \"/mnt/data/work/racpad/qa_racpad_ts_automation/.qa-cache/existing-framework\", \"framework_local_rag_dir\": \"/mnt/data/work/racpad/qa_racpad_ts_automation/.qa-cache/existing-framework/rag\", \"chunk_store\": \"/mnt/data/work/racpad/qa_racpad_ts_automation/.qa-cache/existin"
     },
     {
       "file": "package-lock.json",
       "matched_terms": [
-        "vdi",
+        "rdp",
         "vm"
       ],
-      "preview": "{ \"name\": \"acima-playwright-automation\", \"version\": \"1.0.0\", \"lockfileVersion\": 3, \"requires\": true, \"packages\": { \"\": { \"name\": \"acima-playwright-automation\", \"version\": \"1.0.0\", \"license\": \"ISC\", \"dependencies\": { \"@modelcontextprotocol/sdk\": \"^1.29.0\", \"cross-env\": \"^10.1.0\", \"dotenv\": \"^16.6.1\", \"github-mcp\": \"^0.0.7\", \"js-yaml\": \"^4.1.0\", \"playwright-mcp\": \"^0.0.10\", \"uuid\": \"^10.0.0\" }, \"devDependencies\": { \"@cucumber/cucumber\": \"^12.8.3\", \"@playwright/test\": \"^1.59.1\", \"@types/js-yaml\": \""
+      "preview": "{ \"name\": \"qa_racpad_ts_automation\", \"version\": \"1.0.0\", \"lockfileVersion\": 3, \"requires\": true, \"packages\": { \"\": { \"name\": \"qa_racpad_ts_automation\", \"version\": \"1.0.0\", \"workspaces\": [ \"db\", \"shared\" ], \"devDependencies\": { \"@playwright/test\": \"^1.60.0\", \"@types/node\": \"^22.15.21\", \"typescript\": \"^5.9.3\" }, \"engines\": { \"node\": \"&gt;=22.0.0\", \"npm\": \"&gt;=10.0.0\" } }, \"db\": { \"name\": \"@racpad-ts/db\", \"version\": \"1.0.0\", \"dependencies\": { \"@racpad-ts/shared\": \"file:../shared\", \"pg\": \"^8.16.3\" }, \"de"
     },
     {
-      "file": "pages/mobile/mobile-dashboard-page.ts",
+      "file": "src/main/pages/agreement/create-customer.page.ts",
       "matched_terms": [
         "rdp"
       ],
-      "preview": "// pages/mobile/mobile-dashboard-page.ts // Mobile dashboard — agreement overview, quick-action cards, swipeable sections. import { Page } from '@playwright/test'; import { MobileBasePage } from './mobile-base-page'; export class MobileDashboardPage extends MobileBasePage { // ─── Locators ───────────────────────────────────────────── private get dashboardContainer() { return this.page.locator(\"div[class*='dashboard'], main[class*='dashboard'], [data-testid='dashboard']\").first(); } private get "
+      "preview": "import { expect, type Locator, type Page } from '@playwright/test'; import { BasePage } from '@base/base.page'; export type CustomerCreatedDialogAction = 'not-now' | 'create-agreement'; export interface CustomerWorkflowOptions { customerCreatedDialogAction?: CustomerCreatedDialogAction; } export class CreateCustomerPage extends BasePage { private readonly firstNameInput = this.inputByName('FirstName'); private readonly lastNameInput = this.inputByName('LastName'); private readonly dobInput = thi"
     },
     {
-      "file": "step-definitions/mobile-common/shared.steps.ts",
+      "file": "src/main/pages/agreement/take-payment.page.ts",
       "matched_terms": [
         "rdp"
       ],
-      "preview": "// step-definitions/mobile-common/shared.steps.ts // Shared BDD step definitions for all mobile feature files. // Mirrors common/shared.steps.ts but uses mobile page objects and mobile YAML paths. import { createBdd } from 'playwright-bdd'; import { expect } from '@playwright/test'; import { test } from '../../fixtures/bdd-mobile.fixture'; import { loadSingleTestData, loadTestData } from '../../utils/yaml-loader'; import { getEnvironment } from '../../config/environments'; const { Given, When, T"
+      "preview": "import { expect, type Locator, type Page } from '@playwright/test'; import { BasePage } from '@base/base.page'; export interface CardDetails { cardNumber: string; expiryMonth: string; expiryYear: string; cvv: string; } export interface AgreementCreationPaymentFlowOptions { pin?: string; signatureType?: string; manualSignatureReason?: string; authorizationData?: Record&lt;string, unknown&gt;; } export type AgreementPaymentReceiptKey = 'COA'; const AGREEMENT_RECEIPT_LABELS: Record&lt;AgreementPaymentReceip"
     },
     {
-      "file": "step-definitions/mobile/dashboard.steps.ts",
+      "file": "src/main/pages/cashmanagment/cash-managment.page.ts",
       "matched_terms": [
         "rdp"
       ],
-      "preview": "// step-definitions/mobile/dashboard.steps.ts // BDD step definitions for mobile dashboard feature scenarios. import { createBdd } from 'playwright-bdd'; import { test } from '../../fixtures/bdd-mobile.fixture'; const { When, Then } = createBdd(test); Then('the next payment card should be visible on mobile', async ({ mobileDashboardPage }) =&gt; { await mobileDashboardPage.validateNextPaymentCardVisible(); }); Then('the View Lease button should be visible on mobile dashboard', async ({ mobileDashbo"
+      "preview": "import { expect, type Locator, type Page } from '@playwright/test'; import { BasePage } from '@base/base.page'; type CashManagmentData = Record&lt;string, unknown&gt;; type TenderKind = 'cash' | 'check' | 'moneyOrder'; type SelectContainerId = 'paidIn' | 'paidOut' | 'receiptSubmittedBy' | 'dropVerified'; type ReferenceDetail = { id?: string | number; description?: string; descSpanish?: string; }; const SELECT_LABELS: Record&lt;SelectContainerId, string[]&gt; = { paidIn: ['Paid In Type', 'Tipo de Ingreso'], "
     },
     {
-      "file": "test-data/mobile/payment/payment_page.yaml",
+      "file": "src/main/pages/customer/create-customer.page.ts",
       "matched_terms": [
         "rdp"
       ],
-      "preview": "# Mobile Payment Test Data # Payment method and transaction data for mobile payment scenarios. TC_009: DEFAULT: username: \"110151679\" password: \"testcustomer1\" testDescription: \"Adding Payment Method for mobile customer\" Bank Name: \"Test\" Routing Number: \"011075150\" Account Number: \"258975\" name: \"randomfirstname\" cardNumber: \"4445222299990007\" cvv: \"382\" year: \"randomyear_2027_2030\" address: \"randomstreetaddress\" city: \"randomcity\" postalCode: \"79761\" customerId: \"cust-1006bf54-aec4-451a-802f-8"
+      "preview": "import { expect, type Locator } from '@playwright/test'; import { CreateCustomerPage as AgreementCreateCustomerPage, type CustomerCreatedDialogAction, } from '@pages/agreement/create-customer.page'; import { CustomerInformationPage } from '@pages/customer/customer-information.page'; const SAVED_ALERT_CONTAINER_XPATH = \"//*[@data-testid='customerAlertTestId' or contains(@data-testid,'customerAlertTestId') or @*='customerAlertTestId']\"; const CUSTOMER_ALERTS_SUMMARY_XPATH = \"(//*[not(ancestor::*[@"
     },
     {
-      "file": "test-data/ui/login/login_page.yaml",
+      "file": "src/main/pages/customer/customer-information.page.ts",
       "matched_terms": [
         "rdp"
       ],
-      "preview": "# UI Login Test Data # Migrated from acima_ui/src/test/resources/testData/login/login_page.yaml TC_LOGIN_POSITIVE: DEFAULT: - username: \"110152171\" password: \"testcustomer1\" testDescription: \"Customer data with ACTIVE agreement\" groups: [regression] - username: \"110038759\" password: \"testpastdue1\" testDescription: \"Customer data with PAST DUE agreement\" groups: [regression] TC_005: DEFAULT: username: \"110038759\" password: \"testpastdue1\" testDescription: \"Customer data with PAST DUE agreement\" TC"
+      "preview": "import { expect } from '@playwright/test'; import { CustomerInformationPage as AgreementCustomerInformationPage } from '@pages/agreement/customer-information.page'; export class CustomerInformationPage extends AgreementCustomerInformationPage { private forcedRouteValue?: string; private readonly communicationPreferenceEditButton = this.page.locator( `xpath=((//p[normalize-space()='Communication Preferences' or normalize-space()='Preferencias de comunicación']` + `/following-sibling::*//button[./"
+    },
+    {
+      "file": "src/main/pages/dashboard/dashboard.page.ts",
+      "matched_terms": [
+        "rdp"
+      ],
+      "preview": "import { expect } from '@playwright/test'; import { BasePage } from '@base/base.page'; export class DashboardPage extends BasePage { private readonly dashboardTab = this.page.getByRole('link', { name: /^Dashboard$/i }).first(); private readonly storeActionItemsTitle = this.page.locator(`xpath=//h6[contains(text(),'Store Action Items') or contains(text(),'Tareas de Tienda')]`).first(); private readonly salesLeadsTitle = this.page.locator(`xpath=//h6[contains(text(),'Sales Leads') or contains(text"
+    },
+    {
+      "file": "src/main/pages/payment/reverse-payment.page.ts",
+      "matched_terms": [
+        "rdp"
+      ],
+      "preview": "// @ts-nocheck import { expect, type Page } from '@playwright/test'; const { ReversePaymentPage: AgreementReversePaymentPage } = require('@pages/agreement/reverse-payment.page') as any; export class ReversePaymentPage extends AgreementReversePaymentPage { constructor(page: Page) { super(page); } private readonly paymentReverseButton = this.page.getByRole('button', { name: /^(Reverse|Reverso)$/i }).last(); private readonly revenueSourceCheckboxes = this.page.locator( `xpath=(//span[contains(@clas"
+    },
+    {
+      "file": "src/test/resources/fixtures/agreement/smoke-data-resolver.ts",
+      "matched_terms": [
+        "rdp"
+      ],
+      "preview": "import { createDbClient } from '../../../../../db/src/client/db-client'; import { fetchRandomActivePaymentAgreementSeed, fetchRandomConfirmedDeliveryAgreementSeed, fetchRandomEpoPaymentAgreementSeed, fetchRandomPastDueConfirmedDeliveryAgreementSeed, fetchRandomRentReadyInventorySeed, fetchRandomSchedulableDeliveryAgreementSeed, fetchReturnableConfirmedDeliveryAgreementSeed, type RacpadAgreementSeed, type RacpadInventorySeed, } from '../../../../../db/src/seeds/racpad-smoke-seeds'; import { ensur"
+    },
+    {
+      "file": "src/test/resources/fixtures/dashboard/dashboard-source-flows.ts",
+      "matched_terms": [
+        "rdp"
+      ],
+      "preview": "import type { Page } from '@playwright/test'; import { resolveBaseUrl, resolveCredentials } from '@config/environment'; import { MicrosoftLoginPage as LoginPage } from '@pages/shared/microsoft-login.page'; import { HomePage } from '@pages/dashboard/home.page'; import { DashboardPage } from '@pages/dashboard/dashboard.page'; export interface DashboardPages { loginPage: LoginPage; homePage: HomePage; dashboardPage: DashboardPage; } export function buildDashboardPages(page: Page): DashboardPages { "
+    },
+    {
+      "file": "src/test/specs/dashboard/dashboard.spec.ts",
+      "matched_terms": [
+        "rdp"
+      ],
+      "preview": "import { expect, testDetails } from '@fixtures/dashboard/test-fixture'; import { loginToDashboardModule } from '@fixtures/dashboard/dashboard-source-flows'; const groups = ['regression', 'dashboard', 'smoke']; testDetails({ featureName: 'dashboard', groups, testCaseId: 'TC_001', })('DashboardTest.validateDashboardPage @smoke', async ({ page, testData }) =&gt; { const { pages } = await loginToDashboardModule(page, testData); await pages.homePage.openDashboard(); await pages.dashboardPage.expectLoade"
     }
   ],
   "confidence": "medium",
   "important_note": "The framework can only infer VDI/VM/VPN knowledge from repository files, env examples, scripts, and docs. If the app runs only on a specific VDI/VPN, add that as project metadata in the GUI so RCA can classify network/auth failures correctly instead of patching tests."
 }</pre></section><section class='card'><h2>Rag Index</h2><pre>{
   "ok": true,
-  "generated_at": "2026-07-16T02:17:01",
-  "framework_path": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed",
-  "chunk_count": 356,
-  "file_count_indexed": 215,
+  "generated_at": "2026-07-08T18:44:08",
+  "framework_path": "/mnt/data/work/racpad/qa_racpad_ts_automation",
+  "chunk_count": 891,
+  "file_count_indexed": 405,
   "cache_ownership": "framework_local",
-  "framework_local_cache_dir": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\.qa-cache\\existing-framework",
-  "framework_local_rag_dir": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\.qa-cache\\existing-framework\\rag",
-  "chunk_store": "C:\\PROJECTS\\qa_acima_testautomation_execution_fixed\\qa_acima_fixed\\.qa-cache\\existing-framework\\rag\\framework-chunks.jsonl",
-  "central_gui_mirror_chunk_store": "C:\\ASTRAHEALAI\\ASTRA_Latest\\Demo\\AstraHealAI_V11_GUI_AddNewTests_BDD_Atlassian_MCP_Fixed_v0.4.3\\.qa-cache\\existing-framework\\rag\\framework-chunks.jsonl",
+  "framework_local_cache_dir": "/mnt/data/work/racpad/qa_racpad_ts_automation/.qa-cache/existing-framework",
+  "framework_local_rag_dir": "/mnt/data/work/racpad/qa_racpad_ts_automation/.qa-cache/existing-framework/rag",
+  "chunk_store": "/mnt/data/work/racpad/qa_racpad_ts_automation/.qa-cache/existing-framework/rag/framework-chunks.jsonl",
+  "central_gui_mirror_chunk_store": "/mnt/data/work/astra/.qa-cache/existing-framework/rag/framework-chunks.jsonl",
   "embedding_strategy": "local deterministic sparse hash embeddings stored under the selected framework; replaceable with enterprise vector DB/OpenAI/Ollama embeddings",
   "counts_by_kind": {
-    "code": 223,
-    "documentation": 27,
-    "ci_trigger": 11,
-    "api_service": 11,
-    "spec": 22,
-    "fixture": 5,
-    "page_object": 1,
-    "page_class": 45,
-    "test_data": 11
+    "ci_trigger": 17,
+    "code": 186,
+    "documentation": 13,
+    "page_class": 303,
+    "test_data": 157,
+    "fixture": 134,
+    "spec": 81
   },
   "counts_by_tag": {
-    "knowledge": 27,
-    "locator": 79,
-    "api": 33,
-    "database": 4,
-    "trigger": 11,
-    "test": 22,
-    "session": 5,
-    "vdi_vpn": 24,
-    "flow": 45,
-    "pom": 45,
-    "data": 11
+    "trigger": 17,
+    "api": 43,
+    "locator": 311,
+    "database": 17,
+    "vdi_vpn": 23,
+    "knowledge": 13,
+    "flow": 303,
+    "pom": 303,
+    "data": 157,
+    "session": 134,
+    "test": 81
   },
   "top_files": [
-    "agents/failure-analyzer/output/run-history.json",
-    "package-lock.json",
-    ".playwright-mcp/page-2026-05-02T07-04-59-830Z.yml",
-    ".playwright-mcp/page-2026-04-20T11-16-00-823Z.yml",
-    ".playwright-mcp/page-2026-05-01T09-16-21-195Z.yml",
-    ".playwright-mcp/page-2026-05-02T07-05-53-264Z.yml",
-    "pages/login-page.ts",
-    ".playwright-mcp/page-2026-04-20T07-49-10-866Z.yml",
-    ".playwright-mcp/page-2026-04-20T07-49-27-846Z.yml",
-    ".playwright-mcp/page-2026-04-20T07-50-34-759Z.yml",
-    ".playwright-mcp/page-2026-04-20T11-14-59-908Z.yml",
-    ".playwright-mcp/page-2026-04-20T11-15-19-040Z.yml",
-    ".playwright-mcp/page-2026-04-20T11-15-22-454Z.yml",
-    ".playwright-mcp/page-2026-04-20T11-15-40-449Z.yml",
-    ".playwright-mcp/page-2026-05-01T09-13-34-016Z.yml",
-    ".playwright-mcp/page-2026-05-01T09-15-20-918Z.yml",
-    ".playwright-mcp/page-2026-05-01T09-15-42-413Z.yml",
-    ".playwright-mcp/page-2026-05-01T09-15-50-756Z.yml",
-    ".playwright-mcp/page-2026-05-01T09-16-58-702Z.yml",
-    ".playwright-mcp/page-2026-05-02T07-04-41-753Z.yml",
-    ".playwright-mcp/page-2026-05-02T07-04-47-080Z.yml",
-    ".playwright-mcp/page-2026-05-02T07-05-05-103Z.yml",
-    ".playwright-mcp/page-2026-05-02T07-05-16-719Z.yml",
-    ".playwright-mcp/page-2026-05-02T07-05-29-284Z.yml",
-    ".playwright-mcp/page-2026-05-02T07-05-34-918Z.yml"
+    ".qa-cache/existing-framework/agentic-memory/framework-understanding-memory.json",
+    "src/main/pages/accountmanagement/account-management/customer-details.page.ts",
+    "src/main/pages/agreement/take-payment.page.ts",
+    "src/main/pages/customer/create-customer.page.ts",
+    "src/main/pages/payment/take-payment.page.ts",
+    "src/main/pages/accountmanagement/take-payment.page.ts",
+    "src/test/resources/fixtures/payment/payment-source-flows.ts",
+    "src/main/pages/agreement/schedule-delivery.page.ts",
+    "src/test/resources/fixtures/payment/payment-test-inventory.json",
+    "src/main/pages/agreement/agreement/agreement-details.page.ts",
+    "src/main/pages/dapevents/daily-activity-planner.page.ts",
+    "src/test/resources/testData/accountmanagement/account_management.yaml",
+    "src/test/resources/testData/customer/customer_create.yaml",
+    "src/main/pages/dapevents/schedule-delivery.page.ts",
+    "src/test/resources/fixtures/agreement/agreement-regression-runner.ts",
+    "src/main/pages/agreement/agreement/agreement-item-search.page.ts",
+    "src/main/pages/cashmanagment/cash-managment.page.ts",
+    "src/test/resources/testData/agreement/agreement.yaml",
+    "src/main/pages/agreement/create-customer.page.ts",
+    "src/test/resources/testSuites/payment/payment.manifest.yaml",
+    "src/main/pages/agreement/agreement/item-return.page.ts",
+    "src/main/pages/customer/customer-information.page.ts",
+    "src/test/resources/fixtures/accountmanagement/account-management-case-runners.ts",
+    "src/test/resources/fixtures/accountmanagement/account-management-part-2-case-runners.ts",
+    "src/test/resources/testData/agreement/agreementChargeOff.yaml"
   ]
 }</pre></section></body></html>

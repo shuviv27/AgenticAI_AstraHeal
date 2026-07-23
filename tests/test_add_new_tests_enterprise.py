@@ -118,6 +118,115 @@ Examples:
         self.assertEqual(len(payload["scenarios"][0]["steps"]), 3)
         self.assertEqual(payload["scenarios"][1]["id"], "XL-2")
 
+    def test_functional_excel_shape_preserves_summary_steps_test_data_and_redacts_credentials(self) -> None:
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Index"
+        sheet.append(["Test_Case", "Summery", "Step Number", "Step Description", "Test Data", "Expected Result"])
+        sheet.append(["TC_01", "Create a Salesforce appointment", "1", "Open Salesforce Customer Central", "https://example.test/salesforce", "Salesforce login page is displayed"])
+        sheet.append(["", "", "2", "Enter valid username", "ben.sms@example.test", "Username is accepted"])
+        sheet.append(["", "", "3", "Enter valid password", "DoNotPersist-123!", "Password is accepted"])
+        sheet.append(["", "", "4", "Enter customer mobile number", "9999999999", "Customer is found"])
+        data = io.BytesIO()
+        workbook.save(data)
+
+        payload = extract_and_normalize_source(
+            self.feature,
+            uploaded_bytes=data.getvalue(),
+            uploaded_name="functional-cases.xlsx",
+        )
+
+        self.assertEqual(payload["scenario_count"], 1)
+        scenario = payload["scenarios"][0]
+        self.assertEqual(scenario["id"], "TC_01")
+        self.assertEqual(scenario["title"], "Create a Salesforce appointment")
+        self.assertEqual(scenario["page"], "Salesforce")
+        self.assertEqual([step.get("step_number") for step in scenario["steps"][:4]], ["1", "2", "3", "4"])
+        self.assertEqual(scenario["steps"][0]["value"], "https://example.test/salesforce")
+        self.assertEqual(scenario["steps"][1]["value_env"], "SALESFORCE_USERNAME")
+        self.assertEqual(scenario["steps"][2]["value_env"], "SALESFORCE_PASSWORD")
+        self.assertEqual(scenario["steps"][3]["value"], "9999999999")
+        serialized = json.dumps(payload)
+        self.assertNotIn("ben.sms@example.test", serialized)
+        self.assertNotIn("DoNotPersist-123!", serialized)
+
+    def test_default_framework_uses_generated_folder_and_never_patches_base_page(self) -> None:
+        self.write("playwright.config.ts", "export default { testDir: './tests' };\n")
+        (self.root / "tests/generated").mkdir(parents=True, exist_ok=True)
+        (self.root / "tests/generated/.gitkeep").write_text("", encoding="utf-8")
+        original_base = (
+            "import type { Page } from '@playwright/test';\n"
+            "export class BasePage {\n"
+            "  constructor(protected readonly page: Page) {}\n"
+            "  protected getLocator(definition: unknown) { return this.page.locator(String(definition)); }\n"
+            "}\n\n"
+            "export function escapeRegExp(value: string): string {\n"
+            "  return value.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n"
+            "}\n"
+        )
+        self.write("pages/BasePage.ts", original_base)
+        self.write(
+            "utils/locatorFactory.ts",
+            "export type LocatorDefinition = { strategy: string; value: string; role?: string; description?: string; fallbacks?: LocatorDefinition[] };\n",
+        )
+        (self.root / "pageObjects").mkdir(parents=True, exist_ok=True)
+
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.append(["Test_Case", "Summery", "Step Number", "Step Description", "Test Data", "Expected Result"])
+        sheet.append(["TC_01", "Create Salesforce customer", "1", "Open Salesforce Customer Central", "https://example.test", "Login page is displayed"])
+        sheet.append(["", "", "2", "Enter valid username", "person@example.test", "Username is accepted"])
+        sheet.append(["", "", "3", "Click Login button", "", "Dashboard is displayed"])
+        data = io.BytesIO()
+        workbook.save(data)
+        payload = extract_and_normalize_source(self.feature, uploaded_bytes=data.getvalue(), uploaded_name="functional.xlsx")
+        self.save_payload(payload)
+
+        result = generate_existing_framework_tests(str(self.root), self.feature, validate_generated=False)
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["generated_spec_count"], 1)
+        self.assertTrue(result["generated_specs"][0].startswith("tests/generated/"))
+        self.assertIn("pages/SalesforcePage.ts", result["changed_files"])
+        self.assertIn("pageObjects/SalesforcePage.objects.ts", result["changed_files"])
+        self.assertEqual((self.root / "pages/BasePage.ts").read_text(encoding="utf-8"), original_base)
+        page_text = (self.root / "pages/SalesforcePage.ts").read_text(encoding="utf-8")
+        objects_text = (self.root / "pageObjects/SalesforcePage.objects.ts").read_text(encoding="utf-8")
+        spec_text = (self.root / result["generated_specs"][0]).read_text(encoding="utf-8")
+        self.assertIn("extends BasePage", page_text)
+        self.assertIn("SalesforcePageObjects", page_text)
+        self.assertIn("satisfies Record<string, LocatorDefinition>", objects_text)
+        self.assertIn("process.env.SALESFORCE_USERNAME", spec_text)
+        self.assertNotIn("person@example.test", spec_text)
+
+    def test_exported_class_member_insertion_ignores_trailing_helper_functions(self) -> None:
+        original = (
+            "import { Page } from '@playwright/test';\n"
+            "export class LoginPage {\n"
+            "  constructor(private readonly page: Page) {}\n"
+            "}\n\n"
+            "export function helper(value: string) {\n"
+            "  return value.trim();\n"
+            "}\n"
+        )
+        self.write("src/main/pages/LoginPage.ts", original)
+        payload = extract_and_normalize_source(
+            self.feature,
+            pasted_json_or_steps="Test Case ID: INS-1\nTitle: Login user\nPage: Login\nSteps:\n1. Enter username\nExpected Result: Dashboard is displayed",
+        )
+        self.save_payload(payload)
+
+        result = generate_existing_framework_tests(str(self.root), self.feature, validate_generated=False)
+
+        self.assertTrue(result["ok"], result)
+        updated = (self.root / "src/main/pages/LoginPage.ts").read_text(encoding="utf-8")
+        class_close = updated.index("}\n\nexport function helper")
+        method_pos = updated.index("async fillUsername")
+        helper_pos = updated.index("export function helper")
+        self.assertLess(method_pos, class_close)
+        self.assertLess(class_close, helper_pos)
+        self.assertIn("return value.trim();", updated)
+
     def test_generation_creates_one_spec_per_scenario_in_configured_testdir(self) -> None:
         self.write(
             "src/main/pages/LoginPage.ts",

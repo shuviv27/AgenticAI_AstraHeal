@@ -1,97 +1,70 @@
 {
-  "build": "0.4.3",
-  "base_build": "0.4.2",
-  "generated_on": "2026-07-16",
-  "archive_name": "AstraHealAI_V11_GUI_AddNewTests_BDD_Atlassian_MCP_Fixed_v0.4.3.zip",
+  "build": "0.4.4",
+  "base_build": "0.4.3",
+  "generated_on": "2026-07-23",
+  "archive_name": "AstraHealAI_V11_GUI_Excel_FunctionalTests_Validation_Fixed_v0.4.4.zip",
   "archive_sha256": "Provided in the external delivery manifest after final ZIP creation.",
   "validation": {
-    "tests_passed": 36,
+    "tests_passed": 39,
     "tests_failed": 0,
+    "add_new_tests_passed": 14,
     "route_count": 152,
     "python_compile": true,
     "javascript_syntax": true,
-    "wheel_version": "0.4.3",
+    "wheel_version": "0.4.4",
+    "exact_workbook_scenarios": 10,
+    "exact_workbook_generated_specs": 10,
+    "exact_workbook_syntax_diagnostics": 0,
+    "base_page_unchanged": true,
+    "raw_credentials_absent": true,
     "zip_integrity": true,
-    "clean_extraction_tests_passed": 36
+    "clean_extraction_tests_passed": 39
   },
   "changed_files": [
     {
+      "path": "BUILD_VALIDATION_REPORT.md",
+      "size_bytes": 7494,
+      "sha256": "7aa14759e768f04b0bc9bc3560bb78bd670e0014e0ac3ed3a14d10741db03c66"
+    },
+    {
       "path": "README.md",
-      "size_bytes": 1677,
-      "sha256": "4d14e98c51441b206a6d9cbe81393495e366504d9fcd226d9cdded4530d69568"
+      "size_bytes": 1744,
+      "sha256": "21d6e7a91b408076247f34c374a3f470aaa4be47dcbc5a22a3bd25cdc876cc20"
     },
     {
       "path": "README_FIRST.md",
-      "size_bytes": 4708,
-      "sha256": "10d725c9334af976a1dd43c6ea2e591f64e59570db0d87223e5bcaaed80d5651"
+      "size_bytes": 5905,
+      "sha256": "0a1994acad8a9a8501da4eb83b61efe3a1404d18c70a497bac21ace6f225370f"
     },
     {
-      "path": "docs/31_ADD_NEW_TESTS_MULTI_SOURCE_BDD_ATLASSIAN.md",
-      "size_bytes": 6546,
-      "sha256": "735bfb17f49c381c6c8e75bc526789c0c5f9993efc72d37e35faf43324fa943b"
+      "path": "docs/32_EXCEL_FUNCTIONAL_TESTCASE_GENERATION_VALIDATION_FIX.md",
+      "size_bytes": 4602,
+      "sha256": "cc38776d3400fc14ef775e5c2626d0ffbb9330b4d90421b5dc5b687c7abe3176"
     },
     {
       "path": "pyproject.toml",
       "size_bytes": 657,
-      "sha256": "26edc28e6d2377b8206b39817a60ba409026d6023847c583bfe8eae099854b51"
-    },
-    {
-      "path": "requirements.txt",
-      "size_bytes": 362,
-      "sha256": "1163070cc763222f79f92195a292e637769b484a8ef46f278c94c00982e7f2fd"
-    },
-    {
-      "path": "setup.py",
-      "size_bytes": 706,
-      "sha256": "09e462eae8500bea975dff4644fd1b82e96de5503915cb636ccaee2f46ab4535"
-    },
-    {
-      "path": "qa_pipeline/gui/app.py",
-      "size_bytes": 220301,
-      "sha256": "344cb55f5eceaca19cefb3d20e784821194073f4eca17086d15ad8f766f8f241"
-    },
-    {
-      "path": "qa_pipeline/gui/static/index.html",
-      "size_bytes": 111838,
-      "sha256": "1437c0085e314077740a05397c3161d3e908a57ec87a3e0a3b94de2e25d354e8"
+      "sha256": "3f2189342b8d982a402a945d1dac2ecf9e1aefd0d4a57c80b69226d1fff0265c"
     },
     {
       "path": "qa_pipeline/integrations/atlassian_mcp.py",
       "size_bytes": 31405,
-      "sha256": "42f6d070ddac0063f7c99e219fabfc823898f52035cc3b24734241ac8554a45d"
-    },
-    {
-      "path": "qa_pipeline/modules/playwright_ts_generator/controller.py",
-      "size_bytes": 19238,
-      "sha256": "ed9f6f7d6ca4299fc2f752a03c2affb0af0b1f80b873dcad59e66d7a6e6bb8e0"
+      "sha256": "3779120168441bdff53544cb8d17c7c189de53dfda62bfd18acde112ca880e51"
     },
     {
       "path": "qa_pipeline/modules/playwright_ts_generator/enterprise_add_new_tests.py",
-      "size_bytes": 60030,
-      "sha256": "ba71b6f4c0750ccd130f74fe32e2a1b33aa9235cc2a0dd0851b197261e882840"
+      "size_bytes": 79760,
+      "sha256": "1f2a4379ba37b11643fd9625b3d07f068765c4771095d3d4ec63f627c2ad53a1"
+    },
+    {
+      "path": "setup.py",
+      "size_bytes": 706,
+      "sha256": "3e376e8c5b41f65f5c1aac3d551f80e79ce605d2a19b75767b4a8ca3665a340c"
     },
     {
       "path": "tests/test_add_new_tests_enterprise.py",
-      "size_bytes": 14709,
-      "sha256": "7b15c78a1e9de3d65a75bba888d45d88d02b401f617a1d93e67b6c6bc42d8542"
-    },
-    {
-      "path": "BUILD_VALIDATION_REPORT.md",
-      "size_bytes": 7400,
-      "sha256": "4eea6d71fd79a5217c177680ac1e8795a42c2e79d1d76209241c2f585ee6794c"
+      "size_bytes": 21094,
+      "sha256": "5acf1a13ac02830429199d7ee344ca056c2b000450d115acf85ed6d06d7b30d3"
     }
-  ],
-  "preserved_areas": [
-    "Existing framework recursive discovery and deep learning",
-    "Sequential and distributed execution",
-    "BrowserStack adapter and environment-only credentials",
-    "RCA, Plain English reporting, self-healing and exact approval boundaries",
-    "Failed-only rerun and combined reports",
-    "AI provider readiness and MCP preflight"
-  ],
-  "live_environment_limits": [
-    "Customer Jira/Confluence and live mcp-atlassian calls not executed",
-    "Customer AUT Playwright MCP/codegen DOM verification not executed",
-    "BrowserStack and external AI provider sessions not executed"
   ]
 }
