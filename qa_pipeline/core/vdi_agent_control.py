@@ -201,6 +201,62 @@ def poll_agent_job(agent_id: str, token: str) -> Dict[str, Any]:
     return {"ok": True, "job": job}
 
 
+def get_agent_job_status(job_id: str, agent_id: str = "", token: str = "") -> Dict[str, Any]:
+    _ensure()
+    if token:
+        valid = validate_token(token)
+        if not valid.get("ok"):
+            return valid
+        if agent_id and agent_id != valid.get("agent_id"):
+            return {"ok": False, "error": "Token does not match this agent_id."}
+    path = JOBS_DIR / f"{job_id}.json"
+    job = _read_json(path, {})
+    if not job:
+        return {"ok": False, "error": f"Unknown job_id: {job_id}"}
+    if agent_id and str(job.get("agent_id") or "") != agent_id:
+        return {"ok": False, "error": "Job does not belong to this agent."}
+    return {
+        "ok": True, "job_id": job_id, "status": job.get("status"),
+        "cancel_requested": bool(job.get("cancel_requested")),
+        "message": job.get("cancel_message") or job.get("message") or "",
+    }
+
+
+def cancel_agent_job(job_id: str, reason: str = "Cancelled from Central VM GUI") -> Dict[str, Any]:
+    _ensure()
+    path = JOBS_DIR / f"{job_id}.json"
+    job = _read_json(path, {})
+    if not job:
+        return {"ok": False, "error": f"Unknown job_id: {job_id}"}
+    if str(job.get("status") or "") in {"passed", "failed", "completed", "cancelled"}:
+        return {"ok": True, "job_id": job_id, "status": job.get("status"), "message": "Job has already finished."}
+    job["cancel_requested"] = True
+    job["cancel_requested_at_epoch_ms"] = _now_ms()
+    job["cancel_message"] = reason
+    if job.get("status") == "pending":
+        job["status"] = "cancelled"
+        job["completed_at_epoch_ms"] = _now_ms()
+    _write_json(path, job)
+    log_event("runner_agents", f"Cancellation requested for Worker Agent job {job_id}", status="cancelling", progress=98)
+    return {"ok": True, "job_id": job_id, "status": job.get("status"), "cancel_requested": True, "message": reason}
+
+
+def cancel_jobs_for_operation(operation_id: str) -> Dict[str, Any]:
+    _ensure()
+    cancelled: list[str] = []
+    for path in JOBS_DIR.glob("*.json"):
+        job = _read_json(path, {})
+        metadata = dict(job.get("metadata") or {})
+        matches = str(metadata.get("operation_id") or "") == str(operation_id or "")
+        if not matches:
+            matches = str(metadata.get("run_id") or "") == str(operation_id or "")
+        if matches and str(job.get("status") or "") not in {"passed", "failed", "completed", "cancelled"}:
+            result = cancel_agent_job(str(job.get("job_id") or path.stem), reason="Parent AstraHeal operation was aborted by user.")
+            if result.get("ok"):
+                cancelled.append(str(job.get("job_id") or path.stem))
+    return {"ok": True, "operation_id": operation_id, "cancelled_job_ids": cancelled, "cancelled_job_count": len(cancelled)}
+
+
 def complete_agent_job(payload: Dict[str, Any]) -> Dict[str, Any]:
     token = str(payload.get("token") or "").strip()
     agent_id = str(payload.get("agent_id") or "").strip()
@@ -214,8 +270,9 @@ def complete_agent_job(payload: Dict[str, Any]) -> Dict[str, Any]:
     job = _read_json(path, {})
     if not job:
         return {"ok": False, "error": f"Unknown job_id: {job_id}"}
+    final_status = "cancelled" if job.get("cancel_requested") else (payload.get("status") or "completed")
     job.update({
-        "status": payload.get("status") or "completed",
+        "status": final_status,
         "return_code": payload.get("return_code"),
         "stdout_tail": str(payload.get("stdout") or "")[-12000:],
         "stderr_tail": str(payload.get("stderr") or "")[-12000:],

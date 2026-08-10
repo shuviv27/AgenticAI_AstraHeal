@@ -7,6 +7,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
+from qa_pipeline.core.operation_control import check_cancelled
+
 EXECUTABLE_SPEC_SUFFIXES = (
     ".spec.ts", ".specs.ts", ".test.ts",
     ".spec.tsx", ".specs.tsx", ".test.tsx",
@@ -91,6 +93,7 @@ def _is_ignored_relative(rel: str) -> bool:
 def _walk(root: Path, *, want_files: bool = True, max_items: int = 30_000) -> Iterable[Path]:
     count = 0
     for current, dirs, names in os.walk(root):
+        check_cancelled()
         base = Path(current)
         dirs[:] = [d for d in dirs if d.lower() not in IGNORED_DIR_NAMES]
         items = names if want_files else dirs

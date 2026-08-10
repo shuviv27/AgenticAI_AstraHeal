@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from qa_pipeline.core.paths import QA_CACHE_DIR, REPORTS_DIR
+from qa_pipeline.core.operation_control import check_cancelled
 from qa_pipeline.core.runtime_logger import log_event
 from qa_pipeline.core.tsconfig_alias import load_jsonc
 from qa_pipeline.agents.existing_framework_control.structure_discovery import build_structure_profile
@@ -72,6 +73,7 @@ def _files(root: Path, suffixes: set[str] | None = None, limit: int = 7000) -> l
     out: list[Path] = []
     root = Path(root)
     for current, dirs, names in os.walk(root):
+        check_cancelled()
         base = Path(current)
         kept_dirs = []
         for d in dirs:

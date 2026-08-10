@@ -1,3 +1,20 @@
+
+## Autonomous LangGraph multi-agent mode
+
+This build adds a LangGraph supervisor, specialised LangChain tool agents, LangSmith observability, Server-Sent Event streaming, project-root `astraheal_memory.sqlite3`, optional Graphify code-graph augmentation, Playwright framework diagnosis/fix automation and evidence-gated RCA. Read `docs/33_AUTONOMOUS_LANGGRAPH_LANGSMITH_GRAPHIFY.md` before production rollout.
+
+Install the complete runtime with:
+
+```bash
+pip install -e .
+```
+
+Optional Graphify:
+
+```bash
+pip install -e ".[codegraph]"
+```
+
 # AstraHeal AI - Clean Startup + Worker Agent + AI Full-Control Framework Fix
 
 Start here.

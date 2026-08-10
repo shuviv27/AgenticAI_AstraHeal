@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="advanced-ai-automation-pipeline",
-    version="0.4.4",
+    version="0.7.2",
     description="Python Agentic AI QA Pipeline with GUI and reuse-aware Playwright generation",
     packages=find_packages(include=["qa_pipeline", "qa_pipeline.*"]),
     python_requires=">=3.11,<3.14",
@@ -16,6 +16,12 @@ setup(
         "pypdf>=4.2,<6",
         "python-docx>=1.1,<2",
         "openpyxl>=3.1,<4",
+        "playwright>=1.52,<2",
+        "langchain>=1.0,<2",
+        "langgraph>=1.0,<2",
+        "langgraph-checkpoint-sqlite>=3.0,<4",
+        "langsmith>=0.3,<1",
     ],
+    extras_require={"codegraph": ["graphifyy>=0.9,<1"]},
     entry_points={"console_scripts": ["qa-pipeline=qa_pipeline.cli:main"]},
 )

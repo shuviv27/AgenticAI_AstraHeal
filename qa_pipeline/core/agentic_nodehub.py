@@ -13,6 +13,7 @@ from typing import Any
 
 from qa_pipeline.core.paths import QA_CACHE_DIR, REPORTS_DIR
 from qa_pipeline.core.runtime_logger import log_event
+from qa_pipeline.core.operation_control import current_operation_id
 from qa_pipeline.core.vdi_agent_control import list_agents, create_agent_job
 from qa_pipeline.core.distributed_history import append_execution_history
 from qa_pipeline.core.central_workspace import resolve_worker_framework_root, with_unique_artifact_env, wrap_command_for_worker_path
@@ -657,6 +658,7 @@ def _schedule_remote_test(state: dict[str, Any], worker_id: str, test_path: str,
         "worker_ai_role": plan.get("worker_ai_role") or "browser_mcp_evidence_only",
         "codex_patch_location": plan.get("codex_patch_location") or "central_only",
         "mcp_evidence_expected": str(plan.get("worker_ai_role") or "").lower() in {"browser_mcp_evidence_only", "browser_execution_plus_mcp_evidence", "mcp_evidence"},
+        "operation_id": current_operation_id(),
         "run_id": state.get("run_id"),
         "worker_id": worker_id,
         "worker_name": worker.get("worker_name"),

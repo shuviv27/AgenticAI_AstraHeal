@@ -63,12 +63,11 @@ def enterprise_stack_status() -> dict[str, Any]:
 
 
 def langsmith_status() -> dict[str, Any]:
+    from qa_pipeline.agentic.observability import configure_langsmith
+    status = configure_langsmith()
     return {
         "required_in_enterprise_mode": True,
-        "enabled": os.getenv("LANGCHAIN_TRACING_V2", "true").lower() == "true",
-        "api_key_configured": bool(os.getenv("LANGCHAIN_API_KEY")),
-        "project": os.getenv("LANGCHAIN_PROJECT", "ai-qa-pipeline"),
-        "endpoint": os.getenv("LANGCHAIN_ENDPOINT", "https://api.smith.langchain.com"),
+        **status,
         "local_bridge": "http://localhost:3003",
-        "note": "LangSmith is hosted; the Docker stack includes a local bridge/readiness service and the Python project includes langsmith dependencies.",
+        "note": "LangGraph and LangChain runs are traced directly to LangSmith when LANGSMITH_API_KEY is configured. The local bridge remains an optional readiness service.",
     }

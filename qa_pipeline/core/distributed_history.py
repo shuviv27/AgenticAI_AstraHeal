@@ -8,6 +8,8 @@ from typing import Any, Callable
 
 from qa_pipeline.core.paths import QA_CACHE_DIR, REPORTS_DIR
 from qa_pipeline.core.runtime_logger import log_event
+from qa_pipeline.core.operation_control import current_operation_id
+from qa_pipeline.core.operation_control import popen_process_group_kwargs, register_process, unregister_process
 from qa_pipeline.core.vdi_agent_control import list_agents, create_agent_job
 from qa_pipeline.core.central_workspace import resolve_worker_framework_root, with_unique_artifact_env, wrap_command_for_worker_path
 from qa_pipeline.core.tsconfig_alias import runtime_env_for_tsconfig_aliases
@@ -326,9 +328,20 @@ def _run_local_parallel_shard_process(root: Path, run_id: str, shard: dict[str, 
     started = time.time()
     log_event('distributed_execution', f'Starting local/VM parallel browser shard {shard_id}.', status='running', progress=35, details={'command': command, 'tests': shard.get('tests'), 'browser': browser, 'launcher': str(launcher), 'test_case_count': shard.get('test_case_count'), 'max_wait_ms': _astraheal_max_wait_ms()})
     output_lines: list[str] = []
+    proc = None
     try:
         popen_args = ['cmd.exe', '/d', '/s', '/c', str(launcher)] if os.name == 'nt' else [str(launcher)]
-        proc = subprocess.Popen(popen_args, cwd=str(root), env=env, text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+        popen_kwargs: dict[str, Any] = {}
+        if os.name == 'nt':
+            # VDI/central-VM policies are more reliable when each shard has its
+            # own process group. Headless shards also avoid opening an extra
+            # console window that enterprise desktop policies may terminate.
+            flags = getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0)
+            if not headed:
+                flags |= getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+            popen_kwargs['creationflags'] = flags
+        proc = subprocess.Popen(popen_args, cwd=str(root), env=env, text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, **popen_kwargs)
+        register_process(proc)
         assert proc.stdout is not None
         last_log = 0.0
         for line in proc.stdout:
@@ -342,7 +355,10 @@ def _run_local_parallel_shard_process(root: Path, run_id: str, shard: dict[str, 
                 log_event('distributed_execution', f'{shard_id}: {line[-240:]}', status='running', progress=45, details={'shard_id': shard_id, 'browser': browser, 'test_case_count': shard.get('test_case_count')})
                 last_log = now
         return_code = proc.wait()
+        unregister_process(proc)
     except Exception as exc:
+        if proc is not None:
+            unregister_process(proc)
         return_code = None
         output_lines.append(f'{type(exc).__name__}: {exc}')
     duration = round(time.time() - started, 2)
@@ -430,13 +446,15 @@ def _run_browserstack_shard_process(root: Path, run_id: str, shard: dict[str, An
     started = time.time()
     log_event('browserstack_execution', f'Starting BrowserStack execution shard {shard_id}. AI/RCA stays on this VM.', status='running', progress=35, details={'command': command, 'config': str(cfg), 'tests': shard.get('tests'), 'readiness': readiness})
     output_lines: list[str] = []
+    proc = None
     if not readiness.get('ok'):
         output_lines.append('BrowserStack readiness failed: ' + readiness.get('message',''))
         return_code = 2
     else:
         try:
             popen_args = ['cmd.exe', '/d', '/s', '/c', str(launcher)] if os.name == 'nt' else [str(launcher)]
-            proc = subprocess.Popen(popen_args, cwd=str(root), env=env, text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+            proc = subprocess.Popen(popen_args, cwd=str(root), env=env, text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, **popen_process_group_kwargs())
+            register_process(proc)
             assert proc.stdout is not None
             last_log = 0.0
             for line in proc.stdout:
@@ -450,7 +468,10 @@ def _run_browserstack_shard_process(root: Path, run_id: str, shard: dict[str, An
                     log_event('browserstack_execution', f'{shard_id}: {line[-240:]}', status='running', progress=45, details={'shard_id': shard_id, 'browserstack_config': str(cfg)})
                     last_log = now
             return_code = proc.wait()
+            unregister_process(proc)
         except Exception as exc:
+            if proc is not None:
+                unregister_process(proc)
             return_code = None
             output_lines.append(f'{type(exc).__name__}: {exc}')
     duration = round(time.time() - started, 2)
@@ -1019,6 +1040,30 @@ def handle_distributed_agent_completion(job: dict[str, Any]) -> dict[str, Any]:
     return {'ok': True, 'run_id': run_id, 'parallel_rca': rca}
 
 
+def _local_parallel_worker_limit(shard_count: int) -> int:
+    """Conservative worker cap for central VM/VDI stability."""
+    default = 2 if os.name == 'nt' else 4
+    try:
+        configured = int(os.environ.get('ASTRAHEAL_LOCAL_PARALLEL_MAX_WORKERS') or default)
+    except Exception:
+        configured = default
+    cpu_limit = max(1, int((os.cpu_count() or 2) / 2))
+    return max(1, min(int(shard_count or 1), configured, cpu_limit, 8))
+
+
+def _looks_like_system_abort(result: dict[str, Any]) -> bool:
+    text = json.dumps(result, ensure_ascii=False, default=str).lower()
+    code = result.get('return_code')
+    windows_abort_codes = {None, -1073741510, 3221225786, 3221225477, -1}
+    markers = [
+        'execution is aborted by system', 'execution aborted by system',
+        'operation was canceled by the user', 'the process has been terminated',
+        'job object', 'access is denied', 'eprem', 'eperm',
+        '0xc000013a', '0xc0000005', 'process was killed'
+    ]
+    return code in windows_abort_codes or any(marker in text for marker in markers)
+
+
 def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers: str = 'chromium,firefox,webkit,msedge,chrome', shard_count: int = 5, agent_ids: str = '', headed: bool = True, run_on_agents: bool = True, worker_workspace_mode: str = 'central_shared_workspace', central_shared_framework_path: str = '', centralize_reports_and_ai_memory: bool = True, execution_target_mode: str = 'central_and_workers', master_worker_name: str = 'Central-VM-Worker', tests_per_shard: int = 0, run_role: str = 'first_run') -> dict[str, Any]:
     plan = create_distributed_plan(framework_path, selected_tests, browsers, shard_count, agent_ids, worker_workspace_mode, central_shared_framework_path, centralize_reports_and_ai_memory, execution_target_mode, master_worker_name, tests_per_shard=tests_per_shard)
     root = Path(plan['framework_path'])
@@ -1032,7 +1077,17 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
         _save_run_state(summary)
     is_local_parallel = bool(plan.get('execution_target_mode') == 'central_only' and plan.get('local_parallel_enabled'))
     is_browserstack = bool(plan.get('execution_target_mode') == 'browserstack_cloud' or plan.get('execution_provider') == 'browserstack')
-    log_event('distributed_execution', ('BrowserStack execution started.' if is_browserstack else ('Local/VM parallel execution started.' if is_local_parallel else 'Distributed node-hub execution started.')), status='running', progress=10, details={'run_id': run_id, 'shards': len(plan.get('shards') or []), 'local_parallel_enabled': is_local_parallel})
+    effective_local_headed = bool(headed)
+    parallel_headed_allowed = str(os.environ.get('ASTRAHEAL_ALLOW_PARALLEL_HEADED') or '').lower() in {'1','true','yes'}
+    if is_local_parallel and effective_local_headed and len(plan.get('shards') or []) > 1 and not parallel_headed_allowed:
+        effective_local_headed = False
+        summary['vdi_stability_adjustment'] = {
+            'applied': True,
+            'reason': 'Multiple visible browser processes are commonly terminated by Central VM/VDI desktop policy. Parallel shards were switched to headless mode. Set ASTRAHEAL_ALLOW_PARALLEL_HEADED=true to override.',
+            'requested_headed': True,
+            'effective_headed': False,
+        }
+    log_event('distributed_execution', ('BrowserStack execution started.' if is_browserstack else ('Local/VM parallel execution started.' if is_local_parallel else 'Distributed node-hub execution started.')), status='running', progress=10, details={'run_id': run_id, 'shards': len(plan.get('shards') or []), 'local_parallel_enabled': is_local_parallel, 'requested_headed': headed, 'effective_local_headed': effective_local_headed})
 
     if not plan.get('ok'):
         summary['ok'] = False
@@ -1125,7 +1180,15 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
         if is_browserstack:
             return _run_browserstack_shard_process(root, run_id, shard, headed, progress_callback=_update_runtime_progress)
         if is_local_parallel:
-            return _run_local_parallel_shard_process(root, run_id, shard, headed, progress_callback=_update_runtime_progress if is_local_parallel else None)
+            first = _run_local_parallel_shard_process(root, run_id, shard, effective_local_headed, progress_callback=_update_runtime_progress)
+            if first.get('status') == 'failed' and _looks_like_system_abort(first) and str(os.environ.get('ASTRAHEAL_RETRY_SYSTEM_ABORT') or 'true').lower() not in {'0','false','no'}:
+                log_event('distributed_execution', f"{shard.get('shard_id')}: central VM/VDI system abort detected; retrying once in isolated headless mode.", status='warning', progress=55, details={'first_return_code': first.get('return_code')})
+                retry = _run_local_parallel_shard_process(root, run_id, shard, False, progress_callback=_update_runtime_progress)
+                retry['system_abort_recovery'] = {'attempted': True, 'first_attempt': first, 'retry_mode': 'isolated_headless'}
+                if retry.get('status') == 'failed':
+                    retry['message'] = 'Central VM/VDI terminated the parallel shard again. Review execution-console.log, endpoint security/job-object policy, writable report paths and ASTRAHEAL_LOCAL_PARALLEL_MAX_WORKERS.'
+                return retry
+            return first
         from qa_pipeline.agents.existing_framework_control.controller import execute_existing_framework
         result = execute_existing_framework(framework_path=str(root), project=shard.get('browser') or 'auto', headed=headed, targets='\n'.join(shard['tests']), execution_mode='distributed_local_shard', shards=1, use_mcp_assist=True)
         sr = {**shard, 'mode': 'local_vm_parallel_shard', 'execution': result, 'status': 'passed' if result.get('ok') else 'failed'}
@@ -1133,16 +1196,17 @@ def run_distributed_plan(framework_path: str, selected_tests: str = '', browsers
         return sr
 
     futures = []
-    max_local_workers = max(1, min(len(plan.get('shards') or []), 8))
+    max_local_workers = _local_parallel_worker_limit(len(plan.get('shards') or []))
+    summary['central_vm_parallel_policy'] = {'max_workers': max_local_workers, 'effective_headed': effective_local_headed, 'system_abort_retry': True}
     with ThreadPoolExecutor(max_workers=max_local_workers) as pool:
         for shard in plan.get('shards') or []:
-            command = _build_command(root, shard['tests'], shard.get('browser') or 'auto', headed)
+            command = _build_command(root, shard['tests'], shard.get('browser') or 'auto', headed if not is_local_parallel else effective_local_headed)
             if run_on_agents and shard.get('agent_id') and not shard.get('is_master_worker'):
                 agent = next((a for a in (plan.get('online_agents') or []) if a.get('agent_id') == shard.get('agent_id')), {})
                 worker_visible_root, workspace_note = resolve_worker_framework_root(central_framework_path=str(root), worker=agent, mode=str(plan.get('worker_workspace_mode') or 'central_shared_workspace'), central_shared_framework_path=str(plan.get('central_shared_framework_path') or ''))
                 command_with_env = with_unique_artifact_env(command, run_id=run_id, worker_id=str(shard.get('agent_id') or shard.get('agent_name') or 'worker'), phase=str(shard.get('shard_id') or 'shard'), attempt=0, test_path='shard')
                 command_with_env, job_cwd = wrap_command_for_worker_path(command_with_env, worker_visible_root, fallback_working_dir=str(agent.get('workspace_root') or 'C:\\\\'))
-                metadata = {'run_id': run_id, 'framework_path': str(root), 'central_framework_path': str(root), 'test_case_count': shard.get('test_case_count'), 'worker_visible_framework_root': worker_visible_root, 'workspace_note': workspace_note, 'worker_workspace_mode': plan.get('worker_workspace_mode'), 'shard': shard, 'parallel_rca': True, 'headed': headed, 'single_consolidated_execution_report': True, 'central_ai_heavy_lifting_only': True, 'worker_ai_disabled': True}
+                metadata = {'operation_id': current_operation_id(), 'run_id': run_id, 'framework_path': str(root), 'central_framework_path': str(root), 'test_case_count': shard.get('test_case_count'), 'worker_visible_framework_root': worker_visible_root, 'workspace_note': workspace_note, 'worker_workspace_mode': plan.get('worker_workspace_mode'), 'shard': shard, 'parallel_rca': True, 'headed': headed, 'single_consolidated_execution_report': True, 'central_ai_heavy_lifting_only': True, 'worker_ai_disabled': True}
                 job = create_agent_job(shard['agent_id'], command=command_with_env, working_dir=job_cwd, job_type='distributed_playwright_shard_agentic', created_by='distributed_gui', metadata=metadata, timeout_seconds=7200)
                 summary['shard_results'].append({**shard, 'mode': 'vm_worker_agent_job', 'job': job, 'command': command, 'status': 'queued'})
                 log_event('distributed_execution', f"Queued {shard['shard_id']} on {shard.get('agent_name')} for parallel VM execution.", status='running', progress=30, details={'command': command, 'run_id': run_id})

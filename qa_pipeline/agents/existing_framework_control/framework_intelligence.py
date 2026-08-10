@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from qa_pipeline.core.paths import QA_CACHE_DIR, REPORTS_DIR
+from qa_pipeline.core.operation_control import check_cancelled
 
 # Central GUI mirror locations. These keep existing /artifacts links working.
 INTELLIGENCE_DIR = REPORTS_DIR / "existing-framework"
@@ -138,6 +139,7 @@ def _iter_files(root: Path, suffixes: set[str] | None = None, limit: int = 6000)
     files: list[Path] = []
     root = Path(root)
     for current, dirs, names in os.walk(root):
+        check_cancelled()
         base = Path(current)
         kept_dirs = []
         for d in dirs:
