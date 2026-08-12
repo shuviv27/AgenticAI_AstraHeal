@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from qa_pipeline.agentic.memory import connection, initialize_database, put_framework_memory
+from qa_pipeline.agentic.framework_cache import compute_framework_fingerprint, load_matching_cache, save_cache
 from qa_pipeline.core.paths import QA_CACHE_DIR, REPORTS_DIR
 from qa_pipeline.core.commands import run_command
 from qa_pipeline.core.operation_control import check_cancelled
@@ -130,6 +131,23 @@ def build_code_graph(framework_path: str | Path, *, use_graphify: bool = True) -
     root = Path(framework_path).expanduser().resolve()
     if not root.exists() or not root.is_dir():
         return {"ok": False, "error": f"Framework path does not exist: {root}"}
+    fingerprint = compute_framework_fingerprint(root)
+    cached = load_matching_cache(root, "code-graph-cache.json", fingerprint=fingerprint)
+    if cached:
+        graph_path = Path(str(cached.get("built_in_graph_json") or ""))
+        if graph_path.exists():
+            try:
+                payload = json.loads(graph_path.read_text(encoding="utf-8", errors="replace"))
+                nodes = payload.get("nodes") or []
+                edges = payload.get("edges") or []
+                if nodes:
+                    _persist(root, nodes, edges)
+                cached["cache_hit"] = True
+                cached["graphify"] = {**(cached.get("graphify") or {}), "reused": True, "message": "Graphify/built-in code graph reused because the framework fingerprint is unchanged."}
+                cached["message"] = "Framework code graph reused from .qa-cache; no repeated source parsing or Graphify extraction was required."
+                return cached
+            except Exception:
+                pass
     files = _iter_code(root)
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
@@ -217,6 +235,8 @@ def build_code_graph(framework_path: str | Path, *, use_graphify: bool = True) -
         "strategy": "hybrid_graphify_plus_astraheal_sqlite_graph" if graphify.get("used") else "astraheal_sqlite_structural_graph_with_optional_graphify",
         "message": "Framework code graph indexed. Graphify was used as an additional local structural index." if graphify.get("used") else "Framework code graph indexed in SQLite. Graphify is optional and can be enabled without replacing AstraHeal's guaranteed scanner.",
     }
+    summary["cache_hit"] = False
+    save_cache(root, "code-graph-cache.json", summary, fingerprint=fingerprint)
     put_framework_memory(str(root), "code_graph_summary", summary, confidence=1.0, source="code_graph_indexer")
     return summary
 

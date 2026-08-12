@@ -197,7 +197,7 @@ class _AtlassianMcpStdioClient:
         init = self.request('initialize', {
             'protocolVersion': '2025-11-25',
             'capabilities': {},
-            'clientInfo': {'name': 'AstraHealAI', 'title': 'AstraHeal AI Atlassian Source Intake', 'version': '0.7.2'},
+            'clientInfo': {'name': 'AstraHealAI', 'title': 'AstraHeal AI Atlassian Source Intake', 'version': '0.7.4'},
         })
         self.server_info = ((init.get('result') or {}).get('serverInfo') or {})
         self.notify('notifications/initialized', {})

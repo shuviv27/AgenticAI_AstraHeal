@@ -5,6 +5,7 @@ import html
 import json
 import re
 import shutil
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -75,6 +76,15 @@ def _extract_json_object(text: str) -> dict[str, Any] | None:
 
 def _provider_patch_plan(provider: str, model: str, prompt: str) -> dict[str, Any]:
     provider = _normalize_provider(provider)
+    if provider == "codex":
+        # Planning is executed in an isolated temporary workspace so Codex cannot
+        # modify the user's selected framework before human approval.
+        with tempfile.TemporaryDirectory(prefix="astraheal-codex-plan-") as td:
+            codex = CodexCliProvider(Path(td), timeout_seconds=600)
+            if not codex.is_available():
+                return {"provider": provider, "ok": False, "raw_text": "", "error": "Codex CLI is selected but is not available/authenticated."}
+            res = codex.run(prompt + "\n\nPLANNING ONLY: return the requested JSON patch plan in stdout. Do not create or edit files.")
+            return {"provider": provider, "ok": bool(res.ok), "raw_text": res.stdout if res.ok else "", "error": res.stderr if not res.ok else ""}
     if provider in {"openai", "deepseek", "perplexity"}:
         res = OpenAICompatibleProvider(provider=provider, model=model or "").chat(
             prompt,
@@ -277,6 +287,113 @@ def _build_full_control_prompt(root: Path, preflight: dict[str, Any], human_inst
         json.dumps(file_snippets, indent=2, ensure_ascii=False),
     ])
 
+
+
+def plan_full_control_framework_fix_issues(
+    framework_path: str,
+    provider: str = "codex",
+    model: str = "",
+    project: str = "auto",
+    browser: str = "chromium",
+    human_instruction: str = "",
+    full_control_scope: str = "impacted_files_only",
+) -> dict[str, Any]:
+    """Create exact AI replacement diffs without changing the selected framework."""
+    root = Path(framework_path or ".").expanduser().resolve()
+    provider = _normalize_provider(provider)
+    preflight = run_mcp_readiness_preflight(str(root), project=project, browser=browser, run_build=True, run_test_list=True, check_browser=False)
+    try:
+        deep = build_deep_framework_understanding(root, inventory={"structure_discovery": preflight.get("framework_structure") or {}})
+    except Exception as exc:
+        deep = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+    preflight["deep_framework_understanding"] = deep
+    impacted = {rel for rel in _impacted_files_from_preflight(preflight) if (root / rel).exists()}
+    if not preflight.get("action_required") and not (preflight.get("typescript_errors") or []):
+        return {"ok": True, "stage": "framework_ai_patch_proposal", "framework_path": str(root), "provider": provider, "preflight": preflight, "impacted_files": sorted(impacted), "changes": [], "message": "No additional AI source patch is required by current build/readiness evidence."}
+    if provider == "rule_based":
+        return {"ok": False, "stage": "framework_ai_patch_proposal", "framework_path": str(root), "provider": provider, "preflight": preflight, "impacted_files": sorted(impacted), "changes": [], "message": "Rule-based mode cannot safely pre-author exact TypeScript replacements. Select Codex/OpenAI/DeepSeek/Ollama for a human-reviewable patch proposal."}
+    prompt = _build_full_control_prompt(root, preflight, human_instruction, full_control_scope)
+    plan_result = _provider_patch_plan(provider, model, prompt)
+    parsed = _extract_json_object(plan_result.get("raw_text") or "") if plan_result.get("ok") else None
+    raw_changes = (parsed or {}).get("changes") or (parsed or {}).get("patches") or []
+    proposed: list[dict[str, Any]] = []
+    blocked: list[str] = []
+    for idx, change in enumerate(raw_changes if isinstance(raw_changes, list) else [], start=1):
+        if not isinstance(change, dict):
+            blocked.append(f"change #{idx}: not an object")
+            continue
+        allowed, reason, target, rel = _allowed_file(root, str(change.get("file") or ""), impacted, full_control_scope)
+        if not allowed:
+            blocked.append(f"change #{idx} {rel}: {reason}")
+            continue
+        find_text = str(change.get("find") or change.get("old") or change.get("search") or "")
+        replace_text = str(change.get("replace") or change.get("new") or "")
+        if not find_text or _DISALLOWED_PATCH_RE.search(replace_text):
+            blocked.append(f"change #{idx} {rel}: missing exact find text or replacement violates guardrails")
+            continue
+        original = target.read_text(encoding="utf-8", errors="replace") if target.exists() else ""
+        count = original.count(find_text)
+        if count != 1:
+            blocked.append(f"change #{idx} {rel}: exact find text matched {count} times; expected 1")
+            continue
+        updated = original.replace(find_text, replace_text, 1)
+        if _DISALLOWED_PATCH_RE.search(updated) and not _DISALLOWED_PATCH_RE.search(original):
+            blocked.append(f"change #{idx} {rel}: proposed file would introduce a blocked pattern")
+            continue
+        proposed.append({
+            "file": rel,
+            "find": find_text,
+            "replace": replace_text,
+            "reason": str(change.get("reason") or "AI-proposed minimal build/framework repair."),
+            "diff": "\n".join(difflib.unified_diff(original.splitlines(), updated.splitlines(), fromfile=rel + " (before)", tofile=rel + " (after)", lineterm=""))[-16000:],
+            "before_excerpt": original[:6000],
+            "after_excerpt": updated[:6000],
+        })
+    return {
+        "ok": bool(plan_result.get("ok")),
+        "stage": "framework_ai_patch_proposal",
+        "framework_path": str(root),
+        "provider": provider,
+        "full_control_scope": full_control_scope,
+        "preflight": preflight,
+        "impacted_files": sorted(impacted),
+        "changes": proposed,
+        "proposed_files": sorted({x["file"] for x in proposed}),
+        "blocked": blocked,
+        "provider_error": plan_result.get("error") or "",
+        "summary": (parsed or {}).get("summary") if isinstance(parsed, dict) else "",
+        "message": f"Prepared {len(proposed)} exact AI patch change(s) for human review; no framework file was modified." if proposed else (plan_result.get("error") or "AI did not produce a safe exact patch proposal. No framework file was modified."),
+    }
+
+
+def apply_approved_full_control_plan(
+    framework_path: str,
+    proposal: dict[str, Any],
+    approved_files: list[str] | tuple[str, ...] | set[str],
+    *,
+    project: str = "auto",
+    browser: str = "chromium",
+) -> dict[str, Any]:
+    """Apply only exact replacements that were present in the human-reviewed proposal."""
+    root = Path(framework_path or ".").expanduser().resolve()
+    approved = {str(x).replace("\\", "/").strip() for x in approved_files if str(x).strip()}
+    changes = [dict(x) for x in (proposal.get("changes") or []) if isinstance(x, dict) and str(x.get("file") or "").replace("\\", "/") in approved]
+    impacted = set(str(x).replace("\\", "/") for x in (proposal.get("impacted_files") or proposal.get("proposed_files") or []) if str(x))
+    if not changes:
+        return {"ok": False, "stage": "approved_framework_patch", "changed_files": [], "message": "Human approval did not include any exact AI patch files; no source file was modified."}
+    backup = _backup_files(root, sorted({str(x.get("file") or "") for x in changes}))
+    applied = _apply_json_replacements(root, {"changes": changes}, impacted or approved, str(proposal.get("full_control_scope") or "impacted_files_only"))
+    preflight_after = run_mcp_readiness_preflight(str(root), project=project, browser=browser, run_build=True, run_test_list=True, check_browser=False)
+    return {
+        "ok": bool(preflight_after.get("ok")),
+        "stage": "approved_framework_patch",
+        "backup": backup,
+        "changed_files": applied.get("changed_files") or [],
+        "blocked": applied.get("blocked") or [],
+        "diffs": applied.get("diffs") or {},
+        "preflight_after": preflight_after,
+        "message": "Applied only the human-approved exact AI patch files and revalidated the framework." if applied.get("changed_files") else "No approved AI replacement could be safely applied.",
+    }
 
 def _write_full_control_report(root: Path, payload: dict[str, Any]) -> dict[str, str]:
     reports = root / ".aiqa-history" / "reports"

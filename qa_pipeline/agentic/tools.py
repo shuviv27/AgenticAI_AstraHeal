@@ -14,7 +14,11 @@ from qa_pipeline.agents.existing_framework_control.controller import (
     self_heal_existing_framework,
 )
 from qa_pipeline.core.distributed_history import run_distributed_plan
-from qa_pipeline.mcp.framework_full_control_fix import ai_full_control_fix_framework_issues
+from qa_pipeline.mcp.framework_full_control_fix import (
+    ai_full_control_fix_framework_issues,
+    plan_full_control_framework_fix_issues,
+    apply_approved_full_control_plan,
+)
 from qa_pipeline.mcp.mcp_readiness_preflight import (
     fix_mcp_preflight_build_errors_with_ai,
     run_mcp_readiness_preflight,
@@ -81,8 +85,8 @@ def run_ai_functional_walkthrough(
 
 
 @_tool("inspect_existing_framework", "Inspect an existing Playwright framework without modifying files.")
-def inspect_existing_framework(framework_path: str, provider: str = "deterministic", model: str = "", base_url: str = "") -> dict[str, Any]:
-    return analyze_existing_framework(framework_path, provider=provider, model=model or "llama3", base_url=base_url)
+def inspect_existing_framework(framework_path: str, provider: str = "deterministic", model: str = "", base_url: str = "", progress_run_id: str = "") -> dict[str, Any]:
+    return analyze_existing_framework(framework_path, provider=provider, model=model or "llama3", base_url=base_url, reuse_cache=True, progress_run_id=progress_run_id)
 
 
 @_tool("index_framework_code_graph", "Create a structural code knowledge graph and optionally augment it with Graphify.")
@@ -91,8 +95,35 @@ def index_framework_code_graph(framework_path: str, use_graphify: bool = True) -
 
 
 @_tool("diagnose_playwright_framework", "Find Playwright package/config/build gaps and optionally apply safe fixes and run validation commands.")
-def diagnose_playwright_framework(framework_path: str, apply_fixes: bool = False, run_commands: bool = True) -> dict[str, Any]:
-    return diagnose_and_prepare(framework_path, apply_fixes=apply_fixes, run_commands=run_commands)
+def diagnose_playwright_framework(
+    framework_path: str,
+    apply_fixes: bool = False,
+    run_commands: bool = True,
+    reuse_cached_validation: bool = False,
+    preserve_command_source_changes: bool = False,
+    approved_files: str = "",
+    standard_profile: str = "astraheal-adaptive-enterprise-v1",
+    progress_run_id: str = "",
+) -> dict[str, Any]:
+    files = [x.strip().replace("\\", "/") for x in approved_files.replace(";", "\n").splitlines() if x.strip()]
+    progress = None
+    if progress_run_id:
+        def progress(stage: str, pct: int, message: str, details: dict[str, Any] | None = None) -> None:
+            try:
+                from qa_pipeline.agentic.events import publish
+                publish(progress_run_id, "playwright_gap", message, status="running", progress=max(1, min(99, pct)), payload=details or {})
+            except Exception:
+                pass
+    return diagnose_and_prepare(
+        framework_path,
+        apply_fixes=apply_fixes,
+        run_commands=run_commands,
+        progress=progress,
+        reuse_cached_validation=reuse_cached_validation,
+        preserve_command_source_changes=preserve_command_source_changes,
+        approved_files=files or None,
+        standard_profile=standard_profile,
+    )
 
 
 @_tool("prepare_playwright_mcp", "Run Playwright MCP readiness checks and return exact blockers.")
@@ -108,6 +139,21 @@ def fix_mcp_build_blockers(framework_path: str, provider: str = "deterministic",
 @_tool("full_control_framework_fix", "Run the existing backup-first full-control framework repair workflow.")
 def full_control_framework_fix(framework_path: str, provider: str = "deterministic", model: str = "", project: str = "auto", browser: str = "chromium", human_instruction: str = "") -> dict[str, Any]:
     return ai_full_control_fix_framework_issues(framework_path, provider=provider, model=model, project=project, browser=browser, human_instruction=human_instruction)
+
+
+@_tool("plan_full_control_framework_fix", "Prepare exact AI framework patch diffs for human approval without changing source files.")
+def plan_full_control_framework_fix(framework_path: str, provider: str = "codex", model: str = "", project: str = "auto", browser: str = "chromium", human_instruction: str = "") -> dict[str, Any]:
+    return plan_full_control_framework_fix_issues(framework_path, provider=provider, model=model, project=project, browser=browser, human_instruction=human_instruction)
+
+
+@_tool("apply_approved_full_control_framework_fix", "Apply only a previously generated exact AI patch proposal within the human-approved file list.")
+def apply_approved_full_control_framework_fix(framework_path: str, proposal_json: str, approved_files: str, project: str = "auto", browser: str = "chromium") -> dict[str, Any]:
+    try:
+        proposal = json.loads(proposal_json or "{}")
+    except Exception:
+        proposal = {}
+    files = [x.strip().replace("\\", "/") for x in approved_files.replace(";", "\n").splitlines() if x.strip()]
+    return apply_approved_full_control_plan(framework_path, proposal, files, project=project, browser=browser)
 
 
 @_tool("execute_distributed_playwright", "Run a central/worker distributed Playwright execution plan.")
@@ -160,6 +206,8 @@ ALL_TOOLS = [
     prepare_playwright_mcp,
     fix_mcp_build_blockers,
     full_control_framework_fix,
+    plan_full_control_framework_fix,
+    apply_approved_full_control_framework_fix,
     execute_distributed_playwright,
     grounded_existing_framework_rca,
     apply_grounded_self_healing,

@@ -17,15 +17,22 @@ body.ai-busy, body.ai-busy *{cursor:progress !important}.aiPulse{display:flex;ga
 <label>Execution display mode</label><select id="browser_mode"><option value="headed" selected>Visible browser / headed mode</option><option value="headless">Background / headless mode</option></select>
 <label class="toggle"><input name="advanced_ai_mode" type="checkbox" checked/> Use multi-agent framework memory and evidence-based analysis</label>
 
+<div class="mini">
+<h3>Playwright framework standard</h3>
+<p class="hint">Choose the architecture contract AstraHeal will use before analysis/repair. The recommended adaptive profile accepts complex valid layouts such as root <code>tests/pages</code>, <code>src/main + src/test</code>, BDD hybrids and monorepos. The strict profile is migration-oriented and never moves files without a separate exact proposal and approval.</p>
+<label>Framework standard profile</label><select id="playwright_standard_profile" name="standard_profile"><option value="astraheal-adaptive-enterprise-v1" selected>Adaptive Enterprise (recommended) — preserve valid architecture</option><option value="astraheal-strict-src-v1">Strict src/main + src/test — proposal-only migration target</option></select>
+<button type="button" class="gray" onclick="viewPlaywrightStandard()">View standard &amp; validation contract</button>
+</div>
+
 <div class="step">
 <h3>1. Analyse framework and check setup</h3>
-<p class="hint">The agents scan project folders, tests, fixtures, page objects, locators, imports, aliases and configuration files, then run the configured npm/Playwright prerequisite checks. They do not automatically rewrite source configuration in this step, but dependency installation may update <code>node_modules</code>, browser caches or a lockfile.</p>
+<p class="hint">The first run deeply scans project folders, tests, fixtures, page objects, locators, imports, aliases and configuration, builds framework memory/code relationships, and runs the requested npm/Playwright checks. Progress is streamed below while it works. AstraHeal stores a fingerprinted snapshot under the selected framework's <code>.qa-cache/existing-framework</code>; an unchanged second run reuses that memory instead of repeating the full walkthrough. Project-controlled setup/lockfile side effects from prerequisite commands are restored in this read-only analysis step.</p>
 <button type="button" class="blue" onclick="startAutonomousWorkflow('deep_learn',{run_commands:true,use_graphify:true})">Analyse framework &amp; check setup</button>
 </div>
 
 <div class="step">
 <h3>2. Validate or repair framework setup</h3>
-<p class="hint"><b>Validate &amp; fix framework</b> checks <code>package.json</code>, <code>tsconfig.json</code>, Playwright configuration, dependencies and build commands. It creates a backup before approved source changes and rolls back unsuccessful repairs. <b>Prepare browser-assisted diagnosis</b> may also apply approved MCP readiness fixes when blockers are found.</p>
+<p class="hint"><b>Validate &amp; fix framework</b> is two-phase: AstraHeal first validates and prepares exact file-by-file diffs without changing source; you then review the file, reason, before/after/diff and choose the exact files permitted to change. If <code>build</code> is missing, AstraHeal proposes a compiler-safe build contract and repository-evidenced dependencies. RACPAD-style npm workspaces reuse workspace <code>typecheck</code> scripts and also validate root Playwright TypeScript. Only the approved scope can be written, with backup and GUI logs for every changed file. Final validation follows the fixed sequence: npm registry → npm install → Chromium install → npm run build. <b>Prepare browser-assisted diagnosis</b> keeps its existing MCP workflow.</p>
 <div class="toolbar"><button type="button" class="amber" onclick="fullControlFixFrameworkIssues()">Validate &amp; fix framework</button><button type="button" class="blue" onclick="startAutonomousWorkflow('mcp_prepare',{approved:true,run_commands:true})">Prepare browser-assisted diagnosis (MCP)</button></div>
 </div>
 
@@ -53,6 +60,7 @@ body.ai-busy, body.ai-busy *{cursor:progress !important}.aiPulse{display:flex;ga
 
 </form>
 <div id="approvalOverlay" class="modalOverlay"><div class="modal"><h2>Runtime AI Fix Approval</h2><p class="hint">AI is about to change files in your existing Playwright framework. Review the failed scope, files, risks and best-practice recommendation. You can approve, deny, or add guidance. The system creates backup and records all changed files.</p><div id="approvalContent" class="mutedbox">Preparing approval request...</div><label>Your runtime guidance / answer for AI</label><textarea id="approvalInstruction" placeholder="Example: Approve updating LoginPage and locator files only. Button text changed from Login to Sign in. Do not skip tests. Keep POM structure."></textarea><label>Files/folders approved for this fix</label><textarea id="approvalSafeFiles" placeholder="pages/LoginPage.ts&#10;pageObjects/LoginPage.objects.ts&#10;utils/BasePage.ts"></textarea><div class="actions"><button type="button" class="gray" onclick="closeApprovalPopup()">Cancel</button><button type="button" class="red" onclick="denyRuntimeApproval()">Deny / Do not change files</button><button type="button" class="green" onclick="approveRuntimeFix()">Approve & Apply Fix</button></div></div></div>
+<div id="frameworkRepairApprovalOverlay" class="modalOverlay"><div class="modal"><h2>Framework Setup Change Approval</h2><p class="hint"><b>No source/config file has been changed by this proposal stage.</b> Review every exact proposed change. Remove any file you do not authorize from the approval list. AstraHeal rejects stale approvals if the framework changes after this proposal.</p><div id="frameworkRepairApprovalContent" class="mutedbox">Preparing exact framework change proposal...</div><label>Human guidance for this approved repair</label><textarea id="frameworkRepairInstruction" placeholder="Example: Approve package.json build script only. Preserve current src/main + src/test architecture. Do not move test folders."></textarea><label>Exact files approved for modification (one per line)</label><textarea id="frameworkRepairApprovedFiles" placeholder="package.json&#10;tsconfig.json"></textarea><div class="risk"><b>Approval boundary:</b> Only exact files listed above and present in the reviewed proposal can be modified. Adding a path that was not in the proposal does not grant AstraHeal permission to modify it.</div><div class="actions"><button type="button" class="gray" onclick="closeFrameworkRepairApproval()">Review later</button><button type="button" class="red" onclick="denyFrameworkRepair()">Deny / No changes</button><button type="button" class="green" onclick="approveFrameworkRepair()">Approve selected files &amp; validate</button></div></div></div>
 </main></div><script>
 const ACTION_STEPS={
  '/api/astraheal/existing/prepare-ai-rag':['5% Reading folder path','15% Mapping folders and file roles','30% Building spec-to-page-to-pageObject graph','45% Analyzing locator strategy and AUT flow hints','60% Building RAG chunks','80% Saving framework understanding memory','100% Framework learning saved'],
@@ -359,6 +367,28 @@ async function applyFixWithRuntimeApproval(){startProgress('Preparing runtime ap
 async function approveRuntimeFix(){const req=__runtimeApprovalRequest||{};closeApprovalPopup();startProgress('Applying AI fix after human approval',stepsFor('/api/existing-framework/self-heal/apply'));try{const f=formData();if((f.get('provider')||'deterministic')==='deterministic'){f.set('provider','codex');const d=dom();d.log.textContent+=(d.log.textContent?'\n':'')+'• Auto-fix needs Codex/Ollama. Provider changed to Codex for this approved fix attempt. Complete Fresh AI login first if Codex is not authenticated.'}f.set('human_approval_decision','approve');f.set('human_approval_request_id',req.request_id||'runtime-popup');f.set('human_approval_instruction',(document.getElementById('approvalInstruction')||{}).value||'');f.set('human_approval_safe_files',(document.getElementById('approvalSafeFiles')||{}).value||'');const r=await fetch('/api/existing-framework/self-heal/apply',{method:'POST',body:f});const txt=await r.text();let d;try{d=JSON.parse(txt)}catch{d={raw:txt}}out(buildReadableActionOutput('/api/existing-framework/self-heal/apply',d));await finishProgress(r.ok&&d.ok!==false,d.message||'Approved fix step completed',d);return d}catch(e){out(String(e));await finishProgress(false,String(e));}}
 async function denyRuntimeApproval(){const req=__runtimeApprovalRequest||{};closeApprovalPopup();startProgress('Denying AI fix request',stepsFor('/api/existing-framework/self-heal/apply'));try{const f=formData();f.set('human_approval_decision','deny');f.set('human_approval_request_id',req.request_id||'runtime-popup');f.set('human_approval_instruction',(document.getElementById('approvalInstruction')||{}).value||'Human denied this AI patch attempt.');const r=await fetch('/api/existing-framework/self-heal/apply',{method:'POST',body:f});const txt=await r.text();let d;try{d=JSON.parse(txt)}catch{d={raw:txt}}out(JSON.stringify(d,null,2));await finishProgress(true,'AI fix denied. No files changed.',d);return d}catch(e){out(String(e));await finishProgress(false,String(e));}}
 
+let __frameworkRepairApprovalRequest=null;
+function closeFrameworkRepairApproval(){const overlay=document.getElementById('frameworkRepairApprovalOverlay');if(overlay)overlay.style.display='none'}
+function frameworkProposalChanges(req){const deterministic=((req||{}).deterministic_proposal||{}).changes||[];const ai=((req||{}).ai_proposal||{}).changes||[];return [...deterministic.map(x=>({...x,proposal_source:'AstraHeal safe setup rule'})),...ai.map(x=>({...x,proposal_source:'Selected AI exact replacement'}))]}
+function showFrameworkRepairApproval(data){
+  const req=(data&&data.approval_payload)||data||{};__frameworkRepairApprovalRequest=req;
+  const overlay=document.getElementById('frameworkRepairApprovalOverlay');const content=document.getElementById('frameworkRepairApprovalContent');const approved=document.getElementById('frameworkRepairApprovedFiles');const instruction=document.getElementById('frameworkRepairInstruction');if(!overlay||!content)return;
+  const files=req.proposed_files||[];const commands=req.required_validation_sequence||[];const changes=frameworkProposalChanges(req);
+  const changeHtml=changes.length?changes.map((x,i)=>`<details ${i===0?'open':''}><summary>${escHtml(x.file||'(unknown file)')} — ${escHtml(x.proposal_source||'proposal')}</summary><p><b>Reason:</b> ${escHtml(x.reason||'Framework setup repair')}</p><p><b>Operation:</b> ${escHtml(x.operation||'exact replacement')}</p><h4>Exact proposed diff</h4><pre class="smallpre">${escHtml(x.diff||'Diff not available; review before/after below.')}</pre><h4>Before</h4><pre class="smallpre">${escHtml(x.before_excerpt||x.find||'(new file / unavailable)')}</pre><h4>After</h4><pre class="smallpre">${escHtml(x.after_excerpt||x.replace||'(unavailable)')}</pre></details>`).join(''):'<div class="practice">No safe file change is currently proposed. Review validation/AI blocker details in the output before choosing another action.</div>';
+  const standard=req.standard||{};const audit=req.standard_audit||{};
+  content.innerHTML=`<div class="practice"><b>Selected standard:</b> ${escHtml(standard.name||req.standard_profile||'Adaptive Enterprise')}<br/>${escHtml(standard.description||'Preserve a valid discovered architecture while enforcing Playwright setup/build/reuse/approval rules.')}</div><p><b>Framework fingerprint:</b> <code>${escHtml(req.framework_fingerprint||'')}</code></p><p><b>Proposed files:</b> ${escHtml(files.length)}</p><pre class="smallpre">${escHtml(files.join('\n')||'No writable files proposed')}</pre><h3>Standard audit</h3><pre class="smallpre">${escHtml(JSON.stringify(audit,null,2))}</pre><h3>Required post-approval validation sequence</h3><pre class="smallpre">${escHtml(commands.join('\n'))}</pre><h3>Exact file/content changes</h3>${changeHtml}`;
+  if(approved)approved.value=files.join('\n');if(instruction&&!instruction.value)instruction.value='Apply only the exact files I leave in the approval list. Preserve the selected framework architecture unless the reviewed proposal explicitly states otherwise. Do not add skip/only/fixme or unrelated refactors.';overlay.style.display='flex';
+}
+async function approveFrameworkRepair(){
+  const req=__frameworkRepairApprovalRequest||{};const approvedText=((document.getElementById('frameworkRepairApprovedFiles')||{}).value||'').trim();const approved=approvedText.split(/\r?\n|;/).map(x=>x.trim().replaceAll('\\','/')).filter(Boolean);const proposed=new Set((req.proposed_files||[]).map(x=>String(x).replaceAll('\\','/')));const invalid=approved.filter(x=>!proposed.has(x));
+  if(invalid.length){alert('These files were not in the reviewed proposal and cannot be approved:\n\n'+invalid.join('\n')+'\n\nRemove them or run Validate & fix framework again.');return;}
+  if(!approved.length){alert('No files are approved. AstraHeal will not change the framework.');return;}
+  closeFrameworkRepairApproval();
+  return startAutonomousWorkflow('framework_fix',{approved:true,run_commands:true,human_instruction:((document.getElementById('frameworkRepairInstruction')||{}).value||''),approved_files:approved,payload_json:{framework_repair_plan:req,approved_files:approved}});
+}
+function denyFrameworkRepair(){const req=__frameworkRepairApprovalRequest||{};closeFrameworkRepairApproval();const message='Framework repair denied by user. No proposed source/config changes were applied.';const d=dom();if(d&&d.log)d.log.textContent+=(d.log.textContent?'\n':'')+'• Framework repair: '+message+(req.proposed_files&&req.proposed_files.length?' Proposed files were: '+req.proposed_files.join(', '):'');out(JSON.stringify({ok:true,stage:'framework_repair_denied',changed_files:[],proposed_files:req.proposed_files||[],message},null,2));}
+async function viewPlaywrightStandard(){return getapi('/api/agentic/playwright-standards','Loading Playwright framework standard')}
+
 
 function updateFailedOnlyRerunProgressBox(count,msg){const box=(dom()||{}).caseProgress;if(!box)return;const total=count||0;box.style.display='block';box.innerHTML='<b>Failed-only rerun progress:</b> <span class="accent">0/'+escHtml(total||'?')+'</span> failed test target(s)<div class="hint">'+escHtml(msg||'Preparing failed-only rerun. Passed tests are not submitted to this endpoint.')+'</div>';}
 function finishFailedOnlyRerunProgressBox(data){const box=(dom()||{}).caseProgress;if(!box)return;const fo=(data&&data.failed_only)||data||{};const verify=fo.rerun_scope_verification||data.rerun_scope_verification||{};const it=fo.rerun_iteration||data.rerun_iteration||{};const count=it.submitted_target_count||verify.failed_target_count||verify.failed_spec_count||((verify.failed_specs||[]).length)||window.__failedOnlyTargetCount||0;const remaining=it.failed_after_rerun!==undefined?it.failed_after_rerun:(((fo.rerun_failed_inventory||{}).failed_test_case_count)||((fo.rerun_failed_inventory||{}).failed_count)||0);box.style.display='block';box.innerHTML='<b>Failed-only rerun progress:</b> <span class="accent">'+escHtml(count)+'/'+escHtml(count)+'</span> failed target(s) processed | <b>Remaining failed:</b> '+escHtml(remaining)+'<div class="hint">Scope verified: only failed targets were submitted. Result: '+escHtml((fo.message||data.message||'completed'))+'</div>';}
@@ -448,11 +478,12 @@ async function fixMCPBuildWithAI(humanInstruction){
 }
 
 async function fullControlFixFrameworkIssues(humanInstruction){
-  const confirmed=await confirmSelectedProviderForAction();
-  if(!confirmed||confirmed.ok===false){alert((confirmed&&confirmed.message)||'Selected AI provider is not backend-confirmed. Full-control fix cancelled.');return confirmed;}
-  const ok=confirm('AI full-control framework fix will create backups, modify impacted framework files, block skip/only/fixme, rerun build/list checks, and show changed_files. Continue?');
-  if(!ok)return {ok:false,stage:'full_control_cancelled_by_user',message:'User cancelled AI full-control framework fix.'};
-  return await startAutonomousWorkflow('framework_fix',{approved:true,run_commands:true,human_instruction:humanInstruction||''});
+  const provider=((document.querySelector('[name="provider"]')||{}).value||'deterministic');
+  if(!['deterministic','rules','none'].includes(provider)){
+    const confirmed=await confirmSelectedProviderForAction();
+    if(!confirmed||confirmed.ok===false){alert((confirmed&&confirmed.message)||'Selected AI provider is not backend-confirmed. Framework repair proposal cancelled.');return confirmed;}
+  }
+  return await startAutonomousWorkflow('framework_fix',{approved:false,run_commands:true,human_instruction:humanInstruction||''});
 }
 
 async function runMCPLiveProbe(){startProgress('Running explicit Playwright MCP live probe',stepsFor('/api/mcp/live-probe'));try{const f=new FormData();f.set('timeout_seconds','60');const r=await fetch('/api/mcp/live-probe',{method:'POST',body:f});const txt=await r.text();let d;try{d=JSON.parse(txt)}catch{d={raw:txt}}out(JSON.stringify(d,null,2));await finishProgress(r.ok&&d.ok!==false,d.message||'MCP live probe completed',d);return d}catch(e){out(String(e));await finishProgress(false,String(e));}}
@@ -517,6 +548,8 @@ async function startAutonomousWorkflow(workflow,options){
   f.set('use_graphify',String(options.use_graphify!==false));
   f.set('run_commands',String(!!options.run_commands));
   if(options.human_instruction!==undefined)f.set('human_instruction',options.human_instruction||'');
+  if(options.approved_files!==undefined)f.set('approved_files',Array.isArray(options.approved_files)?options.approved_files.join('\n'):(options.approved_files||''));
+  if(options.payload_json!==undefined)f.set('payload_json',JSON.stringify(options.payload_json||{}));
   if(options.selected_tests!==undefined)f.set('selected_tests',options.selected_tests||'');
   if(options.execution_target_mode!==undefined)f.set('execution_target_mode',options.execution_target_mode);
   const timeline=document.getElementById('agentTimeline');
@@ -547,14 +580,16 @@ async function startAutonomousWorkflow(workflow,options){
         const latest=await fetch(started.status_url).then(r=>r.json()).catch(()=>run);
         const result=latest.result||latest;
         out(JSON.stringify(result,null,2));
-        await finishProgress(latest.status==='completed'&&((result||{}).ok!==false),((result||{}).message)||('Workflow '+(latest.status||'completed')),result);
+        const waiting=latest.status==='waiting_for_approval';
+        await finishProgress((latest.status==='completed'&&((result||{}).ok!==false))||waiting,((result||{}).message)||(waiting?'Framework change proposal is ready for human approval.':('Workflow '+(latest.status||'completed'))),result);
+        if(workflow==='framework_fix'&&waiting&&result&&result.approval_payload)showFrameworkRepairApproval(result.approval_payload);
         resolve(latest);
       });
       es.onerror=async()=>{
         if(closed)return;
         const latest=await fetch(started.status_url).then(r=>r.json()).catch(()=>({status:'running'}));
         if(['completed','failed','cancelled','waiting_for_approval'].includes(latest.status)){
-          closed=true;es.close();window.__activeAgentRun=null;const result=latest.result||latest;out(JSON.stringify(result,null,2));await finishProgress(latest.status==='completed'&&result.ok!==false,result.message||('Workflow '+latest.status),result);resolve(latest);
+          closed=true;es.close();window.__activeAgentRun=null;const result=latest.result||latest;const waiting=latest.status==='waiting_for_approval';out(JSON.stringify(result,null,2));await finishProgress((latest.status==='completed'&&result.ok!==false)||waiting,result.message||(waiting?'Framework change proposal is ready for human approval.':('Workflow '+latest.status)),result);if(workflow==='framework_fix'&&waiting&&result&&result.approval_payload)showFrameworkRepairApproval(result.approval_payload);resolve(latest);
         }
       };
     });

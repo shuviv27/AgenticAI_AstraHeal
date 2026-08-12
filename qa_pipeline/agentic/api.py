@@ -12,6 +12,7 @@ from qa_pipeline.agentic.credential_vault import credential_profile_summary, get
 from qa_pipeline.agentic.events import stream_sse
 from qa_pipeline.agentic.functional_walkthrough import load_walkthrough_evidence, walkthrough_html_report_path
 from qa_pipeline.agentic.memory import get_framework_memory, get_run, list_runs
+from qa_pipeline.agentic.playwright_standard import get_playwright_standards
 from qa_pipeline.agentic.runtime import cancel_run, runtime_status, start_run
 
 router = APIRouter(prefix="/api/agentic", tags=["autonomous-multi-agent"])
@@ -28,6 +29,12 @@ def _json_object(raw: str) -> dict[str, Any]:
 @router.get("/status")
 def agentic_status() -> dict[str, Any]:
     return runtime_status()
+
+
+@router.get("/playwright-standards")
+def agentic_playwright_standards() -> dict[str, Any]:
+    """Expose the framework contract before users choose analysis/standardization."""
+    return {"ok": True, **get_playwright_standards()}
 
 
 @router.post("/runs/start")
@@ -54,6 +61,8 @@ def agentic_start_run(
     tests_per_shard: int = Form(0),
     run_role: str = Form("first_run"),
     human_instruction: str = Form(""),
+    standard_profile: str = Form("astraheal-adaptive-enterprise-v1"),
+    approved_files: str = Form(""),
     payload_json: str = Form("{}"),
 ) -> JSONResponse:
     payload = _json_object(payload_json)
@@ -73,7 +82,10 @@ def agentic_start_run(
         "tests_per_shard": tests_per_shard,
         "run_role": run_role,
         "human_instruction": human_instruction,
+        "standard_profile": standard_profile,
     })
+    if approved_files:
+        payload["approved_files"] = [x.strip().replace("\\", "/") for x in approved_files.replace(";", "\n").splitlines() if x.strip()]
     result = start_run({
         "workflow": workflow,
         "framework_path": framework_path,

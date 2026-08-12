@@ -19,6 +19,8 @@ from qa_pipeline.core.paths import QA_CACHE_DIR, GENERATED_PLAYWRIGHT_DIR, REPOR
 from qa_pipeline.core.runtime_logger import log_event
 from qa_pipeline.core.operation_control import popen_process_group_kwargs, register_process, unregister_process
 from qa_pipeline.core.url_guard import normalize_base_url
+from qa_pipeline.agentic.framework_cache import compute_framework_fingerprint, load_matching_cache, save_cache
+from qa_pipeline.agentic.playwright_standard import MANIFEST_NAME
 from qa_pipeline.core.tsconfig_alias import load_jsonc, runtime_env_for_tsconfig_aliases, tsconfig_alias_summary
 from qa_pipeline.llm.codex_cli import CodexCliProvider
 from qa_pipeline.llm.ollama import OllamaProvider
@@ -1095,12 +1097,50 @@ Inventory:
         return {"used": True, "provider": provider, "ok": False, "message": f"AI framework understanding failed safely: {type(exc).__name__}: {exc}"}
 
 
-def analyze_existing_framework(framework_path: str, provider: str = "deterministic", model: str = "llama3", base_url: str = "") -> dict[str, Any]:
+def analyze_existing_framework(framework_path: str, provider: str = "deterministic", model: str = "llama3", base_url: str = "", *, reuse_cache: bool = True, progress_run_id: str = "") -> dict[str, Any]:
     _ensure_dirs()
     root = _resolve_framework_path(framework_path)
-    log_event("existing_framework", f"Analyzing existing Playwright framework: {root}", progress=8, details={"framework_path": str(root)})
+
+    def stream(message: str, progress: int, *, status: str = "running", payload: dict[str, Any] | None = None) -> None:
+        log_event("existing_framework", message, status=status, progress=progress, details={"framework_path": str(root), **(payload or {})})
+        if progress_run_id:
+            try:
+                from qa_pipeline.agentic.events import publish
+                publish(progress_run_id, "framework_discovery", message, status=status, progress=progress, payload=payload or {})
+            except Exception:
+                pass
+
+    stream(f"Scanning framework metadata and checking reusable memory: {root}", 8)
+    fingerprint = compute_framework_fingerprint(root)
+    if reuse_cache:
+        cached = load_matching_cache(root, "framework-analysis-cache.json", fingerprint=fingerprint)
+        if cached:
+            cached["cache_reuse"] = {
+                "used": True,
+                "fingerprint": fingerprint.get("fingerprint"),
+                "file_count": fingerprint.get("file_count"),
+                "message": "Repository fingerprint is unchanged; reused the first-pass framework understanding from .qa-cache.",
+            }
+            if provider not in {"", "deterministic", "rules", "none"}:
+                cached["ai_understanding"] = _ai_framework_understanding(root, provider, model, cached)
+            EXISTING_INTELLIGENCE_JSON.write_text(json.dumps(cached, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            EXISTING_INTELLIGENCE_MD.write_text(_render_framework_markdown(cached), encoding="utf-8")
+            stream("Framework memory hit: source/config fingerprint is unchanged. Reusing .qa-cache understanding instead of rescanning every file.", 22, status="done", payload={"cache_hit": True, "file_count": fingerprint.get("file_count")})
+            return cached
+
+    stream("No reusable framework snapshot found (or files changed). Starting full recursive structure discovery.", 11, payload={"cache_hit": False, "file_count": fingerprint.get("file_count")})
     package_json = _load_package_json(root)
     structure_profile = build_structure_profile(root, limit=5000)
+    standard_manifest: dict[str, Any] = {}
+    manifest_path = root / MANIFEST_NAME
+    if manifest_path.exists():
+        try:
+            standard_manifest = json.loads(manifest_path.read_text(encoding="utf-8", errors="replace"))
+            structure_profile["astraheal_standard_role_map"] = standard_manifest.get("role_map") or {}
+            stream("Found AstraHeal Playwright standard role-map; using it as explicit semantic architecture context alongside recursive discovery.", 13, payload={"standard_profile": standard_manifest.get("standard_profile")})
+        except Exception as exc:
+            standard_manifest = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "path": str(manifest_path)}
+    stream("Structure discovery completed; mapping executable specs, fixtures, pages and nested source/test roots.", 15, payload={"executable_spec_count": len(structure_profile.get("executable_specs") or [])})
     spec_files = _find_files(root, SPEC_SUFFIXES, limit=5000)
     executable_rel_specs = list(structure_profile.get("executable_specs") or [])
     executable_spec_files = [root / rel for rel in executable_rel_specs]
@@ -1127,6 +1167,7 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
         "executable_spec_count": len(executable_spec_files),
         "executable_test_roots": executable_test_roots,
         "structure_discovery": structure_profile,
+        "playwright_standard_manifest": standard_manifest,
         "sample_specs": [_rel_to(p, root) for p in spec_files[:60]],
         "sample_executable_specs": executable_rel_specs[:80],
         "directory_model": dirs,
@@ -1151,11 +1192,13 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
             "Assertion updates are blocked unless the assertion drift classifier marks the change as cosmetic and above semantic threshold.",
         ],
     }
+    stream("Auditing existing locator/object-repository usage without modifying framework files.", 17)
     try:
         inventory["object_repository_locator_audit"] = audit_object_repository_locators(root, base_url=normalize_base_url(base_url))
         inventory["object_repository_locator_audit_url"] = "/artifacts/reports/existing-framework/object-repository-locator-audit.html"
     except Exception as exc:
         inventory["object_repository_locator_audit"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Object repository locator audit failed safely; base framework learning continued."}
+    stream("Checking framework alignment and reusability conventions.", 19)
     try:
         inventory["playwright_alignment"] = _playwright_alignment_plan(root, inventory, package_json if isinstance(package_json, dict) else {}, dirs, inline, spec_files)
     except Exception as exc:
@@ -1163,19 +1206,24 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
     # Agentic deep understanding is deterministic and always runs before AI/Codex/Ollama.
     # It maps folder roles, spec->page->pageObject dependencies, locator strategy, AUT hints,
     # and saves reusable project memory for RCA/self-healing.
+    stream("Building dependency chains and durable first-pass framework memory under .qa-cache.", 20)
     try:
         inventory["agentic_framework_understanding"] = build_deep_framework_understanding(root, inventory, base_url=normalize_base_url(base_url))
         inventory["agentic_framework_understanding_url"] = "/artifacts/reports/existing-framework/agentic-framework-understanding.html"
     except Exception as exc:
         inventory["agentic_framework_understanding"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Agentic framework understanding failed safely; base analysis is still available."}
+    stream("Deep structural memory created; preparing focused framework intelligence and RAG index.", 21)
     inventory["ai_understanding"] = _ai_framework_understanding(root, provider, model, inventory)
     try:
         inventory["framework_intelligence_v2"] = build_framework_intelligence_v2(root, inventory, base_url=normalize_base_url(base_url))
     except Exception as exc:
         inventory["framework_intelligence_v2"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Framework intelligence v2 failed safely; base analysis is still available."}
+    inventory["cache_reuse"] = {"used": False, "fingerprint": fingerprint.get("fingerprint"), "file_count": fingerprint.get("file_count"), "message": "Full framework understanding completed and saved for reuse."}
+    cache_path = save_cache(root, "framework-analysis-cache.json", inventory, fingerprint=fingerprint)
+    inventory["cache_reuse"]["cache_file"] = str(cache_path)
     EXISTING_INTELLIGENCE_JSON.write_text(json.dumps(inventory, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     EXISTING_INTELLIGENCE_MD.write_text(_render_framework_markdown(inventory), encoding="utf-8")
-    log_event("existing_framework", "Existing framework understanding completed. GUI can now execute existing specs without generating new testcases.", status="done", progress=100, details={"spec_count": len(spec_files), "executable_spec_count": len(executable_spec_files), "executable_test_roots": executable_test_roots, "pom_score": inventory["pom_compliance"]["score"]})
+    stream("Full framework understanding completed and stored in framework-local .qa-cache for fast reuse.", 24, status="done", payload={"spec_count": len(spec_files), "executable_spec_count": len(executable_spec_files), "executable_test_roots": executable_test_roots, "pom_score": inventory["pom_compliance"]["score"], "cache_hit": False})
     return inventory
 
 

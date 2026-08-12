@@ -106,7 +106,10 @@ def _execute(initial: AstraHealAgentState) -> None:
                             # duplicating technical messages in the GUI stream.
                 final = latest
         result = final.get("output") or final.get("report") or final
-        status = "waiting_for_approval" if final.get("approval_required") and not initial.get("approved") else "completed"
+        # An approval gate can be raised both on the initial proposal and when
+        # an approved proposal is stale/invalid. Preserve that state instead of
+        # incorrectly reporting completion merely because approved=True was sent.
+        status = "waiting_for_approval" if final.get("approval_required") else "completed"
         upsert_run(run_id, initial["thread_id"], initial["workflow"], framework_path=initial["framework_path"], provider=initial["provider"], model=initial["model"], status=status, result=result)
         publish(run_id, "runtime", "Workflow completed." if status == "completed" else "Analysis completed and is waiting for approval before repository modification.", status=status, progress=100, payload={"ok": result.get("ok") if isinstance(result, dict) else True})
         finish_operation(run_id, status, "Workflow completed." if status == "completed" else "Workflow is waiting for approval.")

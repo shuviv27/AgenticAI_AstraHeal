@@ -1,3 +1,25 @@
+# AstraHeal AI v0.7.4 — RACPAD-Aware Build Contract Repair
+
+This build preserves the v0.7.3 multi-agent pipeline and strengthens only the **Existing Framework → Validate & fix framework** setup-repair contract for complex Playwright TypeScript repositories, with special handling for RACPAD-style npm workspaces/monorepos.
+
+When `package.json` has no `build` script, AstraHeal now analyzes the root TypeScript compiler scope, npm workspaces, existing `typecheck` scripts, direct third-party imports, ambient module declarations, workspace package manifests and `package-lock.json` before proposing a repair. A RACPAD-style repository that already exposes `typecheck: npm run typecheck --workspaces --if-present` receives the workspace-aware build proposal `npm run typecheck && tsc --noEmit`, so workspace packages are validated first and root Playwright TypeScript is validated second. Existing valid build scripts are never overwritten.
+
+Missing dependencies are proposed only when they are required by root compiler-scoped source and can be grounded in repository evidence. Versions are reused from workspace package manifests or the existing lock graph where possible. Optional modules covered by local ambient declarations are not blindly installed. When new direct dependencies already exist in the lock graph, AstraHeal also prepares an exact `package-lock.json` root-metadata diff so both files can be reviewed and approved together.
+
+The human-approval boundary remains mandatory. **Validate & fix framework** no longer performs the expensive npm/Chromium command sequence before the repair proposal. It first prepares exact file/content diffs, waits for approval, applies only approved files with backups, and then runs the required sequence exactly once: `npm config set registry https://registry.npmjs.org/` → `npm install --registry=https://registry.npmjs.org/` → `npx playwright install chromium` → `npm run build`. Other AstraHeal workflows retain their existing command behavior.
+
+See `AstraHealAI_v0.7.4_RACPAD_BUILD_CONTRACT_FIX.md` and `BUILD_VALIDATION_REPORT.md`.
+
+# AstraHeal AI v0.7.3 — Cached Framework Intelligence + Human-Approved Standardization
+
+This build keeps the existing AstraHeal agentic pipeline and strengthens the **Existing Framework** workflow for large and differently structured Playwright repositories. First-pass architecture understanding is fingerprinted and saved under each selected framework's `.qa-cache/existing-framework` plus durable SQLite framework memory; unchanged follow-up analysis reuses that knowledge and code graph instead of repeating the full walkthrough. Long first-pass stages stream meaningful GUI milestones.
+
+**Validate & fix framework** is now a two-phase human-in-the-loop workflow. AstraHeal first runs diagnosis and prepares exact file-by-file diffs without source writes. The GUI shows the selected Playwright standard, standard audit, required validation commands, reason, before/after content and exact diff for each proposed file. Only files explicitly left in the approval list may be changed; stale approvals are rejected when the framework fingerprint changes. Approved setup changes are backed up and every changed file is logged before the final validation sequence runs.
+
+The recommended **Adaptive Enterprise Playwright Standard** standardizes semantic roles instead of forcing every valid client repository into one physical folder layout. An optional `.astraheal-playwright-standard.json` role-map can be installed only with user approval. This supports root `tests/pages`, `src/main + src/test`, BDD hybrids and workspace/monorepo layouts. A strict `src/main + src/test` profile remains available as an explicit migration target rather than an implicit bulk move.
+
+The repository now ships only the `generated-playwright` sample project; API sample project folders/mocks/collections were removed while API capability code was left intact to avoid breaking unrelated product behavior. See `AstraHealAI_v0.7.3_FRAMEWORK_MEMORY_APPROVAL_STANDARD.md` and `AstraHealAI_v0.7.3_BUILD_VALIDATION_REPORT.md`.
+
 # AstraHeal AI v0.7.2 — Unified Execution Evidence and Reliable Plain-English RCA
 
 This build adds a supervised Playwright Codegen workflow that lets a tester record a real AUT journey and then imports the sanitized actions and locators into AstraHeal. The generator reuses matching framework methods and locator objects first, creates only missing components, preserves captured evidence for multiple testcase IDs, and keeps earlier generated scenarios across later upload rounds.

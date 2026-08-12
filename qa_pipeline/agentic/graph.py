@@ -7,21 +7,24 @@ from typing import Any, Callable
 
 from qa_pipeline.agentic.events import publish
 from qa_pipeline.agentic.functional_walkthrough import run_functional_walkthrough
-from qa_pipeline.agentic.memory import get_checkpointer, put_framework_memory
+from qa_pipeline.agentic.framework_cache import compute_framework_fingerprint
+from qa_pipeline.agentic.memory import get_checkpointer, get_framework_memory, put_framework_memory
 from qa_pipeline.agentic.observability import configure_langsmith, traceable_agent
+from qa_pipeline.agentic.playwright_standard import STANDARD_ID, get_playwright_standards
 from qa_pipeline.agentic.provider_gateway import provider_gateway
 from qa_pipeline.agentic.rca_guard import enforce_grounded_rca
 from qa_pipeline.agentic.state import AstraHealAgentState
 from qa_pipeline.core.operation_control import check_cancelled
 from qa_pipeline.agentic.tools import (
     apply_grounded_self_healing,
+    apply_approved_full_control_framework_fix,
     diagnose_playwright_framework,
     execute_distributed_playwright,
     fix_mcp_build_blockers,
-    full_control_framework_fix,
     grounded_existing_framework_rca,
     index_framework_code_graph,
     inspect_existing_framework,
+    plan_full_control_framework_fix,
     prepare_playwright_mcp,
 )
 from qa_pipeline.core.paths import REPORTS_DIR
@@ -69,10 +72,19 @@ def supervisor_node(state: AstraHealAgentState) -> dict[str, Any]:
     selected = candidates[0]
     reason = f"Next required agent in the guarded {workflow} workflow."
 
+    # A framework repair proposal must stop at the human approval boundary.
+    # Routing directly to report preserves the proposal in the run result and
+    # prevents validation/review nodes from implying that an unapplied repair
+    # was executed.
+    approval_boundary = bool(state.get("approval_required") and not state.get("approved") and "report" in candidates)
+    if approval_boundary:
+        selected = "report"
+        reason = "Exact framework changes are ready for human review; repository writes are blocked until explicit file approval is supplied."
+
     # The supervisor may ask the selected LLM to choose among valid next nodes,
     # but deterministic ordering remains the safety fallback and authority.
     provider = str(state.get("provider") or "deterministic")
-    if provider not in {"", "deterministic", "rules", "none"} and len(candidates) > 1:
+    if not approval_boundary and provider not in {"", "deterministic", "rules", "none"} and len(candidates) > 1:
         prompt = json.dumps({
             "workflow": workflow,
             "objective": state.get("objective", ""),
@@ -127,24 +139,36 @@ def framework_discovery_node(state: AstraHealAgentState) -> dict[str, Any]:
         provider="deterministic",
         model=str(state.get("model") or ""),
         base_url=str(state.get("base_url") or ""),
+        progress_run_id=str(state.get("run_id") or ""),
     )
     selected_provider = str(state.get("provider") or "deterministic")
     if selected_provider not in {"", "deterministic", "rules", "none"}:
-        ai_prompt = json.dumps({
-            "framework_inventory": result,
-            "required_output": ["architecture_summary", "project_structure", "reusability_map", "configuration_gaps", "execution_risks", "recommended_next_actions"],
-            "rules": ["Return JSON only", "Do not invent files", "Mark unknown facts as unknown", "Use only supplied inventory evidence"],
-        }, ensure_ascii=False, default=str)[:45000]
-        ai_result = provider_gateway.invoke_json(
-            ai_prompt,
-            system="You are the AstraHeal framework intelligence agent. Explain only evidence present in the supplied repository inventory.",
-            provider=selected_provider,
-            model=str(state.get("model") or ""),
-            repo_root=state.get("framework_path") or None,
-            timeout_seconds=180,
-        )
-        result["autonomous_ai_understanding"] = ai_result.get("json") if ai_result.get("ok") else {"used": True, "ok": False, "error": ai_result.get("error")}
-        result["ai_provider_used"] = selected_provider
+        cache_hit = bool(result.get("cache_hit") or (result.get("cache_reuse") or {}).get("used"))
+        prior = get_framework_memory(str(state.get("framework_path") or ""), "framework_inventory") if cache_hit else {}
+        prior_value = (prior.get("framework_inventory") or {}).get("value") if isinstance(prior, dict) else None
+        same_fp = bool(prior_value and (prior_value.get("cache_reuse") or {}).get("fingerprint") == (result.get("cache_reuse") or {}).get("fingerprint"))
+        if same_fp and prior_value.get("autonomous_ai_understanding"):
+            result["autonomous_ai_understanding"] = prior_value.get("autonomous_ai_understanding")
+            result["ai_provider_used"] = prior_value.get("ai_provider_used") or selected_provider
+            result["ai_memory_reused"] = True
+            _event(state, "framework_discovery", "Reused the first-pass AI architecture interpretation from durable framework memory; no repeated LLM walkthrough was required.", 23, status="done", payload={"cache_hit": True})
+        else:
+            _event(state, "framework_discovery", "Repository is new/changed; asking the selected AI provider for a grounded architecture interpretation.", 22)
+            ai_prompt = json.dumps({
+                "framework_inventory": result,
+                "required_output": ["architecture_summary", "project_structure", "reusability_map", "configuration_gaps", "execution_risks", "recommended_next_actions"],
+                "rules": ["Return JSON only", "Do not invent files", "Mark unknown facts as unknown", "Use only supplied inventory evidence"],
+            }, ensure_ascii=False, default=str)[:45000]
+            ai_result = provider_gateway.invoke_json(
+                ai_prompt,
+                system="You are the AstraHeal framework intelligence agent. Explain only evidence present in the supplied repository inventory.",
+                provider=selected_provider,
+                model=str(state.get("model") or ""),
+                repo_root=state.get("framework_path") or None,
+                timeout_seconds=180,
+            )
+            result["autonomous_ai_understanding"] = ai_result.get("json") if ai_result.get("ok") else {"used": True, "ok": False, "error": ai_result.get("error")}
+            result["ai_provider_used"] = selected_provider
     path = str(state.get("framework_path") or "")
     put_framework_memory(path, "framework_inventory", result, confidence=0.95, source="framework_discovery_agent")
     _event(state, "framework_discovery", result.get("message") or "Framework discovery completed.", 24, status="done", payload={"spec_count": result.get("spec_count"), "executable_spec_count": result.get("executable_spec_count")})
@@ -163,17 +187,52 @@ def code_graph_node(state: AstraHealAgentState) -> dict[str, Any]:
 
 @traceable_agent("AstraHeal Playwright Gap Agent")
 def playwright_gap_node(state: AstraHealAgentState) -> dict[str, Any]:
-    _event(state, "playwright_gap", "Checking package.json, tsconfig, Playwright config, test discovery and prerequisite commands.", 44)
     payload = state.get("input_payload") or {}
+    workflow = str(state.get("workflow") or "")
+    standard_profile = str(payload.get("standard_profile") or STANDARD_ID)
+    # The framework-fix workflow is deliberately repair-before-execute. Its
+    # gap pass prepares exact human-reviewable package/config changes first;
+    # the validation node runs the mandatory npm -> Chromium -> build sequence
+    # only after the approved repair has been applied. This avoids RACPAD-size
+    # npm/workspace installs being performed twice and avoids knowingly
+    # invoking `npm run build` before a missing build contract can be approved.
+    run_prerequisite_commands = bool(payload.get("run_commands", False)) and workflow != "framework_fix"
+    _event(
+        state,
+        "playwright_gap",
+        "Checking package.json, tsconfig, Playwright config and test discovery; repair proposals are prepared before prerequisite commands."
+        if workflow == "framework_fix"
+        else "Checking package.json, tsconfig, Playwright config, test discovery and prerequisite commands.",
+        44,
+    )
     result = _invoke(
         diagnose_playwright_framework,
         framework_path=str(state.get("framework_path") or ""),
         apply_fixes=False,
-        run_commands=bool(payload.get("run_commands", False)),
+        run_commands=run_prerequisite_commands,
+        reuse_cached_validation=workflow == "deep_learn",
+        preserve_command_source_changes=True,
+        standard_profile=standard_profile,
+        progress_run_id=str(state.get("run_id") or ""),
     )
     put_framework_memory(str(state.get("framework_path") or ""), "playwright_gap_report", result, confidence=0.98, source="playwright_gap_agent")
     analysis = result.get("analysis_after") or result.get("analysis_before") or {}
-    _event(state, "playwright_gap", result.get("message") or "Playwright gap diagnosis completed.", 54, status="done" if result.get("ok") else "warning", payload={"gap_count": analysis.get("gap_count"), "critical_gap_count": analysis.get("critical_gap_count")})
+    requirements = analysis.get("package_requirements") or {}
+    _event(
+        state,
+        "playwright_gap",
+        result.get("message") or "Playwright gap diagnosis completed.",
+        54,
+        status="done" if result.get("ok") else "warning",
+        payload={
+            "gap_count": analysis.get("gap_count"),
+            "critical_gap_count": analysis.get("critical_gap_count"),
+            "workspace_aware": bool(requirements.get("workspace_aware")),
+            "recommended_build_script": requirements.get("recommended_build_script"),
+            "build_strategy": requirements.get("build_strategy"),
+            "missing_dev_dependencies": requirements.get("missing_dev_dependencies") or {},
+        },
+    )
     return {"gap_report": result, **_completed(state, "playwright_gap")}
 
 
@@ -204,6 +263,149 @@ def mcp_node(state: AstraHealAgentState) -> dict[str, Any]:
 @traceable_agent("AstraHeal Framework Repair Agent")
 def fix_node(state: AstraHealAgentState) -> dict[str, Any]:
     payload = state.get("input_payload") or {}
+    workflow = str(state.get("workflow") or "")
+
+    # Framework repair is intentionally a two-run, two-phase contract:
+    # (1) prepare exact deterministic + AI diffs without writes;
+    # (2) apply only files explicitly approved from that exact proposal.
+    if workflow == "framework_fix":
+        framework_path = str(state.get("framework_path") or "")
+        standard_profile = str(payload.get("standard_profile") or STANDARD_ID)
+        if not state.get("approved"):
+            gap = state.get("gap_report") or {}
+            deterministic = dict(gap.get("change_proposal") or {})
+            deterministic_changes = list(deterministic.get("changes") or [])
+            ai_proposal: dict[str, Any] = {"ok": True, "changes": [], "proposed_files": [], "message": "No additional AI source patch was requested."}
+            selected_provider = str(state.get("provider") or "deterministic")
+
+            # Ask an LLM for an exact replacement plan only when validated
+            # blockers remain and a real AI provider was selected. Planning is
+            # isolated/read-only; it cannot edit the selected framework.
+            if not gap.get("ok") and selected_provider not in {"", "deterministic", "rules", "none", "rule_based"}:
+                _event(state, "fix", "Validated blockers remain. Preparing exact AI file replacements for human review; source writes are still blocked.", 61)
+                ai_proposal = _invoke(
+                    plan_full_control_framework_fix,
+                    framework_path=framework_path,
+                    provider=selected_provider,
+                    model=str(state.get("model") or ""),
+                    project=str(payload.get("project") or "auto"),
+                    browser=str(payload.get("browser") or "chromium"),
+                    human_instruction=str(payload.get("human_instruction") or ""),
+                )
+
+            ai_changes = list(ai_proposal.get("changes") or [])
+            proposed_files = sorted({
+                str(x.get("file") or "").replace("\\", "/")
+                for x in deterministic_changes + ai_changes
+                if str(x.get("file") or "").strip()
+            })
+            if not proposed_files and gap.get("ok"):
+                message = "Framework validation found no file changes requiring approval."
+                _event(state, "fix", message, 68, status="done")
+                return {"patch_result": {"ok": True, "changed_files": [], "message": message}, "approval_required": False, **_completed(state, "fix")}
+
+            standard_def = get_playwright_standards()
+            selected_standard = next((p for p in (standard_def.get("profiles") or []) if p.get("id") == standard_profile), standard_def)
+            approval_payload = {
+                "type": "framework_repair_approval",
+                "framework_path": framework_path,
+                "framework_fingerprint": compute_framework_fingerprint(framework_path).get("fingerprint"),
+                "standard_profile": standard_profile,
+                "standard": selected_standard,
+                "standard_audit": gap.get("standard_audit") or deterministic.get("standard_audit") or {},
+                "required_validation_sequence": deterministic.get("required_validation_sequence") or (gap.get("analysis_after") or {}).get("required_commands") or [],
+                "deterministic_proposal": deterministic,
+                "ai_proposal": ai_proposal,
+                "proposed_files": proposed_files,
+                "proposed_file_count": len(proposed_files),
+                "human_approval_required": True,
+                "message": "Review the exact file-by-file diffs below. AstraHeal will apply only files you explicitly approve; all other repository files remain blocked from modification.",
+            }
+            _event(
+                state,
+                "fix",
+                f"Human approval required for {len(proposed_files)} proposed file(s): {', '.join(proposed_files) if proposed_files else 'no deterministic file; review AI blocker details' }.",
+                68,
+                status="waiting_for_approval",
+                payload={"proposed_files": proposed_files, "standard_profile": standard_profile},
+            )
+            return {
+                "patch_result": {"ok": False, "approval_required": True, "approval_payload": approval_payload, "message": approval_payload["message"]},
+                "approval_required": True,
+                "approval_payload": approval_payload,
+                **_completed(state, "fix"),
+            }
+
+        repair_plan = payload.get("framework_repair_plan") or {}
+        approved_files_raw = payload.get("approved_files") or []
+        if isinstance(approved_files_raw, str):
+            approved_files = [x.strip().replace("\\", "/") for x in approved_files_raw.replace(";", "\n").splitlines() if x.strip()]
+        else:
+            approved_files = [str(x).strip().replace("\\", "/") for x in approved_files_raw if str(x).strip()]
+        if not isinstance(repair_plan, dict) or not repair_plan.get("framework_fingerprint"):
+            message = "Approved framework repair was rejected because the exact prior proposal was not supplied. Run Validate & fix framework again to create a reviewable plan."
+            _event(state, "fix", message, 62, status="waiting_for_approval")
+            return {"patch_result": {"ok": False, "approval_required": True, "message": message}, "approval_required": True, **_completed(state, "fix")}
+        current_fp = compute_framework_fingerprint(framework_path).get("fingerprint")
+        if current_fp != repair_plan.get("framework_fingerprint"):
+            message = "Framework contents changed after the proposal was created. The stale approval was rejected; re-analyse so the user can review fresh diffs."
+            _event(state, "fix", message, 62, status="waiting_for_approval", payload={"proposal_fingerprint": repair_plan.get("framework_fingerprint"), "current_fingerprint": current_fp})
+            return {"patch_result": {"ok": False, "approval_required": True, "stale_proposal": True, "message": message}, "approval_required": True, **_completed(state, "fix")}
+        if not approved_files:
+            message = "No files were approved. AstraHeal made no repository changes."
+            _event(state, "fix", message, 62, status="waiting_for_approval")
+            return {"patch_result": {"ok": False, "approval_required": True, "message": message}, "approval_required": True, **_completed(state, "fix")}
+
+        _event(state, "fix", f"Applying only the {len(approved_files)} human-approved file(s): {', '.join(approved_files)}.", 64)
+        deterministic_proposal = repair_plan.get("deterministic_proposal") or {}
+        deterministic_files = {str(x.get("file") or "").replace("\\", "/") for x in (deterministic_proposal.get("changes") or []) if isinstance(x, dict)}
+        safe_approved = [x for x in approved_files if x in deterministic_files]
+        if safe_approved:
+            safe = _invoke(
+                diagnose_playwright_framework,
+                framework_path=framework_path,
+                apply_fixes=True,
+                run_commands=False,
+                approved_files="\n".join(safe_approved),
+                standard_profile=standard_profile,
+                progress_run_id=str(state.get("run_id") or ""),
+            )
+        else:
+            safe = _invoke(
+                diagnose_playwright_framework,
+                framework_path=framework_path,
+                apply_fixes=False,
+                run_commands=False,
+                standard_profile=standard_profile,
+                progress_run_id=str(state.get("run_id") or ""),
+            )
+        ai_proposal = repair_plan.get("ai_proposal") or {}
+        ai_files = {str(x.get("file") or "").replace("\\", "/") for x in (ai_proposal.get("changes") or []) if isinstance(x, dict)}
+        ai_approved = [x for x in approved_files if x in ai_files]
+        ai_result: dict[str, Any] = {"ok": True, "changed_files": [], "message": "No AI source replacements were approved."}
+        if ai_approved:
+            ai_result = _invoke(
+                apply_approved_full_control_framework_fix,
+                framework_path=framework_path,
+                proposal_json=json.dumps(ai_proposal, ensure_ascii=False, default=str),
+                approved_files="\n".join(ai_approved),
+                project=str(payload.get("project") or "auto"),
+                browser=str(payload.get("browser") or "chromium"),
+            )
+        changed = sorted(set((safe.get("safe_fixes") or {}).get("changed_files") or []) | set(ai_result.get("changed_files") or []))
+        for rel in changed:
+            _event(state, "fix", f"Approved change applied: {rel}", 72, payload={"file": rel})
+        result = {
+            "ok": True,
+            "human_approved_files": approved_files,
+            "changed_files": changed,
+            "safe_preparation": safe,
+            "ai_approved_apply": ai_result,
+            "message": f"Applied {len(changed)} approved framework file change(s). Validation will now run the required command sequence.",
+        }
+        _event(state, "fix", result["message"], 76, status="done")
+        return {"patch_result": result, "approval_required": False, **_completed(state, "fix")}
+
     if not state.get("approved"):
         message = "Human approval is required before repository files are modified."
         _event(state, "fix", message, 62, status="waiting_for_approval")
@@ -212,8 +414,7 @@ def fix_node(state: AstraHealAgentState) -> dict[str, Any]:
     _event(state, "fix", "Creating backups and applying safe Playwright configuration fixes.", 62)
     safe = _invoke(diagnose_playwright_framework, framework_path=str(state.get("framework_path") or ""), apply_fixes=True, run_commands=True)
     result: dict[str, Any] = {"safe_preparation": safe, "ok": safe.get("ok", False)}
-    workflow = str(state.get("workflow") or "")
-    if workflow in {"framework_fix", "full_pipeline"} and not safe.get("ok"):
+    if workflow == "full_pipeline" and not safe.get("ok"):
         _event(state, "fix", "Validated blockers remain; invoking the guarded full-control repair agent.", 70)
         result["full_control"] = _invoke(
             full_control_framework_fix,
@@ -241,8 +442,27 @@ def fix_node(state: AstraHealAgentState) -> dict[str, Any]:
 
 @traceable_agent("AstraHeal Validation Agent")
 def validation_node(state: AstraHealAgentState) -> dict[str, Any]:
-    _event(state, "validation", "Running deterministic Playwright prerequisite and build validation.", 78)
-    result = _invoke(diagnose_playwright_framework, framework_path=str(state.get("framework_path") or ""), apply_fixes=False, run_commands=True)
+    payload = state.get("input_payload") or {}
+    approved_files_raw = payload.get("approved_files") or []
+    approved_files = approved_files_raw if isinstance(approved_files_raw, str) else "\n".join(str(x) for x in approved_files_raw)
+    validation_sequence = (get_playwright_standards().get("required_validation_sequence") or [])
+    _event(
+        state,
+        "validation",
+        "Running the approved framework through the required npm registry → npm install → Chromium install → npm run build sequence.",
+        78,
+        payload={"required_validation_sequence": validation_sequence},
+    )
+    result = _invoke(
+        diagnose_playwright_framework,
+        framework_path=str(state.get("framework_path") or ""),
+        apply_fixes=False,
+        run_commands=True,
+        preserve_command_source_changes=True,
+        approved_files=approved_files,
+        standard_profile=str(payload.get("standard_profile") or STANDARD_ID),
+        progress_run_id=str(state.get("run_id") or ""),
+    )
     _event(state, "validation", result.get("message") or "Validation completed.", 84, status="done" if result.get("ok") else "warning")
     return {"validation": result, **_completed(state, "validation")}
 
@@ -356,6 +576,7 @@ def report_node(state: AstraHealAgentState) -> dict[str, Any]:
     run_id = str(state.get("run_id") or "unknown")
     output = {
         "ok": not any(f.get("severity") in {"critical", "high"} for f in (state.get("findings") or [])),
+        "message": "Exact framework repair proposal is ready for human approval; no proposed source/config change has been applied." if state.get("approval_required") else "Autonomous multi-agent workflow completed.",
         "run_id": run_id,
         "thread_id": state.get("thread_id"),
         "workflow": state.get("workflow"),
@@ -372,6 +593,8 @@ def report_node(state: AstraHealAgentState) -> dict[str, Any]:
         "walkthrough": state.get("walkthrough", {}),
         "rca": state.get("rca", {}),
         "findings": state.get("findings", []),
+        "approval_required": bool(state.get("approval_required")),
+        "approval_payload": state.get("approval_payload", {}),
         "langsmith": configure_langsmith(),
         "generated_at": _now(),
     }
@@ -440,4 +663,10 @@ def run_fallback(initial_state: AstraHealAgentState, on_update: Callable[[str, d
         state.update(update)
         if on_update:
             on_update(name, update)
+        if state.get("approval_required") and not state.get("approved") and name != "report":
+            report_update = report_node(state)  # type: ignore[arg-type]
+            state.update(report_update)
+            if on_update:
+                on_update("report", report_update)
+            break
     return state
