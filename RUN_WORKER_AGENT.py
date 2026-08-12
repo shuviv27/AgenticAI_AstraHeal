@@ -94,6 +94,56 @@ def _print_start_banner(cfg: dict[str, str]) -> None:
     print("=" * 78)
 
 
+def _terminate_process_tree(proc: subprocess.Popen) -> None:
+    if proc.poll() is not None:
+        return
+    try:
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10, check=False)
+        else:
+            import signal
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+            except Exception:
+                proc.terminate()
+    except Exception:
+        try:
+            proc.kill()
+        except Exception:
+            pass
+
+
+def _run_job_cancellable(server: str, token: str, agent_id: str, job: dict, command: str, cwd: str | None) -> tuple[int, str, str, str]:
+    timeout_seconds = int(job.get("timeout_seconds") or 7200)
+    kwargs = {"creationflags": getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)} if os.name == "nt" else {"start_new_session": True}
+    proc = subprocess.Popen(
+        command, shell=True, cwd=cwd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        encoding="utf-8", errors="replace", **kwargs,
+    )
+    started = time.time()
+    while True:
+        try:
+            stdout, stderr = proc.communicate(timeout=1)
+            status = "passed" if proc.returncode == 0 else "failed"
+            return proc.returncode, stdout or "", stderr or "", status
+        except subprocess.TimeoutExpired:
+            pass
+        if time.time() - started > timeout_seconds:
+            _terminate_process_tree(proc)
+            stdout, stderr = proc.communicate(timeout=10)
+            return proc.returncode if proc.returncode is not None else 124, stdout or "", (stderr or "") + f"\nJob timed out after {timeout_seconds} seconds.", "failed"
+        try:
+            q = urllib.parse.urlencode({"job_id": job.get("job_id"), "agent_id": agent_id, "token": token})
+            state = _get_json(server + "/api/runner-agents/job/status?" + q, timeout=10)
+            if state.get("cancel_requested") or state.get("status") == "cancelled":
+                _terminate_process_tree(proc)
+                stdout, stderr = proc.communicate(timeout=10)
+                return proc.returncode if proc.returncode is not None else 130, stdout or "", (stderr or "") + "\nCancelled from Central VM GUI.", "cancelled"
+        except Exception:
+            # A temporary status-check failure must not kill a valid test run.
+            pass
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Start AstraHeal AI worker agent.")
     parser.add_argument("--env", default="", help="Path to worker env file. Default: worker-agent.env, then agent.env")
@@ -174,26 +224,19 @@ def main() -> int:
                 if os.name == "nt" and cwd and str(cwd).startswith("\\"):
                     run_command = f'pushd "{cwd}" && {command} & popd'
                     run_cwd = None
-                proc = subprocess.run(
-                    run_command,
-                    shell=True,
-                    cwd=run_cwd,
-                    text=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    timeout=int(job.get("timeout_seconds") or 7200),
+                return_code, stdout, stderr, status = _run_job_cancellable(
+                    server, token, agent_id, job, run_command, run_cwd
                 )
-                status = "passed" if proc.returncode == 0 else "failed"
                 _post_json(server + "/api/runner-agents/job/complete", {
                     "token": token,
                     "agent_id": agent_id,
                     "job_id": job_id,
                     "status": status,
-                    "return_code": proc.returncode,
-                    "stdout": proc.stdout,
-                    "stderr": proc.stderr,
+                    "return_code": return_code,
+                    "stdout": stdout,
+                    "stderr": stderr,
                 })
-                print(f"Completed job {job_id}: {status} / return_code={proc.returncode}")
+                print(f"Completed job {job_id}: {status} / return_code={return_code}")
             if args.once:
                 print("Smoke test completed. Use without --once for continuous worker mode.")
                 return 0

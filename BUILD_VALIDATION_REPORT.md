@@ -1,147 +1,144 @@
-# AstraHeal AI v0.4.3 Build Validation Report
+# AstraHeal AI v0.7.4 Build Validation Report
 
-**Build:** `0.4.3`  
-**Validation date:** 2026-07-16  
-**Primary enhancement:** Add new test later — multi-test documents, Gherkin/BDD, framework-aware reuse, Jira/Confluence MCP-first intake, and transactional generation
+## Scope
 
-## Delivered behavior
+RACPAD-aware Playwright setup repair for missing `npm run build`, compiler-scoped dependency inference, deterministic package-lock synchronization, and repair-before-execute command timing. Existing v0.7.3 framework cache, human approval, agent pipeline, generation, RCA/self-healing, distributed execution and API behavior are preserved.
 
-### Multi-test source intake
+## Automated validation summary
 
-- PDF, DOCX, legacy DOC (when local `antiword` is available), TXT, Markdown, JSON, CSV, XLSX/XLSM, and `.feature` inputs are accepted.
-- One uploaded file may contain multiple testcases.
-- Test Case/Scenario headings and spreadsheet Test Case IDs are normalized into independent scenarios.
-- One normalized testcase/scenario produces one Playwright `.spec.ts` file.
+- Python compilation (`compileall`): **Passed**
+- Full pytest suite: **111 passed**
+- Full unittest suite: **57 passed**
+- Focused framework memory/approval/RACPAD suite: **8 passed**
+- GUI inline JavaScript parse (`node --check`): **Passed**
+- FastAPI application import: **Passed**
+- Registered FastAPI routes: **181**
+- Required agentic routes (`runs/start`, `playwright-standards`, `status`): **Present**
+- Registered guarded agent tools: **12**
+- Exact required command-sequence regression: **Passed**
+- Framework-fix proposal phase skips prerequisite commands until repair: **Passed**
+- Deep-learn retains existing prerequisite-command behavior: **Passed**
+- Human-approved exact file scope: **Passed**
+- Stale-approval/fingerprint protection: **Passed**
+- Unapproved lockfile side-effect restoration: **Passed**
+- JSONC tsconfig support: **Passed**
+- Project-local framework/code-graph cache reuse: **Passed**
 
-### Gherkin/Cucumber BDD
+## Required validation sequence
 
-- Supports `Feature`, tags, `Background`, `Scenario`, `Scenario Outline`/`Scenario Template`, `Examples`, `Given`, `When`, `Then`, `And`, `But`, and `*`.
-- Scenario Outline example rows expand into independent executable scenarios.
-- BDD traceability is retained in the normalized payload and generation report.
+The production validator still executes exactly:
 
-### Existing-framework placement and reuse
+1. `npm config set registry https://registry.npmjs.org/`
+2. `npm install --registry=https://registry.npmjs.org/`
+3. `npx playwright install chromium`
+4. `npm run build`
 
-- The framework path is taken from the Existing Framework tab.
-- Playwright `testDir` and the recursively learned framework structure determine the spec destination.
-- A no-write placement preview reports the recommended test folder, page/method file, locator file, match evidence, and ambiguity per scenario.
-- Default placement policy stops before changes when the target is ambiguous.
-- Existing methods and locators are reused first.
-- New methods/locators are appended to the closest approved existing file.
-- A new support file is created only when no safe reusable target exists and the user permits it.
-- A separate locator repository must already be linked to the selected page class before it can be updated.
+For the `framework_fix` workflow, this sequence now runs only after the approved setup repair has been applied. This prevents an expensive workspace install/Chromium/build cycle from being performed once before repair and then a second time afterward. Other workflows keep their existing behavior.
 
-### Playwright MCP/codegen policy
+## RACPAD-focused framework validation
 
-- The tab exposes MCP/codegen preparation before generation.
-- Existing symbols are reused before any locator is proposed.
-- Newly inferred semantic locators are explicitly marked provisional until live-DOM verification through Playwright MCP, codegen, trace, or a real application session.
-- Generated specs are validated with `npx --no-install playwright test <specs> --list` when local Node/Playwright dependencies are available.
+Attached framework: `qa_racpad_ts_automation`
 
-### Transactional safety
+### Architecture recognized
 
-- Every pre-existing page/locator file is backed up before modification.
-- Every newly created spec/support file is tracked.
-- If Playwright validation fails, AstraHeal restores original files and deletes newly created source/spec files automatically.
-- The report preserves attempted files, validation output, and rollback evidence while returning zero committed changed files.
+- Root npm workspaces: `db`, `shared`
+- Root executable Playwright test directory: `src/test/specs`
+- Root compiler scope: `playwright.config.ts`, `src/main/**/*.ts`, `src/test/**/*.ts`
+- Root compiler-scoped TS/TSX files evaluated for dependency requirements: **224**
+- Workspace `typecheck` support: **db = yes, shared = yes**
+- Existing root typecheck orchestration: `npm run typecheck --workspaces --if-present`
+- Existing root Playwright dependency: `@playwright/test ^1.60.0`
+- Existing root TypeScript dependency: `typescript ^5.9.3`
+- Existing root Node types: `@types/node ^22.15.21`
+- Missing root `build` script: **Detected**
 
-### Jira and Confluence
+### Build/dependency proposal
 
-- Supports individual Jira issues, Epic children, JQL result sets, and Confluence pages.
-- Epic children become independent testcases; the Epic remains contextual when children are available.
-- When `uvx` is available, AstraHeal launches `mcp-atlassian` over stdio, initializes MCP, discovers tools dynamically, and invokes read-only Jira/Confluence tools first.
-- Secure REST is a clearly reported fallback when MCP is unavailable, times out, or returns unusable data.
-- Username, API token, password/personal token are held only for the current request.
-- MCP JSON stores environment-variable placeholders only.
-- Secret values are removed from non-Atlassian GUI requests and are not included in normalized testcases, reports, or returned credential summaries.
-
-## Automated validation
-
-| Validation | Result |
-|---|---:|
-| Complete Python regression suite | **36/36 passed** |
-| New Add New Tests regression group | **11/11 passed** |
-| Existing recursive framework discovery/execution regression group | Passed |
-| Existing explainable RCA/exact approval-scope regression group | Passed |
-| Python compilation (`compileall`) | Passed |
-| FastAPI application import | Passed |
-| FastAPI route count | **152** |
-| GUI JavaScript syntax (`node --check`) | Passed |
-| Setuptools wheel build | Passed |
-| Built wheel version | **0.4.3** |
-| `openpyxl` wheel dependency metadata | Present: `openpyxl>=3.1,<4` |
-| Final ZIP integrity | Passed |
-| Clean extraction regression rerun | **36/36 passed** |
-| Clean extraction Python compilation | Passed |
-| Clean extraction GUI JavaScript syntax | Passed |
-
-The optional `python -m build` frontend was not installed in this environment. Package validation was completed successfully through the installed setuptools/wheel path using `python setup.py bdist_wheel`.
-
-## New regression coverage
-
-1. A plain document containing two testcases normalizes into two scenarios.
-2. Gherkin Background, Scenario, `And`, Scenario Outline, and Examples expand correctly.
-3. XLSX rows group by Test Case ID and preserve multiple steps.
-4. Two normalized scenarios create two specs under configured `src/test/specs`.
-5. Existing page files are updated rather than creating a root-level duplicate page file.
-6. Ambiguous page placement stops before source changes.
-7. An explicitly linked locator repository is updated without creating another file.
-8. Failed Playwright validation restores the original page file and removes generated specs.
-9. MCP configuration and fetched responses never contain supplied secret markers.
-10. Jira Epic child Stories/Bugs become separate testcases and the Epic is excluded as an extra test.
-11. MCP is selected before REST when a local MCP runtime is available.
-12. New APIs coexist with failure analysis, self-healing, BrowserStack, and established routes.
-
-## Existing functionality regression coverage retained
-
-- root and nested `src/**` Playwright discovery;
-- custom and parent-relative `testDir` handling;
-- monorepo discovery;
-- deep-learning dependency mapping;
-- MCP explicit-spec fallback;
-- sequential and distributed path preservation;
-- BrowserStack deep-path and environment-only credential handling;
-- provider gates and critical routes;
-- category-specific Plain English RCA;
-- exact runtime approval write boundaries;
-- explicit local report/log locations.
-
-## Files written at runtime
-
-Normalized source:
+AstraHeal proposes this workspace-aware build contract rather than generic root-only `tsc`:
 
 ```text
-<ASTRAHEAL_ROOT>/testcases/module2_uploaded/<feature>/functional-testcases.json
+npm run typecheck && tsc --noEmit
 ```
 
-Framework generation reports:
+Root compiler-scoped direct import analysis found `js-yaml`. The dependency and type package already exist in the RACPAD workspace/lock graph, so the exact proposal adds:
 
 ```text
-<FRAMEWORK_ROOT>/.aiqa-history/add-new-tests/<feature>-generation-report.json
-<FRAMEWORK_ROOT>/.aiqa-history/add-new-tests/<feature>-generation-report.html
-<FRAMEWORK_ROOT>/.aiqa-history/new-test-generation.jsonl
+js-yaml: ^4.1.0
+@types/js-yaml: ^4.0.9
 ```
 
-Backups:
+The guarded dynamic `imapflow` reference is backed by `src/main/api/docusign/types/imapflow.d.ts`; it is treated as ambient-declared/optional and is **not** blindly installed.
 
-```text
-<FRAMEWORK_ROOT>/.aiqa-history/backups/add-new-tests/<timestamp>/
-```
+Exact deterministic files proposed for human review:
 
-Atlassian MCP placeholder configuration:
+- `package.json`
+- `package-lock.json`
+- `.astraheal-playwright-standard.json`
 
-```text
-<ASTRAHEAL_ROOT>/.qa-cache/atlassian-mcp/mcp-atlassian.json
-```
+The package-lock update changes only root package dependency metadata and only because the required package nodes are already present in the existing lock graph.
 
-## Validation limits
+Applying all three files on an isolated RACPAD copy changed **only** those three non-cache files. Re-analysis after the approved repair reported **0 structural Playwright setup gaps** and retained the build contract `npm run typecheck && tsc --noEmit`.
 
-The following require customer credentials, network access, and the real application environment and therefore were not executed here:
+### Regression check on the attached ACIMA framework
 
-- a live Jira or Confluence tenant fetch;
-- a live `mcp-atlassian` session against customer data;
-- a live authenticated Playwright MCP/codegen browser session;
-- locator verification against the customer AUT DOM;
-- BrowserStack cloud execution;
-- live OpenAI, DeepSeek, Codex, Ollama, or Perplexity provider calls.
+The same enhanced analyzer was run against `qa_acima_fixed`. It found **0 setup gaps**, added **no new dependency/build repair**, and continued to propose only the optional `.astraheal-playwright-standard.json` role-map. This confirms the RACPAD-specific workspace/dependency logic does not force equivalent changes onto an already valid non-workspace framework.
 
-The build validates MCP protocol selection, dynamic-tool routing logic, fallback behavior, secret isolation, framework writes, rollback, and all existing local regressions. New locators remain clearly marked provisional until live-DOM verification is performed in the target environment.
+## Human-in-the-loop behavior
+
+1. Framework structure/dependencies are analyzed without repository writes.
+2. Missing build/dependency changes are prepared as exact before/after/diff content.
+3. GUI displays the workspace-aware build strategy and dependency plan.
+4. User can remove any proposed file from the approval list.
+5. Only approved files are written and existing approved files are backed up.
+6. Stale approval is rejected if the framework changes after review.
+7. Final validation then runs the four required commands exactly once.
+8. Command-generated changes to unapproved project-controlled files remain protected/restored.
+
+## Live RACPAD command evidence
+
+On a repaired copy of the attached RACPAD framework:
+
+- `npm config set registry https://registry.npmjs.org/`: **Passed**
+- `npm config get registry`: returned `https://registry.npmjs.org/`
+- Deterministic repaired `package-lock.json`: accepted by `npm install --package-lock-only --offline --ignore-scripts`
+- Offline lock validation result: **62 packages audited, 0 vulnerabilities**
+
+The execution container cannot resolve the public npm registry hostname (`curl: (6) Could not resolve host: registry.npmjs.org`). A real external dependency download therefore cannot complete in this environment, so `npx playwright install chromium` and the final live RACPAD `npm run build` are **not claimed as passed**. On a machine with npm/DNS access, AstraHeal will execute those commands in the production sequence above.
+
+## Compatibility / regression boundary
+
+No functional changes were made to:
+
+- framework discovery/code-graph cache behavior;
+- LangGraph agent ordering;
+- AI provider routing;
+- functional walkthrough;
+- test generation;
+- locator/page/helper reuse;
+- MCP preparation;
+- distributed execution;
+- RCA/self-healing;
+- report pipeline;
+- API capability code;
+- v0.7.3 human approval/fingerprint/backups.
+
+The only graph-level timing change is scoped to `workflow == "framework_fix"`: prerequisite commands are deferred from the gap-analysis node to the existing final validation node so repair occurs first.
+
+## Repository sample cleanup
+
+The v0.7.3 cleanup remains intact. The release ships `generated-playwright` and does not restore the removed API sample roots.
+
+## Final packaged artifact verification
+
+A release candidate ZIP was created with the final source layout, extracted into a clean directory and validated from the extracted artifact:
+
+- `python -m pytest -q`: **111 passed**
+- `python -m unittest discover -s tests -q`: **57 passed**
+- GUI inline JavaScript `node --check`: **Passed**
+- FastAPI application import: **Passed**
+- Registered FastAPI routes: **181**
+- Registered guarded agent tools: **12**
+- Version metadata: **0.7.4**
+- Generated sample roots: **`generated-playwright` present; API sample roots absent**
+
+The final release is packaged as `AstraHealAI_V11_Autonomous_LangGraph_v0.7.4.zip`; no code changes were made after the candidate regression gate, only this validation-report result section was finalized before the final ZIP was regenerated and checked again.

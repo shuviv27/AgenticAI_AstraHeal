@@ -221,7 +221,12 @@ def _extract_uploaded_text(uploaded_bytes: bytes | None, uploaded_name: str = ''
 
 
 def load_functional_testcases_enterprise(feature: str, pasted_json_or_steps: str = '', uploaded_bytes: bytes | None = None, uploaded_name: str = '', jira_story: str = '', jira_epic: str = '', source_mode: str = 'auto') -> dict[str, Any]:
-    from qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests import extract_and_normalize_source, save_normalized_source
+    from qa_pipeline.agentic.credential_vault import store_feature_credential_profiles
+    from qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests import (
+        extract_and_normalize_source,
+        extract_excel_credential_profiles,
+        save_normalized_source,
+    )
     try:
         payload = extract_and_normalize_source(
             feature=feature,
@@ -232,7 +237,20 @@ def load_functional_testcases_enterprise(feature: str, pasted_json_or_steps: str
             jira_epic=jira_epic,
             source_mode=source_mode,
         )
-        return save_normalized_source(payload)
+        credential_summary = store_feature_credential_profiles(feature, {})
+        if uploaded_bytes and Path(uploaded_name or '').suffix.lower() in {'.xlsx', '.xlsm'}:
+            credential_summary = store_feature_credential_profiles(
+                feature,
+                extract_excel_credential_profiles(uploaded_bytes, feature),
+            )
+        result = save_normalized_source(payload)
+        result['walkthrough_credential_profiles'] = credential_summary
+        if credential_summary.get('profile_count'):
+            result['message'] += (
+                f" {credential_summary.get('profile_count')} scenario credential profile(s) were detected from the uploaded workbook "
+                'and retained only in volatile backend memory for the next walkthrough run.'
+            )
+        return result
     except Exception as exc:
         return {'ok': False, 'error': f'{type(exc).__name__}: {exc}', 'message': 'Testcase source could not be normalized safely.'}
 
@@ -277,10 +295,60 @@ def _pick_reusable_file(root: Path, dirs: list[Path], feature: str, suffix: str,
     return dirs[0] / default_name
 
 
-def generate_existing_framework_extension_enterprise(framework_path: str, feature: str, provider: str='deterministic', model: str='llama3', base_url: str='', target_test_folder: str='', target_page_file: str='', target_locator_file: str='', placement_mode: str='confirm_if_ambiguous', allow_new_support_files: bool=True, validate_generated: bool=True, bdd_output_mode: str='playwright_specs') -> dict[str, Any]:
+def generate_existing_framework_extension_enterprise(framework_path: str, feature: str, provider: str='deterministic', model: str='llama3', base_url: str='', target_test_folder: str='', target_page_file: str='', target_locator_file: str='', placement_mode: str='confirm_if_ambiguous', allow_new_support_files: bool=True, validate_generated: bool=True, bdd_output_mode: str='playwright_specs', use_walkthrough_evidence: bool=False, require_walkthrough_evidence: bool=False, execute_generated_after_creation: bool=False, browser_grounded_generation: bool=True, grounding_headed: bool=True, grounding_browser_name: str='chromium', grounding_browser_executable: str='', allow_grounding_mutations: bool=True, grounding_max_intermediate_actions: int=8, use_codegen_capture: bool=True) -> dict[str, Any]:
+    from qa_pipeline.agentic.credential_vault import get_feature_credential_profiles
     from qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests import generate_existing_framework_tests
+    runtime_environment: dict[str, str] = {}
+    grounding_result: dict[str, Any] = {'attempted': False, 'generation_may_continue': True}
     try:
-        return generate_existing_framework_tests(
+        testcase_path = feature_testcase_path('module2_uploaded', feature)
+        payload = read_json(testcase_path) if testcase_path.exists() else {}
+        profiles = get_feature_credential_profiles(feature)
+        codegen_capture: dict[str, Any] = {}
+        if use_codegen_capture:
+            from qa_pipeline.modules.playwright_ts_generator.codegen_capture import latest_codegen_capture
+            codegen_capture = latest_codegen_capture(framework_path, feature)
+        if codegen_capture.get('ok') and int(codegen_capture.get('recorded_action_count') or 0) > 0:
+            grounding_result = {
+                'attempted': False,
+                'skipped': True,
+                'generation_may_continue': True,
+                'reason': 'authoritative_codegen_capture_available',
+                'codegen_capture': codegen_capture,
+                'message': 'Live AI browser grounding was skipped because an imported Playwright Codegen capture is available. Codegen evidence will be used first.',
+            }
+        elif browser_grounded_generation:
+            from qa_pipeline.agentic.browser_grounded_generation import ground_testcases_for_generation
+            grounding_result = ground_testcases_for_generation(
+                framework_path=framework_path,
+                feature=feature,
+                provider=provider,
+                model=model,
+                base_url=base_url,
+                browser_name=grounding_browser_name,
+                browser_executable=grounding_browser_executable,
+                headed=grounding_headed,
+                allow_mutating_actions=allow_grounding_mutations,
+                max_intermediate_actions=grounding_max_intermediate_actions,
+            )
+            use_walkthrough_evidence = bool(grounding_result.get('enhanced_testcase_file'))
+        for scenario in payload.get('scenarios') or []:
+            scenario_id = str(scenario.get('id') or '')
+            profile = dict(profiles.get(scenario_id) or profiles.get(scenario_id.upper()) or {})
+            for step in scenario.get('steps') or []:
+                env_name = str(step.get('value_env') or '').strip()
+                if not env_name:
+                    continue
+                target = str(step.get('target') or step.get('description') or '').lower()
+                if 'password' in target or 'passcode' in target:
+                    value = str(profile.get('password') or '')
+                elif any(token in target for token in ('username', 'user name', 'email', 'login id', 'admin user', 'valid user')):
+                    value = str(profile.get('username') or '')
+                else:
+                    value = ''
+                if value:
+                    runtime_environment[env_name] = value
+        result = generate_existing_framework_tests(
             framework_path=framework_path,
             feature=feature,
             provider=provider,
@@ -293,7 +361,15 @@ def generate_existing_framework_extension_enterprise(framework_path: str, featur
             allow_new_support_files=allow_new_support_files,
             validate_generated=validate_generated,
             bdd_output_mode=bdd_output_mode,
+            use_walkthrough_evidence=use_walkthrough_evidence,
+            require_walkthrough_evidence=require_walkthrough_evidence,
+            execute_generated_after_creation=execute_generated_after_creation,
+            runtime_environment=runtime_environment,
+            browser_grounding_result=grounding_result,
+            use_codegen_capture=use_codegen_capture,
         )
+        result['browser_grounding'] = grounding_result
+        result['message'] = (str(result.get('message') or '') + ' ' + str(grounding_result.get('message') or '')).strip()
+        return result
     except Exception as exc:
         return {'ok': False, 'error': f'{type(exc).__name__}: {exc}', 'message': 'Existing-framework test generation stopped safely before uncontrolled changes.'}
-

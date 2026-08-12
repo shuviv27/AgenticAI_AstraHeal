@@ -250,44 +250,51 @@ def _ensure_locator_factory_fallbacks(apply_patch: bool) -> PatchAction:
     text = _read(path)
     if "fallbacks?: LocatorDefinition[]" in text and "resolveLocatorBase" in text and "relaxedRegex" in text:
         return PatchAction("locator_factory_fallbacks", "already_present", _rel(path), "Fallback locator union support is already present")
-    updated = r"""import type { Locator, Page } from '@playwright/test';
+    updated = r"""
+import type { Locator, Page } from '@playwright/test';
+import { SmartLocator, type SmartLocatorCandidate } from './SmartLocator';
+// SmartLocator resolves placeholder candidates through page.getByPlaceholder().
 
 export type LocatorDefinition =
   | { strategy: 'testId'; value: string; description?: string; fallbacks?: LocatorDefinition[] }
   | { strategy: 'role'; role: Parameters<Page['getByRole']>[0]; value: string; description?: string; fallbacks?: LocatorDefinition[] }
   | { strategy: 'label'; value: string; description?: string; fallbacks?: LocatorDefinition[] }
+  | { strategy: 'placeholder'; value: string; description?: string; fallbacks?: LocatorDefinition[] }
   | { strategy: 'text'; value: string; description?: string; fallbacks?: LocatorDefinition[] }
   | { strategy: 'css'; value: string; description?: string; fallbacks?: LocatorDefinition[] }
   | { strategy: 'xpath'; value: string; description?: string; fallbacks?: LocatorDefinition[] };
 
-export function resolveLocator(page: Page, locator: LocatorDefinition): Locator {
-  let resolved = resolveLocatorBase(page, locator);
-  for (const fallback of locator.fallbacks ?? []) {
-    resolved = resolved.or(resolveLocatorBase(page, fallback));
-  }
-  return resolved.first();
+export function resolveSmartLocator(page: Page, locator: LocatorDefinition): SmartLocator {
+  validateDefinition(locator);
+  const candidates: SmartLocatorCandidate[] = [locatorToCandidate(locator), ...((locator.fallbacks ?? []).map(locatorToCandidate))];
+  return SmartLocator.fromCandidates(page, candidates, locator.description ?? locator.value);
 }
 
-function resolveLocatorBase(page: Page, locator: LocatorDefinition): Locator {
+function locatorToCandidate(locator: LocatorDefinition): SmartLocatorCandidate {
   switch (locator.strategy) {
-    case 'testId': return page.getByTestId(locator.value);
-    case 'role': return page.getByRole(locator.role, { name: relaxedRegex(locator.value) });
-    case 'label': return page.getByLabel(relaxedRegex(locator.value));
-    case 'text': return page.getByText(relaxedRegex(locator.value));
-    case 'css': return page.locator(locator.value);
-    case 'xpath': return page.locator(`xpath=${locator.value}`);
-    default: throw new Error(`Unsupported locator strategy: ${(locator as LocatorDefinition).strategy}`);
+    case 'testId': return { strategy: 'testId', value: locator.value, description: locator.description };
+    case 'role': return { strategy: 'role', role: locator.role, value: locator.value, description: locator.description };
+    case 'label': return { strategy: 'label', value: locator.value, description: locator.description };
+    case 'placeholder': return { strategy: 'placeholder', value: locator.value, description: locator.description };
+    case 'text': return { strategy: 'text', value: locator.value, description: locator.description };
+    case 'css': return { strategy: 'css', value: locator.value, description: locator.description };
+    case 'xpath': return { strategy: 'xpath', value: locator.value, description: locator.description };
   }
 }
 
-function relaxedRegex(value: string): RegExp {
-  const clean = String(value || '').replace(/[\u2010-\u2015]/g, '-').replace(/\s+/g, ' ').trim();
-  const escaped = escapeRegExp(clean).replace(/\\ /g, '\\s+');
-  return new RegExp(escaped, 'i');
+export function resolveLocator(page: Page, locator: LocatorDefinition): Locator {
+  return resolveSmartLocator(page, locator).locator();
 }
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function validateDefinition(locator: LocatorDefinition): void {
+  const value = String(locator.value || '').trim();
+  if (!value || ['undefined', 'null', 'none'].includes(value.toLowerCase())) {
+    throw new Error(`Invalid locator definition: strategy=${locator.strategy}, value=${JSON.stringify(locator.value)}.`);
+  }
+  if (locator.strategy === 'role' && !String(locator.role || '').trim()) {
+    throw new Error(`Invalid role locator for ${locator.description ?? value}: role is undefined.`);
+  }
+  for (const fallback of locator.fallbacks ?? []) validateDefinition(fallback);
 }
 """
     _write(path, updated, apply_patch)

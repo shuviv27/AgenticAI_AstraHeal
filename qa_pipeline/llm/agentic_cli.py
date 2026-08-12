@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import shutil
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+
+from qa_pipeline.core.commands import run_command
 
 
 @dataclass
@@ -20,8 +21,8 @@ class AgenticCliStatus:
 
 def _run(cmd: list[str], cwd: Path | None = None, timeout: int = 20) -> tuple[int, str, str]:
     try:
-        proc = subprocess.run(cmd, cwd=str(cwd) if cwd else None, text=True, capture_output=True, timeout=timeout)
-        return proc.returncode, proc.stdout or "", proc.stderr or ""
+        result = run_command(cmd, cwd=cwd, timeout=timeout)
+        return result.returncode if result.returncode is not None else 999, result.stdout or "", result.stderr or result.error or ""
     except Exception as exc:
         return 999, "", f"{type(exc).__name__}: {exc}"
 

@@ -1,0 +1,65 @@
+{
+  "feature": "propagate_login_e8b8b21e",
+  "scenarios": [
+    {
+      "id": "TC-1",
+      "title": "First",
+      "steps": [
+        {
+          "step_number": "1",
+          "action": "goto",
+          "target": "Open app",
+          "value": "https://qa.example.test"
+        },
+        {
+          "step_number": "2",
+          "action": "fill",
+          "target": "Username"
+        },
+        {
+          "step_number": "3.1",
+          "parent_step_number": "3",
+          "action": "click",
+          "target": "Log In to Sandbox",
+          "generated_by_walkthrough": true,
+          "walkthrough": {
+            "status": "adaptive_intermediate_verified",
+            "locator": {
+              "strategy": "role",
+              "role": "button",
+              "value": "Log In to Sandbox",
+              "exact": true
+            }
+          }
+        },
+        {
+          "step_number": "3",
+          "action": "fill",
+          "target": "Password"
+        }
+      ]
+    },
+    {
+      "id": "TC-2",
+      "title": "Second",
+      "steps": [
+        {
+          "step_number": "1",
+          "action": "goto",
+          "target": "Open app",
+          "value": "https://qa.example.test"
+        },
+        {
+          "step_number": "2",
+          "action": "fill",
+          "target": "Username"
+        },
+        {
+          "step_number": "3",
+          "action": "fill",
+          "target": "Password"
+        }
+      ]
+    }
+  ]
+}

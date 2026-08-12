@@ -17,7 +17,10 @@ from typing import Any
 from qa_pipeline.core.commands import resolve_command, run_command
 from qa_pipeline.core.paths import QA_CACHE_DIR, GENERATED_PLAYWRIGHT_DIR, REPORTS_DIR, REPO_ROOT
 from qa_pipeline.core.runtime_logger import log_event
+from qa_pipeline.core.operation_control import popen_process_group_kwargs, register_process, unregister_process
 from qa_pipeline.core.url_guard import normalize_base_url
+from qa_pipeline.agentic.framework_cache import compute_framework_fingerprint, load_matching_cache, save_cache
+from qa_pipeline.agentic.playwright_standard import MANIFEST_NAME
 from qa_pipeline.core.tsconfig_alias import load_jsonc, runtime_env_for_tsconfig_aliases, tsconfig_alias_summary
 from qa_pipeline.llm.codex_cli import CodexCliProvider
 from qa_pipeline.llm.ollama import OllamaProvider
@@ -73,6 +76,11 @@ EXISTING_FIRST_RUN_BASELINE_JSON = EXISTING_REPORTS_DIR / "first-run-baseline-in
 EXISTING_RERUN_LEDGER_JSON = EXISTING_REPORTS_DIR / "failed-only-rerun-ledger.json"
 EXISTING_FAILED_ONLY_LATEST_REPORT_HTML = EXISTING_REPORTS_DIR / "failed-only-latest-playwright-report.html"
 EXISTING_LATEST_PLAYWRIGHT_ROUTER_HTML = EXISTING_REPORTS_DIR / "latest-playwright-report.html"
+# Generated-framework execution uses the shared reports root while Existing Framework
+# execution uses reports/existing-framework. RCA must understand both locations.
+GENERIC_FAILED_INVENTORY_JSON = REPORTS_DIR / "failed-tests.json"
+GENERIC_SEQUENTIAL_EXECUTION_JSON = REPORTS_DIR / "sequential-execution-report.json"
+GENERIC_DISTRIBUTED_EXECUTION_JSON = REPORTS_DIR / "distributed-execution-report.json"
 
 IGNORED_DIRS = {"node_modules", ".git", "reports", "playwright-report", "test-results", "dist", "build", ".next", "coverage", ".codex-backups", ".aiqa-history", "%appdata%", "%AppData%", ".npm", "npm-cache"}
 
@@ -1089,12 +1097,50 @@ Inventory:
         return {"used": True, "provider": provider, "ok": False, "message": f"AI framework understanding failed safely: {type(exc).__name__}: {exc}"}
 
 
-def analyze_existing_framework(framework_path: str, provider: str = "deterministic", model: str = "llama3", base_url: str = "") -> dict[str, Any]:
+def analyze_existing_framework(framework_path: str, provider: str = "deterministic", model: str = "llama3", base_url: str = "", *, reuse_cache: bool = True, progress_run_id: str = "") -> dict[str, Any]:
     _ensure_dirs()
     root = _resolve_framework_path(framework_path)
-    log_event("existing_framework", f"Analyzing existing Playwright framework: {root}", progress=8, details={"framework_path": str(root)})
+
+    def stream(message: str, progress: int, *, status: str = "running", payload: dict[str, Any] | None = None) -> None:
+        log_event("existing_framework", message, status=status, progress=progress, details={"framework_path": str(root), **(payload or {})})
+        if progress_run_id:
+            try:
+                from qa_pipeline.agentic.events import publish
+                publish(progress_run_id, "framework_discovery", message, status=status, progress=progress, payload=payload or {})
+            except Exception:
+                pass
+
+    stream(f"Scanning framework metadata and checking reusable memory: {root}", 8)
+    fingerprint = compute_framework_fingerprint(root)
+    if reuse_cache:
+        cached = load_matching_cache(root, "framework-analysis-cache.json", fingerprint=fingerprint)
+        if cached:
+            cached["cache_reuse"] = {
+                "used": True,
+                "fingerprint": fingerprint.get("fingerprint"),
+                "file_count": fingerprint.get("file_count"),
+                "message": "Repository fingerprint is unchanged; reused the first-pass framework understanding from .qa-cache.",
+            }
+            if provider not in {"", "deterministic", "rules", "none"}:
+                cached["ai_understanding"] = _ai_framework_understanding(root, provider, model, cached)
+            EXISTING_INTELLIGENCE_JSON.write_text(json.dumps(cached, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            EXISTING_INTELLIGENCE_MD.write_text(_render_framework_markdown(cached), encoding="utf-8")
+            stream("Framework memory hit: source/config fingerprint is unchanged. Reusing .qa-cache understanding instead of rescanning every file.", 22, status="done", payload={"cache_hit": True, "file_count": fingerprint.get("file_count")})
+            return cached
+
+    stream("No reusable framework snapshot found (or files changed). Starting full recursive structure discovery.", 11, payload={"cache_hit": False, "file_count": fingerprint.get("file_count")})
     package_json = _load_package_json(root)
     structure_profile = build_structure_profile(root, limit=5000)
+    standard_manifest: dict[str, Any] = {}
+    manifest_path = root / MANIFEST_NAME
+    if manifest_path.exists():
+        try:
+            standard_manifest = json.loads(manifest_path.read_text(encoding="utf-8", errors="replace"))
+            structure_profile["astraheal_standard_role_map"] = standard_manifest.get("role_map") or {}
+            stream("Found AstraHeal Playwright standard role-map; using it as explicit semantic architecture context alongside recursive discovery.", 13, payload={"standard_profile": standard_manifest.get("standard_profile")})
+        except Exception as exc:
+            standard_manifest = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "path": str(manifest_path)}
+    stream("Structure discovery completed; mapping executable specs, fixtures, pages and nested source/test roots.", 15, payload={"executable_spec_count": len(structure_profile.get("executable_specs") or [])})
     spec_files = _find_files(root, SPEC_SUFFIXES, limit=5000)
     executable_rel_specs = list(structure_profile.get("executable_specs") or [])
     executable_spec_files = [root / rel for rel in executable_rel_specs]
@@ -1121,6 +1167,7 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
         "executable_spec_count": len(executable_spec_files),
         "executable_test_roots": executable_test_roots,
         "structure_discovery": structure_profile,
+        "playwright_standard_manifest": standard_manifest,
         "sample_specs": [_rel_to(p, root) for p in spec_files[:60]],
         "sample_executable_specs": executable_rel_specs[:80],
         "directory_model": dirs,
@@ -1145,11 +1192,13 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
             "Assertion updates are blocked unless the assertion drift classifier marks the change as cosmetic and above semantic threshold.",
         ],
     }
+    stream("Auditing existing locator/object-repository usage without modifying framework files.", 17)
     try:
         inventory["object_repository_locator_audit"] = audit_object_repository_locators(root, base_url=normalize_base_url(base_url))
         inventory["object_repository_locator_audit_url"] = "/artifacts/reports/existing-framework/object-repository-locator-audit.html"
     except Exception as exc:
         inventory["object_repository_locator_audit"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Object repository locator audit failed safely; base framework learning continued."}
+    stream("Checking framework alignment and reusability conventions.", 19)
     try:
         inventory["playwright_alignment"] = _playwright_alignment_plan(root, inventory, package_json if isinstance(package_json, dict) else {}, dirs, inline, spec_files)
     except Exception as exc:
@@ -1157,19 +1206,24 @@ def analyze_existing_framework(framework_path: str, provider: str = "determinist
     # Agentic deep understanding is deterministic and always runs before AI/Codex/Ollama.
     # It maps folder roles, spec->page->pageObject dependencies, locator strategy, AUT hints,
     # and saves reusable project memory for RCA/self-healing.
+    stream("Building dependency chains and durable first-pass framework memory under .qa-cache.", 20)
     try:
         inventory["agentic_framework_understanding"] = build_deep_framework_understanding(root, inventory, base_url=normalize_base_url(base_url))
         inventory["agentic_framework_understanding_url"] = "/artifacts/reports/existing-framework/agentic-framework-understanding.html"
     except Exception as exc:
         inventory["agentic_framework_understanding"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Agentic framework understanding failed safely; base analysis is still available."}
+    stream("Deep structural memory created; preparing focused framework intelligence and RAG index.", 21)
     inventory["ai_understanding"] = _ai_framework_understanding(root, provider, model, inventory)
     try:
         inventory["framework_intelligence_v2"] = build_framework_intelligence_v2(root, inventory, base_url=normalize_base_url(base_url))
     except Exception as exc:
         inventory["framework_intelligence_v2"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Framework intelligence v2 failed safely; base analysis is still available."}
+    inventory["cache_reuse"] = {"used": False, "fingerprint": fingerprint.get("fingerprint"), "file_count": fingerprint.get("file_count"), "message": "Full framework understanding completed and saved for reuse."}
+    cache_path = save_cache(root, "framework-analysis-cache.json", inventory, fingerprint=fingerprint)
+    inventory["cache_reuse"]["cache_file"] = str(cache_path)
     EXISTING_INTELLIGENCE_JSON.write_text(json.dumps(inventory, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     EXISTING_INTELLIGENCE_MD.write_text(_render_framework_markdown(inventory), encoding="utf-8")
-    log_event("existing_framework", "Existing framework understanding completed. GUI can now execute existing specs without generating new testcases.", status="done", progress=100, details={"spec_count": len(spec_files), "executable_spec_count": len(executable_spec_files), "executable_test_roots": executable_test_roots, "pom_score": inventory["pom_compliance"]["score"]})
+    stream("Full framework understanding completed and stored in framework-local .qa-cache for fast reuse.", 24, status="done", payload={"spec_count": len(spec_files), "executable_spec_count": len(executable_spec_files), "executable_test_roots": executable_test_roots, "pom_score": inventory["pom_compliance"]["score"], "cache_hit": False})
     return inventory
 
 
@@ -1854,7 +1908,9 @@ def _run_streaming(args: list[str], root: Path, env: dict[str, str], title: str,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             bufsize=1,
+            **popen_process_group_kwargs(),
         )
+        register_process(proc)
         assert proc.stdout is not None
         last_log = 0.0
         for line in proc.stdout:
@@ -1866,6 +1922,7 @@ def _run_streaming(args: list[str], root: Path, env: dict[str, str], title: str,
                 log_event("existing_framework", f"{title}: {line[-260:]}", progress=pct, details={"command": command_display, "launcher_script": str(launcher)})
                 last_log = now
         returncode = proc.wait()
+        unregister_process(proc)
         duration = round(time.time() - started, 2)
         combined = "\n".join(output_lines)
         ok = returncode == 0
@@ -2567,11 +2624,118 @@ def _read_last_self_heal_failed_specs() -> dict[str, Any]:
     }
 
 
-def _best_failed_inventory_for_followup() -> dict[str, Any]:
-    # If a failed-only rerun has already happened, the current scope must come
-    # from the latest rerun iteration, not from stale first-run/self-heal files.
-    # This preserves the exact iteration flow: original run -> rerun 1 remaining
-    # failures -> rerun 2 remaining failures -> manual review.
+def _safe_read_json_dict(path: Path) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+        return value if isinstance(value, dict) else {}
+    except Exception:
+        return {}
+
+
+def _inventory_from_payload(payload: dict[str, Any], *, source_path: Path, framework_path: str = "") -> dict[str, Any]:
+    """Normalise execution/inventory JSON from every AstraHeal execution route.
+
+    Generated-framework execution writes reports/failed-tests.json while the
+    Existing Framework runner writes reports/existing-framework/failed-tests.json.
+    Earlier RCA code read only the second path, which made a real failed run look
+    like "No failed execution evidence". This adapter creates one common handoff.
+    """
+    if not isinstance(payload, dict):
+        return {}
+    inventory = payload.get("failed_test_inventory") if isinstance(payload.get("failed_test_inventory"), dict) else payload
+    if not isinstance(inventory, dict):
+        return {}
+    # An execution wrapper may place the inventory inside another result object.
+    if not any(k in inventory for k in ("failed_specs", "failed_tests", "failed_test_cases", "all_specs", "all_test_cases")):
+        nested = payload.get("execution") if isinstance(payload.get("execution"), dict) else payload.get("result")
+        if isinstance(nested, dict) and isinstance(nested.get("failed_test_inventory"), dict):
+            inventory = nested["failed_test_inventory"]
+        else:
+            return {}
+    result = dict(inventory)
+    result.setdefault("failed_specs", [])
+    result.setdefault("failed_tests", result.get("failed_test_cases") or [])
+    result.setdefault("failed_test_cases", result.get("failed_tests") or [])
+    result.setdefault("all_test_cases", result.get("test_cases") or result.get("failed_test_cases") or [])
+    result.setdefault("all_specs", result.get("target_args") or result.get("failed_specs") or [])
+    result.setdefault("passed_specs", [])
+    result["failed_count"] = int(result.get("failed_count") or len(result.get("failed_specs") or []))
+    result["failed_test_case_count"] = int(result.get("failed_test_case_count") or len(result.get("failed_test_cases") or []))
+    result["ok"] = True
+    result["source_path"] = str(source_path)
+    result["source_mtime"] = source_path.stat().st_mtime if source_path.exists() else 0.0
+    result["source"] = str(result.get("source") or source_path.name)
+    if framework_path and not result.get("framework_path"):
+        result["framework_path"] = framework_path
+    return result
+
+
+def _execution_inventory_candidates(framework_path: str = "") -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    paths = [
+        EXISTING_INVENTORY_JSON,
+        EXISTING_REPORTS_DIR / "execution-report.json",
+        GENERIC_FAILED_INVENTORY_JSON,
+        GENERIC_SEQUENTIAL_EXECUTION_JSON,
+        GENERIC_DISTRIBUTED_EXECUTION_JSON,
+    ]
+    root: Path | None = None
+    raw = str(framework_path or "").strip().strip('"').strip("'")
+    if raw:
+        try:
+            root = Path(raw).expanduser().resolve()
+        except Exception:
+            root = None
+    if root is not None:
+        paths.extend([
+            root / "reports" / "existing-framework" / "failed-tests.json",
+            root / "reports" / "existing-framework" / "execution-report.json",
+        ])
+    seen: set[str] = set()
+    for path in paths:
+        key = str(path.resolve()) if path.exists() else str(path)
+        if key in seen or not path.exists():
+            continue
+        seen.add(key)
+        inv = _inventory_from_payload(_safe_read_json_dict(path), source_path=path, framework_path=str(root or raw))
+        if inv:
+            candidates.append(inv)
+
+    # A client-owned framework can retain the native Playwright JSON even when
+    # AstraHeal's central inventory was deleted or a previous build wrote it to
+    # a different folder. Parse that native evidence directly.
+    if root is not None:
+        for results_path in [
+            root / "reports" / "existing-framework" / "results.json",
+            root / "reports" / "results.json",
+        ]:
+            if not results_path.exists():
+                continue
+            parsed = _walk_playwright_json(_safe_read_json_dict(results_path), root=root)
+            if parsed.get("all_specs") or parsed.get("failed_specs") or parsed.get("all_test_cases"):
+                parsed.update({
+                    "ok": True,
+                    "framework_path": str(root),
+                    "source": "native_playwright_results_json",
+                    "source_path": str(results_path),
+                    "source_mtime": results_path.stat().st_mtime,
+                    "failed_count": len(parsed.get("failed_specs") or []),
+                })
+                candidates.append(parsed)
+    return candidates
+
+
+def _latest_execution_inventory(framework_path: str = "") -> dict[str, Any]:
+    candidates = _execution_inventory_candidates(framework_path)
+    if not candidates:
+        return {"ok": False, "error": "No Playwright execution inventory was found in generated or existing-framework report locations."}
+    # The newest execution is authoritative, even when it passed. This prevents
+    # an old failed inventory from being presented after a newer successful run.
+    return max(candidates, key=lambda item: float(item.get("source_mtime") or 0.0))
+
+
+def _best_failed_inventory_for_followup(framework_path: str = "") -> dict[str, Any]:
+    # Failed-only rerun ledger is authoritative for an active healing iteration.
     remaining_from_ledger = _latest_failed_only_remaining_inventory()
     if remaining_from_ledger.get("ledger_iteration_count"):
         try:
@@ -2580,22 +2744,22 @@ def _best_failed_inventory_for_followup() -> dict[str, Any]:
             pass
         return remaining_from_ledger
 
-    primary = read_existing_failed_inventory()
-    if primary.get("ok") and primary.get("failed_specs"):
-        return primary
-    recovered = _read_last_execution_inventory()
-    if recovered.get("ok") and recovered.get("failed_specs"):
-        EXISTING_INVENTORY_JSON.write_text(json.dumps(recovered, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        return recovered
-    recovered2 = _read_last_self_heal_failed_specs()
-    if recovered2.get("ok") and recovered2.get("failed_specs"):
-        EXISTING_INVENTORY_JSON.write_text(json.dumps(recovered2, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        return recovered2
-    # preserve the original error but attach fallbacks for transparent debugging
-    primary.setdefault("fallback_execution_inventory", recovered)
-    primary.setdefault("fallback_self_heal_inventory", recovered2)
-    return primary
+    latest = _latest_execution_inventory(framework_path)
+    if latest.get("ok"):
+        # Mirror the common inventory into the Existing Framework handoff so RCA,
+        # safe-fix planning and failed-only rerun all use the same latest evidence.
+        try:
+            EXISTING_INVENTORY_JSON.parent.mkdir(parents=True, exist_ok=True)
+            EXISTING_INVENTORY_JSON.write_text(json.dumps(latest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        except Exception:
+            pass
+        return latest
 
+    recovered2 = _read_last_self_heal_failed_specs()
+    if recovered2.get("ok"):
+        return recovered2
+    latest.setdefault("fallback_self_heal_inventory", recovered2)
+    return latest
 
 def _tokenize_for_scope(value: str) -> list[str]:
     tokens = re.split(r"[^a-zA-Z0-9]+", (value or "").lower())
@@ -3045,7 +3209,7 @@ def _write_existing_rca_html(payload: dict[str, Any]) -> Path:
 
 def analyze_existing_failure(framework_path: str = "", provider: str = "deterministic", model: str = "llama3", base_url: str = "") -> dict[str, Any]:
     _ensure_dirs()
-    inventory = _best_failed_inventory_for_followup()
+    inventory = _best_failed_inventory_for_followup(framework_path)
     root = _resolve_framework_path(framework_path or inventory.get("framework_path", "")) if (framework_path or inventory.get("framework_path")) else None
     if not inventory.get("ok") or not root:
         payload = {"ok": False, "stage": "existing_framework_rca_blocked", "message": inventory.get("error") or "Run existing framework execution first.", "failed_inventory": inventory}
@@ -5904,52 +6068,256 @@ export type SmartLocatorCandidate =
   | { strategy: 'css'; value: string; description?: string }
   | { strategy: 'xpath'; value: string; description?: string };
 
-export class SmartLocator {
-  constructor(private readonly page: Page, private readonly candidates: SmartLocatorCandidate[], private readonly name = 'smart target') {}
+const VALID_ROLES = new Set<string>([
+  'alert','alertdialog','application','article','banner','blockquote','button','caption','cell','checkbox','code',
+  'columnheader','combobox','complementary','contentinfo','definition','deletion','dialog','directory','document',
+  'emphasis','feed','figure','form','generic','grid','gridcell','group','heading','img','insertion','link','list',
+  'listbox','listitem','log','main','marquee','math','meter','menu','menubar','menuitem','menuitemcheckbox',
+  'menuitemradio','navigation','none','note','option','paragraph','presentation','progressbar','radio','radiogroup',
+  'region','row','rowgroup','rowheader','scrollbar','search','searchbox','separator','slider','spinbutton','status',
+  'strong','subscript','superscript','switch','tab','table','tablist','tabpanel','term','textbox','time','timer',
+  'toolbar','tooltip','tree','treegrid','treeitem',
+]);
 
-  locator(): Locator {
-    let loc = this.resolve(this.candidates[0]);
-    for (const candidate of this.candidates.slice(1)) loc = loc.or(this.resolve(candidate));
-    return loc.first();
+export class SmartLocator {
+  private readonly candidates: SmartLocatorCandidate[];
+  private readonly description: string;
+
+  constructor(
+    private readonly page: Page,
+    candidates: SmartLocatorCandidate[],
+    description = 'smart locator target',
+  ) {
+    this.candidates = dedupeCandidates(candidates.map(normalizeCandidate).filter(isValidCandidate));
+    this.description = normalizeLocatorText(description) || 'smart locator target';
+    if (!this.candidates.length) {
+      throw new Error(`SmartLocator requires at least one valid candidate for ${this.description}. Role and accessible name cannot be undefined.`);
+    }
   }
 
-  async click(options: { timeout?: number } = {}): Promise<void> {
-    const target = await this.firstReachable(options.timeout ?? 10_000);
-    await target.click({ timeout: options.timeout ?? 10_000 }).catch(async err => {
-      await this.page.locator('[role="dialog"], [class*="modal" i], [class*="overlay" i]').evaluateAll(nodes => nodes.forEach(n => (n as HTMLElement).style.pointerEvents = 'none')).catch(() => undefined);
-      await target.scrollIntoViewIfNeeded().catch(() => undefined);
-      await target.click({ timeout: options.timeout ?? 10_000 }).catch(() => { throw err; });
-    });
+  static fromCandidates(page: Page, candidates: SmartLocatorCandidate[], description?: string): SmartLocator {
+    return new SmartLocator(page, candidates, description ?? candidates[0]?.description ?? 'smart locator target');
+  }
+
+  locator(): Locator {
+    let resolved = this.resolve(this.candidates[0]);
+    for (const candidate of this.candidates.slice(1)) resolved = resolved.or(this.resolve(candidate));
+    return resolved.first();
   }
 
   async firstReachable(timeout = 10_000): Promise<Locator> {
     const deadline = Date.now() + timeout;
+    let lastError = '';
+    const diagnostics: Array<Record<string, unknown>> = [];
+    await this.dismissCommonOverlays().catch(() => undefined);
+    await this.waitForStableDom().catch(() => undefined);
+
     for (const candidate of this.candidates) {
-      const loc = this.resolve(candidate).first();
+      const resolved = this.resolve(candidate);
       const remaining = Math.max(500, deadline - Date.now());
-      if (await loc.isVisible({ timeout: Math.min(1500, remaining) }).catch(() => false)) {
-        await loc.scrollIntoViewIfNeeded().catch(() => undefined);
-        return loc;
+      try {
+        const count = await resolved.count().catch(() => -1);
+        const first = resolved.first();
+        const visible = count > 0 && await first.isVisible({ timeout: Math.min(1800, remaining) }).catch(() => false);
+        diagnostics.push({
+          strategy: candidate.strategy,
+          role: candidate.strategy === 'role' ? candidate.role : undefined,
+          value: candidate.value,
+          count,
+          visible,
+          accepted: count === 1 && visible,
+        });
+        // Never silently select the first of several matches. A locator used to
+        // generate automation must uniquely identify one live element.
+        if (count === 1 && visible) {
+          await first.scrollIntoViewIfNeeded().catch(() => undefined);
+          return first;
+        }
+      } catch (err) {
+        lastError = String(err);
+        diagnostics.push({ strategy: candidate.strategy, value: candidate.value, error: lastError });
       }
     }
-    throw new Error(`SmartLocator failed for ${this.name}. Tried candidates: ${JSON.stringify(this.candidates)}`);
+
+    await this.page.mouse.wheel(0, Math.floor((await this.page.viewportSize())?.height ?? 800) * 0.8).catch(() => undefined);
+    await this.waitForStableDom().catch(() => undefined);
+    for (const candidate of this.candidates) {
+      const resolved = this.resolve(candidate);
+      const count = await resolved.count().catch(() => -1);
+      const first = resolved.first();
+      const visible = count > 0 && await first.isVisible({ timeout: 1200 }).catch(() => false);
+      if (count === 1 && visible) {
+        await first.scrollIntoViewIfNeeded().catch(() => undefined);
+        return first;
+      }
+    }
+
+    const visibleControls = await this.visibleControlSummary().catch(() => []);
+    throw new Error(
+      `SmartLocator failed for ${this.description}. ` +
+      `URL: ${this.page.url()}. ` +
+      `Normalized candidates: ${JSON.stringify(this.candidates)}. ` +
+      `Diagnostics: ${JSON.stringify(diagnostics)}. ` +
+      `Visible controls: ${JSON.stringify(visibleControls)}. ` +
+      `Last error: ${lastError || 'none'}`,
+    );
+  }
+
+  async click(timeout = 10_000): Promise<void> {
+    const target = await this.firstReachable(timeout);
+    await target.click({ timeout }).catch(async firstError => {
+      await this.dismissCommonOverlays().catch(() => undefined);
+      await this.waitForStableDom().catch(() => undefined);
+      await target.scrollIntoViewIfNeeded().catch(() => undefined);
+      await target.click({ timeout }).catch(() => { throw firstError; });
+    });
+    await this.waitForStableDom().catch(() => undefined);
+  }
+
+  async fill(value: string, timeout = 10_000): Promise<void> {
+    const target = await this.firstReachable(timeout);
+    await target.fill(value, { timeout }).catch(async firstError => {
+      await this.waitForStableDom().catch(() => undefined);
+      await target.fill(value, { timeout }).catch(() => { throw firstError; });
+    });
+  }
+
+  async expectVisible(timeout = 10_000): Promise<Locator> {
+    return await this.firstReachable(timeout);
   }
 
   private resolve(candidate: SmartLocatorCandidate): Locator {
     switch (candidate.strategy) {
-      case 'testId': return this.page.getByTestId(candidate.value);
-      case 'role': return this.page.getByRole(candidate.role, { name: relaxed(candidate.value) });
-      case 'label': return this.page.getByLabel(relaxed(candidate.value));
-      case 'placeholder': return this.page.getByPlaceholder(relaxed(candidate.value));
-      case 'text': return this.page.getByText(relaxed(candidate.value));
-      case 'css': return this.page.locator(candidate.value);
-      case 'xpath': return this.page.locator(`xpath=${candidate.value}`);
+      case 'testId':
+        return this.page.getByTestId(candidate.value);
+      case 'role': {
+        const clean = normalizeLocatorText(candidate.value);
+        const rx = relaxedRegex(clean);
+        let loc = this.page.getByRole(candidate.role, { name: rx });
+        if (candidate.role === 'button') {
+          const cssValue = cssAttributeValue(clean);
+          loc = loc
+            .or(this.page.getByRole('link', { name: rx }))
+            .or(this.page.locator(`input[type="submit"][value*="${cssValue}" i], input[type="button"][value*="${cssValue}" i], button[title*="${cssValue}" i], [role="button"][aria-label*="${cssValue}" i]`));
+          if (isLoginControl(clean)) loc = loc.or(this.page.locator(loginControlSelector()));
+        }
+        if (candidate.role === 'link') loc = loc.or(this.page.getByRole('button', { name: rx }));
+        return loc;
+      }
+      case 'label':
+        return this.page.getByLabel(relaxedRegex(candidate.value));
+      case 'placeholder':
+        return this.page.getByPlaceholder(relaxedRegex(candidate.value));
+      case 'text':
+        return this.page.getByText(relaxedRegex(candidate.value));
+      case 'css':
+        return this.page.locator(candidate.value);
+      case 'xpath':
+        return this.page.locator(`xpath=${candidate.value}`);
     }
+  }
+
+  private async waitForStableDom(): Promise<void> {
+    await this.page.waitForLoadState('domcontentloaded', { timeout: 20_000 }).catch(() => undefined);
+    await this.page.locator('body').waitFor({ state: 'visible', timeout: 10_000 }).catch(() => undefined);
+    await this.page.evaluate(async () => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))).catch(() => undefined);
+  }
+
+  private async dismissCommonOverlays(): Promise<void> {
+    const buttons = [/accept all/i, /accept/i, /agree/i, /allow/i, /ok/i, /got it/i, /continue/i, /close/i, /no thanks/i];
+    for (const name of buttons) {
+      const button = this.page.getByRole('button', { name }).first();
+      if (await button.isVisible({ timeout: 500 }).catch(() => false)) {
+        await button.click({ timeout: 1000 }).catch(() => undefined);
+        break;
+      }
+    }
+  }
+
+  private async visibleControlSummary(): Promise<Array<Record<string, string>>> {
+    return await this.page.locator('button,a,input,select,textarea,[role]').evaluateAll(nodes => nodes
+      .filter(node => {
+        const el = node as HTMLElement;
+        const style = getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 1 && rect.height > 1;
+      })
+      .slice(0, 30)
+      .map(node => {
+        const el = node as HTMLInputElement;
+        const type = (el.getAttribute('type') || '').toLowerCase();
+        const controlValue = ['button','submit','reset','image'].includes(type) ? (el.getAttribute('value') || '') : '';
+        return {
+          tag: el.tagName.toLowerCase(),
+          role: el.getAttribute('role') || '',
+          name: el.getAttribute('aria-label') || el.getAttribute('title') || el.getAttribute('placeholder') || controlValue || el.innerText || '',
+          id: el.id || '',
+          controlName: el.getAttribute('name') || '',
+          type,
+        };
+      }));
   }
 }
 
-function relaxed(value: string): RegExp {
-  return new RegExp(String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'), 'i');
+function normalizeCandidate(candidate: SmartLocatorCandidate): SmartLocatorCandidate {
+  const value = candidate.strategy === 'css' || candidate.strategy === 'xpath'
+    ? String(candidate.value || '').trim()
+    : normalizeLocatorText(candidate.value);
+  return { ...candidate, value } as SmartLocatorCandidate;
+}
+
+function isValidCandidate(candidate: SmartLocatorCandidate): boolean {
+  if (!candidate.value || ['undefined', 'null', 'none'].includes(candidate.value.trim().toLowerCase())) return false;
+  if (candidate.strategy === 'role') return VALID_ROLES.has(String(candidate.role || '').toLowerCase());
+  return true;
+}
+
+function normalizeLocatorText(value: string): string {
+  let clean = String(value || '')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/[‹〈]/g, '<')
+    .replace(/[›〉]/g, '>')
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .trim();
+  const wrapped = clean.match(/^<\s*([^<>]+?)\s*>$/);
+  if (wrapped) clean = wrapped[1];
+  clean = clean.replace(/[<>]/g, ' ').replace(/\s+/g, ' ').trim();
+  clean = clean.replace(/\b(button|link|cta)\b\s*$/i, '').trim();
+  if (/^log\s*in\s+to\s+sandbox$/i.test(clean)) return 'Log In to Sandbox';
+  if (/^login\s+to\s+sandbox$/i.test(clean)) return 'Log In to Sandbox';
+  return clean;
+}
+
+function relaxedRegex(value: string): RegExp {
+  const clean = normalizeLocatorText(value);
+  if (isLoginControl(clean)) return /(?:log\s*in(?:\s+to\s+sandbox)?|login(?:\s+to\s+sandbox)?|sign\s*in|continue)/i;
+  const words = clean.split(/\s+/).filter(Boolean);
+  const pattern = words.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+');
+  return new RegExp(pattern || '.*', 'i');
+}
+
+function isLoginControl(value: string): boolean {
+  return /^(?:log\s*in(?:\s+to\s+sandbox)?|login(?:\s+to\s+sandbox)?|sign\s*in|continue)$/i.test(normalizeLocatorText(value));
+}
+
+function loginControlSelector(): string {
+  return '#Login, input[name="Login"], button[name="Login"], input[type="submit"][value*="log in" i], input[type="button"][value*="log in" i], button[type="submit"]';
+}
+
+function cssAttributeValue(value: string): string {
+  return normalizeLocatorText(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+function dedupeCandidates(candidates: SmartLocatorCandidate[]): SmartLocatorCandidate[] {
+  const seen = new Set<string>();
+  return candidates.filter(candidate => {
+    const key = JSON.stringify([candidate.strategy, candidate.strategy === 'role' ? candidate.role : '', candidate.value]);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 """
     telemetry = """
@@ -6084,3 +6452,131 @@ def search_existing_framework_rag(query: str = "", top_k: int = 10, framework_pa
         return query_framework_context(query, top_k=max(1, min(int(top_k or 10), 25)), framework_path=framework_path or None)
     except Exception as exc:
         return {"ok": False, "error": f"{type(exc).__name__}: {exc}", "message": "Run Understand Framework / Deep Index before searching RAG context."}
+
+
+def ensure_plain_english_rca_report(framework_path: str = "") -> dict[str, Any]:
+    """Create a stable report from the newest execution evidence across all runners.
+
+    The GUI can execute generated tests through reports/failed-tests.json or a
+    client-owned framework through reports/existing-framework/failed-tests.json.
+    The report endpoint now searches both, chooses the newest run, and creates a
+    deterministic plain-English report immediately. Provider-assisted RCA can
+    later enrich the same report, but a real failed run is never shown as absent.
+    """
+    _ensure_dirs()
+    inventory = _latest_execution_inventory(framework_path)
+    evidence_mtime = float(inventory.get("source_mtime") or 0.0) if inventory.get("ok") else 0.0
+
+    # Reuse a provider/deterministic RCA report only when it belongs to the same
+    # or a newer execution. A stale report from an earlier iteration must not be
+    # displayed after a later run.
+    persisted_candidates: list[tuple[str, Path, dict[str, Any]]] = []
+    if EXISTING_PLAIN_FAILURE_JSON.exists():
+        persisted_candidates.append(("plain_english_failure_json", EXISTING_PLAIN_FAILURE_JSON, _safe_read_json_dict(EXISTING_PLAIN_FAILURE_JSON)))
+    if EXISTING_RCA_JSON.exists():
+        rca = _safe_read_json_dict(EXISTING_RCA_JSON)
+        persisted_candidates.append(("root_cause_json", EXISTING_RCA_JSON, dict(rca.get("plain_english_failure_report") or {})))
+    for source, path, report in sorted(persisted_candidates, key=lambda x: x[1].stat().st_mtime if x[1].exists() else 0.0, reverse=True):
+        if report.get("test_case_outcomes") and (not evidence_mtime or path.stat().st_mtime >= evidence_mtime):
+            _write_exact_plain_failure_report(report)
+            return {
+                "ok": True,
+                "ready": True,
+                "source": source,
+                "report_file": str(EXISTING_PLAIN_FAILURE_HTML),
+                "report_url": "/api/existing-framework/rca/plain-english/report",
+                "message": "Plain-English RCA report is ready for the latest execution.",
+            }
+
+    root: Path | None = None
+    root_raw = str(framework_path or inventory.get("framework_path") or "").strip()
+    if root_raw:
+        try:
+            root = Path(root_raw).expanduser().resolve()
+        except Exception:
+            root = None
+
+    if inventory.get("ok"):
+        failed_specs = list(inventory.get("failed_specs") or [])
+        failed_cases = list(inventory.get("failed_test_cases") or inventory.get("failed_tests") or [])
+        all_cases = list(inventory.get("all_test_cases") or [])
+        if failed_specs or failed_cases:
+            report = _build_exact_plain_english_failure_report(inventory, root=root)
+            report.update({
+                "execution_evidence_source": inventory.get("source"),
+                "execution_evidence_path": inventory.get("source_path"),
+                "rca_generation_mode": "automatic_evidence_summary",
+                "next_action": "Click Explain failed tests for deeper AI/provider analysis, then create a safe fix plan only when the evidence and confidence are sufficient.",
+            })
+            _write_exact_plain_failure_report(report)
+            return {
+                "ok": True,
+                "ready": True,
+                "source": "latest_execution_inventory",
+                "report_file": str(EXISTING_PLAIN_FAILURE_HTML),
+                "report_url": "/api/existing-framework/rca/plain-english/report",
+                "message": f"Plain-English failure report generated from {len(failed_specs) or len(failed_cases)} latest failed item(s).",
+            }
+
+        # A latest successful execution is evidence too. Say that clearly rather
+        # than showing the misleading "No execution evidence" page.
+        total = len(all_cases) or len(inventory.get("all_specs") or [])
+        status = "The latest Playwright execution has no failed tests"
+        source_path = str(inventory.get("source_path") or "")
+        html = (
+            "<!doctype html><html><head><meta charset='utf-8'><title>Plain-English RCA</title>"
+            "<style>body{font-family:Segoe UI,Arial;margin:24px;background:#f8fafc;color:#0f172a}.card{background:#fff;border:1px solid #dbe3ef;border-radius:12px;padding:18px;margin:14px 0}.ok{color:#15803d}code{white-space:pre-wrap}</style></head><body>"
+            f"<h1>Plain-English RCA</h1><div class='card'><h2 class='ok'>{_html(status)}</h2>"
+            f"<p>{_html(str(total))} test/spec item(s) were recorded in the newest execution inventory.</p>"
+            "<p>RCA and self-healing are not required for this run.</p>"
+            f"<p><b>Evidence source:</b> <code>{_html(source_path)}</code></p></div>"
+            "<div class='card'><h2>Next step</h2><p>Upload or generate the next testcase batch, execute it, and use RCA only if the new run contains failures.</p></div>"
+            "</body></html>"
+        )
+        EXISTING_PLAIN_FAILURE_HTML.write_text(html, encoding="utf-8")
+        EXISTING_PLAIN_FAILURE_JSON.write_text(json.dumps({
+            "ok": True,
+            "ready": True,
+            "status": status,
+            "failed_specs": [],
+            "failed_test_cases": [],
+            "execution_evidence_source": inventory.get("source"),
+            "execution_evidence_path": source_path,
+        }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        return {
+            "ok": True,
+            "ready": True,
+            "source": "latest_successful_execution",
+            "report_file": str(EXISTING_PLAIN_FAILURE_HTML),
+            "report_url": "/api/existing-framework/rca/plain-english/report",
+            "message": status,
+        }
+
+    status = "No Playwright execution evidence is available yet"
+    next_steps = "Run one or more Playwright tests. If a test fails, click Explain failed tests and reopen this report."
+    EXISTING_PLAIN_FAILURE_HTML.write_text(
+        "<!doctype html><html><head><meta charset='utf-8'><title>Plain-English RCA</title>"
+        "<style>body{font-family:Segoe UI,Arial;margin:24px;background:#f8fafc;color:#0f172a}.card{background:#fff;border:1px solid #dbe3ef;border-radius:12px;padding:18px;margin:14px 0}.warn{color:#9a3412}code{white-space:pre-wrap}</style></head><body>"
+        f"<h1>Plain-English RCA</h1><div class='card'><h2 class='warn'>{_html(status)}</h2><p>{_html(next_steps)}</p>"
+        "<p>AstraHeal checked generated-framework reports, existing-framework reports, and the selected framework's native Playwright JSON.</p>"
+        f"<p><b>Diagnostic:</b> <code>{_html(str(inventory.get('error') or 'No report files found.'))}</code></p></div>"
+        "<div class='card'><h2>Safe workflow</h2><ol><li>Run tests.</li><li>Confirm the Playwright report contains a failed test.</li><li>Click Explain failed tests.</li><li>Review the RCA.</li><li>Create and approve a safe fix plan.</li><li>Rerun failed tests only.</li></ol></div>"
+        "</body></html>",
+        encoding="utf-8",
+    )
+    EXISTING_PLAIN_FAILURE_JSON.write_text(json.dumps({
+        "ok": False,
+        "ready": False,
+        "status": status,
+        "message": next_steps,
+        "diagnostic": inventory.get("error"),
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return {
+        "ok": True,
+        "ready": False,
+        "source": "no_execution_evidence",
+        "report_file": str(EXISTING_PLAIN_FAILURE_HTML),
+        "report_url": "/api/existing-framework/rca/plain-english/report",
+        "message": next_steps,
+    }
+

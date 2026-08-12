@@ -1,0 +1,3 @@
+# Optional Graphify structural code-graph augmenter.
+# The built-in SQLite code graph remains available when this package is absent.
+graphifyy>=0.9,<1

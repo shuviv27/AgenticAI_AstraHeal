@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import re
@@ -12,7 +13,7 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile, Request
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 
@@ -46,6 +47,7 @@ from qa_pipeline.agents.existing_framework_control.controller import (
     read_existing_framework_intelligence_v2,
     search_existing_framework_rag,
     existing_framework_artifact_locations,
+    ensure_plain_english_rca_report,
 )
 from qa_pipeline.agents.existing_framework_control.mcp_locator_rca import build_mcp_assisted_locator_rca
 from qa_pipeline.agents.api_framework_control.controller import (
@@ -63,7 +65,7 @@ from qa_pipeline.core.commands import resolve_command, run_command
 from qa_pipeline.core.docker_stack import docker_start, docker_status, docker_stop, docker_pull, docker_logs, ollama_ensure_model
 from qa_pipeline.core.api_docker_runtime import api_docker_runtime_status, api_docker_pull_images, api_docker_start_tools
 from qa_pipeline.core.vdi_readiness import check_vdi_readiness, save_vdi_profile, read_vdi_profile
-from qa_pipeline.core.vdi_agent_control import (create_agent_token, list_agents as list_vdi_runner_agents, build_agent_package, register_agent, heartbeat_agent, poll_agent_job, create_agent_job, complete_agent_job)
+from qa_pipeline.core.vdi_agent_control import (create_agent_token, list_agents as list_vdi_runner_agents, build_agent_package, register_agent, heartbeat_agent, poll_agent_job, create_agent_job, complete_agent_job, get_agent_job_status, cancel_agent_job)
 from qa_pipeline.core.runtime_mode import read_runtime_profile, save_runtime_profile, local_machine_readiness
 from qa_pipeline.core.host_runtime import host_runtime_readiness, start_host_services, stop_host_services, host_runtime_status, install_plan as host_install_plan
 from qa_pipeline.core.io import read_json
@@ -86,36 +88,184 @@ from qa_pipeline.agents.phase2_source_intake_rag.parallel_testcase_generation im
 from qa_pipeline.core.runtime_logger import log_event, read_events, current_status, write_runtime_summary, prometheus_metrics, reset_runtime_logs, write_runtime_live_html
 from qa_pipeline.core.action_history import record_action, read_action_history, write_action_memory_summary
 from qa_pipeline.core.human_intervention import create_human_intervention_request, save_human_intervention_update, read_human_intervention_memory
+from qa_pipeline.core.operation_control import (
+    OperationCancelled, active_operations, begin_operation, bind_operation,
+    cancellation_requested, finish_operation, get_operation, request_cancel, reset_operation,
+)
 from qa_pipeline.core.ai_heavy_lifting import build_ai_heavy_lifting_plan, get_ai_heavy_lifting_report_path
 from qa_pipeline.mcp.mcp_readiness_preflight import run_mcp_readiness_preflight, fix_mcp_preflight_build_errors_with_ai
 from qa_pipeline.mcp.framework_full_control_fix import ai_full_control_fix_framework_issues
+from qa_pipeline.agentic.rca_guard import enforce_grounded_rca, healing_allowed
 
 app = FastAPI(title="AstraHeal AI - Multi-Agent Playwright Automation Studio")
+
+from qa_pipeline.agentic.api import router as agentic_router
+app.include_router(agentic_router)
+
+
+@app.get("/api/operations/active")
+def api_active_operations() -> JSONResponse:
+    return JSONResponse({"ok": True, "operations": active_operations()})
+
+
+@app.get("/api/operations/{operation_id}")
+def api_operation_status(operation_id: str) -> JSONResponse:
+    operation = get_operation(operation_id)
+    if not operation:
+        return JSONResponse({"ok": False, "message": "Operation not found.", "operation_id": operation_id}, status_code=404)
+    return JSONResponse({"ok": True, **operation})
+
+
+@app.post("/api/operations/{operation_id}/cancel")
+def api_cancel_operation(operation_id: str) -> JSONResponse:
+    result = request_cancel(operation_id)
+    try:
+        log_event(
+            "operation_control",
+            result.get("message") or "Cancellation requested.",
+            status="cancelling" if result.get("ok") else "warning",
+            progress=100 if not result.get("ok") else 98,
+            details={"operation_id": operation_id, **result},
+        )
+    except Exception:
+        pass
+    return JSONResponse(result, status_code=200 if result.get("ok") else 404)
+
+
+@app.exception_handler(OperationCancelled)
+async def astraheal_operation_cancelled_handler(request: Request, exc: OperationCancelled) -> JSONResponse:
+    path = str(request.url.path or "")
+    try:
+        log_event(
+            "operation_control",
+            f"{request.method} {path} aborted by user.",
+            status="cancelled",
+            progress=100,
+            details={"path": path, "method": request.method},
+        )
+    except Exception:
+        pass
+    return JSONResponse(
+        status_code=409,
+        content={
+            "ok": False,
+            "cancelled": True,
+            "status": "cancelled",
+            "message": "Operation aborted by user. Partial uncommitted work was not accepted.",
+            "path": path,
+        },
+    )
+
+
+@app.exception_handler(Exception)
+async def astraheal_unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Return machine-readable failures for every API endpoint.
+
+    The GUI is an API client and must never receive Starlette's plain-text
+    ``Internal Server Error`` response.  Returning JSON here prevents a secondary
+    browser-side ``Unexpected token`` parsing error and preserves the original
+    backend exception type for diagnosis.
+    """
+    path = str(request.url.path or "")
+    try:
+        log_event(
+            "backend_error",
+            f"{request.method} {path} failed: {type(exc).__name__}: {exc}",
+            status="error",
+            progress=100,
+            details={"path": path, "method": request.method, "error_type": type(exc).__name__},
+        )
+    except Exception:
+        pass
+    payload = {
+        "ok": False,
+        "message": "Backend operation failed. Review the error details and server log.",
+        "error_type": type(exc).__name__,
+        "error": str(exc),
+        "path": path,
+    }
+    return JSONResponse(status_code=500, content=payload)
 
 
 @app.middleware("http")
 async def astraheal_api_alias_middleware(request: Request, call_next):
-    """Backward-compatible product URL alias.
-
-    Existing backend routes remain under /api/module2/... to avoid breaking older
-    automations, docs, and scripts. The branded GUI uses /api/astraheal/...; this
-    middleware rewrites that branded path internally to the existing route table.
-    """
+    """Backward-compatible product URL alias plus cancellable GUI operations."""
     path = request.scope.get("path", "")
     original_path = path
+    method = request.method.upper()
+    stream_exclusions = (
+        "/api/runtime/events/stream", "/api/progress/events", "/api/runtime/logs",
+        "/api/runtime/status", "/api/agentic/runs/", "/api/operations/",
+    )
+    noisy_worker = any(part in path for part in ("/heartbeat", "/poll", "/complete", "/job/status"))
+    trace_action = path.startswith("/api/") and not any(path.startswith(x) for x in stream_exclusions) and not noisy_worker
+
+    operation_id = str(request.headers.get("X-AstraHeal-Operation-Id") or "").strip()
+    operation_token = None
+    if operation_id and trace_action:
+        try:
+            expected_seconds = int(request.headers.get("X-AstraHeal-Expected-Seconds") or 1800)
+        except Exception:
+            expected_seconds = 1800
+        label = str(request.headers.get("X-AstraHeal-Operation-Label") or f"{method} {original_path}")[:240]
+        begin_operation(
+            operation_id, label=label, path=original_path, method=method,
+            expected_seconds=max(1, expected_seconds),
+        )
+        operation_token = bind_operation(operation_id)
+
+    if trace_action:
+        log_event(
+            "gui_action", f"{method} {original_path} started from the GUI.",
+            status="running", progress=2,
+            details={"path": original_path, "method": method, "operation_id": operation_id or None},
+        )
     if path == "/api/astraheal":
         request.scope["path"] = "/api/module2"
     elif path.startswith("/api/astraheal/"):
         request.scope["path"] = path.replace("/api/astraheal/", "/api/module2/", 1)
-    response = await call_next(request)
-    # Reports are regenerated frequently during demo/debug cycles.  Do not let
-    # the browser or enterprise proxy cache stale HTML/JSON artifacts.
-    effective_path = request.scope.get("path", original_path) or original_path
-    if str(original_path).startswith("/artifacts/reports/") or str(effective_path).startswith("/api/module2/framework-artifact/"):
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-    return response
+
+    try:
+        response = await call_next(request)
+        if operation_id and cancellation_requested(operation_id):
+            finish_operation(operation_id, "cancelled", "Operation aborted by user.")
+            response = JSONResponse(
+                status_code=409,
+                content={
+                    "ok": False, "cancelled": True, "status": "cancelled",
+                    "operation_id": operation_id,
+                    "message": "Operation aborted by user. Partial uncommitted work was not accepted.",
+                },
+            )
+        elif operation_id:
+            code = int(getattr(response, "status_code", 500))
+            finish_operation(
+                operation_id, "completed" if code < 400 else "failed",
+                "Operation completed." if code < 400 else f"Operation returned HTTP {code}.",
+            )
+
+        effective_path = request.scope.get("path", original_path) or original_path
+        if str(original_path).startswith("/artifacts/reports/") or str(effective_path).startswith("/api/module2/framework-artifact/"):
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        if trace_action:
+            ok = int(getattr(response, "status_code", 500)) < 400
+            log_event(
+                "gui_action",
+                f"{method} {original_path} returned HTTP {getattr(response, 'status_code', 'unknown')}.",
+                status="done" if ok else ("cancelled" if cancellation_requested(operation_id) else "error"),
+                progress=100,
+                details={
+                    "path": original_path, "method": method,
+                    "http_status": getattr(response, "status_code", None),
+                    "operation_id": operation_id or None,
+                },
+            )
+        return response
+    finally:
+        if operation_token is not None:
+            reset_operation(operation_token)
 
 RCA_FAILED_ONLY_PENDING = QA_CACHE_DIR / "rca_failed_only_pending.json"
 
@@ -843,6 +993,27 @@ def api_runtime_logs(limit: int = 250) -> dict:
     }
 
 
+@app.get("/api/runtime/events/stream")
+async def api_runtime_events_stream(after_id: int = 0) -> StreamingResponse:
+    async def generate():
+        cursor = max(0, int(after_id or 0))
+        idle = 0
+        while True:
+            events = [e for e in read_events(1000) if int(e.get("id") or 0) > cursor]
+            if events:
+                idle = 0
+                for event in events:
+                    cursor = max(cursor, int(event.get("id") or 0))
+                    yield f"id: {cursor}\nevent: runtime_event\ndata: {json.dumps(event, ensure_ascii=False, default=str)}\n\n"
+            else:
+                await asyncio.sleep(0.5)
+                idle += 1
+                if idle >= 20:
+                    idle = 0
+                    yield ": heartbeat\n\n"
+    return StreamingResponse(generate(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"})
+
+
 @app.get("/api/runtime/status")
 def api_runtime_status() -> dict:
     return {"ok": True, "current": current_status(), "summary": write_runtime_summary(), "events_tail": read_events(20)}
@@ -1002,6 +1173,17 @@ async def api_runner_agent_heartbeat(request: Request):
 @app.get("/api/runner-agents/poll")
 def api_runner_agent_poll(agent_id: str, token: str):
     return JSONResponse(poll_agent_job(agent_id=agent_id, token=token))
+
+
+@app.get("/api/runner-agents/job/status")
+def api_runner_agent_job_status(job_id: str, agent_id: str = "", token: str = "") -> JSONResponse:
+    return JSONResponse(get_agent_job_status(job_id=job_id, agent_id=agent_id, token=token))
+
+
+@app.post("/api/runner-agents/job/{job_id}/cancel")
+def api_runner_agent_job_cancel(job_id: str) -> JSONResponse:
+    result = cancel_agent_job(job_id)
+    return JSONResponse(result, status_code=200 if result.get("ok") else 404)
 
 
 @app.post("/api/runner-agents/job/complete")
@@ -1310,96 +1492,200 @@ async def api_llm_provider_config_save(
 
 
 @app.post("/api/llm/codex/login")
-async def api_codex_login(mode: str = Form("device")) -> dict:
-    """Launch or explain Codex CLI login.
+async def api_llm_codex_login(
+    mode: str = Form("device"),
+    cwd: str = Form(""),
+) -> JSONResponse:
+    """Launch a fresh Codex CLI login in a separate interactive terminal.
 
-    The web app never asks for or stores ChatGPT/OpenAI credentials. Codex login is
-    intentionally delegated to the local Codex CLI session. On Windows local/VDI
-    machines this endpoint opens a separate terminal so the user can complete the
-    secure OAuth/device-auth flow. On locked-down servers it returns the exact
-    command to run manually.
+    The endpoint never captures credentials or waits for the OAuth/device flow.
+    It always returns JSON, including launch failures.  ``cwd`` is optional and
+    defaults to the AstraHeal repository root; invalid paths safely fall back to
+    the repository root instead of raising an unbound-variable error.
     """
-    mode = (mode or "device").strip().lower()
+    normalised_mode = (mode or "device").strip().lower().replace("_", "-")
+    if normalised_mode not in {"device", "device-auth", "browser", "interactive"}:
+        normalised_mode = "device"
+    device_auth = normalised_mode in {"device", "device-auth"}
+    requested_cwd = Path(cwd).expanduser() if str(cwd or "").strip() else REPO_ROOT
+    try:
+        launch_cwd = requested_cwd.resolve()
+    except Exception:
+        launch_cwd = REPO_ROOT
+    if not launch_cwd.exists() or not launch_cwd.is_dir():
+        launch_cwd = REPO_ROOT
+
     codex_path = resolve_command("codex")
-    log_event("ai_provider", f"Codex login requested ({mode})", status="running", progress=10)
+    log_event("ai_provider", f"Codex login requested ({'device' if device_auth else 'browser'})", status="running", progress=10)
     if codex_path is None:
         log_event("ai_provider", "Codex CLI not found", status="warning", progress=100)
-        return {
+        return JSONResponse(
+            status_code=200,
+            content={
+                "ok": False,
+                "message": "Codex CLI is not installed or is not available in the backend PATH.",
+                "error_type": "CodexCliNotFound",
+                "next_steps": [
+                    "Install or upgrade Codex CLI: npm install -g @openai/codex",
+                    "Open a new terminal and verify: codex --version",
+                    "Restart AstraHeal so the backend inherits the updated PATH.",
+                ],
+                "commands": {
+                    "browser_login": "codex login",
+                    "device_login": "codex login --device-auth",
+                    "status": "codex login status",
+                    "version": "codex --version",
+                },
+            },
+        )
+
+    login_args = [str(codex_path), "login"]
+    if device_auth:
+        login_args.append("--device-auth")
+    command_text = "codex logout & " + " ".join(["codex", *login_args[1:]])
+
+    try:
+        launch_result = await run_in_threadpool(
+            _launch_fresh_codex_login_terminal,
+            codex_path=str(codex_path),
+            device_auth=device_auth,
+            cwd=launch_cwd,
+        )
+    except Exception as exc:
+        launch_result = {
             "ok": False,
-            "message": "Codex CLI is not installed or not found in PATH.",
-            "next_steps": [
-                "Install Codex CLI using the client-approved method.",
-                "Restart this GUI after installation so PATH is refreshed.",
-                "Then click Launch Codex Login or run codex login manually."
-            ],
-            "commands": {
-                "interactive": "codex login",
-                "device": "codex login --device-auth",
-                "status": "codex login status",
-                "doctor": "codex doctor --json"
-            }
+            "launched_terminal": False,
+            "error": f"{type(exc).__name__}: {exc}",
+            "manual_command": command_text,
         }
 
-    fresh = True
-    login_command = ["codex", "login"]
-    if mode in {"device", "device-auth", "device_auth"}:
-        login_command.append("--device-auth")
-    command_text = "codex logout && " + " ".join(login_command)
+    launched = bool(launch_result.get("ok") and launch_result.get("launched_terminal"))
+    message = (
+        "A separate Codex login terminal was opened. Complete sign-in there, then click Backend-confirm selected AI provider."
+        if launched
+        else "A Codex login terminal could not be opened automatically. Run the supplied command manually in the same VM/VDI session as AstraHeal."
+    )
+    log_event("ai_provider", message, status="ok" if launched else "warning", progress=100)
+    record_action(
+        "codex_fresh_login",
+        "started" if launched else "manual_required",
+        message,
+        {
+            "mode": "device" if device_auth else "browser",
+            "command": command_text,
+            "launched_terminal": launched,
+            "launch_error": launch_result.get("error", ""),
+            "cwd": str(launch_cwd),
+        },
+    )
+    return JSONResponse(
+        status_code=200,
+        content={
+            "ok": launched,
+            "launched_terminal": launched,
+            "fresh_login": True,
+            "login_mode": "device_auth" if device_auth else "browser",
+            "message": message,
+            "command": command_text,
+            "launch": launch_result,
+            "status_url": "/api/llm/codex/status",
+            "next_steps": [
+                "Complete the sign-in in the separate terminal/browser.",
+                "For device authentication, enable device-code authorisation in ChatGPT/workspace security settings when required.",
+                "Return to AstraHeal and click Backend-confirm selected AI provider.",
+            ],
+            "security_note": "AstraHeal never collects or stores ChatGPT credentials, device codes, or Codex tokens.",
+        },
+    )
 
-    launched = False
-    launch_error = ""
-    # Fresh-login rule: always disconnect any existing Codex session first.
-    # The GUI never collects credentials and never auto-connects on startup.
-    try:
-        if os.name == "nt":
-            script = "CODEX_FRESH_DEVICE_AUTH_WINDOWS.cmd" if mode in {"device", "device-auth", "device_auth"} else "CODEX_FRESH_LOGIN_WINDOWS.cmd"
-            script_path = REPO_ROOT / "scripts" / "ai" / script
-            if script_path.exists():
-                subprocess.Popen(f'start "AIQA Fresh Codex Login" cmd /k "{script_path}"', shell=True, cwd=str(REPO_ROOT))
-            else:
-                subprocess.Popen(f'start "AIQA Fresh Codex Login" cmd /k "codex logout && {" ".join(login_command)}"', shell=True, cwd=str(REPO_ROOT))
-            launched = True
-    except Exception as exc:
-        launch_error = f"{type(exc).__name__}: {exc}"
 
-    status = _provider_readiness()
-    log_event("ai_provider", "Fresh Codex login flow prepared; previous Codex credentials will be removed before login.", status="ok" if launched else "warning", progress=100)
-    record_action("codex_fresh_login", "started" if launched else "manual_required", "Fresh Codex login requested. Existing Codex session is disconnected first.", {"mode": mode, "command": command_text, "launched_terminal": launched, "launch_error": launch_error})
-    return {
-        "ok": True,
-        "launched_terminal": launched,
-        "fresh_login": fresh,
-        "message": "Fresh Codex login was requested. Existing Codex credentials are disconnected first; then Codex opens its secure browser/device-auth flow.",
-        "command": command_text,
-        "launch_error": launch_error,
-        "codex_status_after_request": status.get("codex", {}),
-        "what_to_expect": [
-            "A terminal should open and run: codex logout, then codex login/device-auth.",
-            "Complete the Codex sign-in in the terminal/browser/device-auth flow.",
-            "Return to this GUI and click Run Codex Doctor or Check Codex/Ollama status.",
-            "In Hybrid VM+VDI mode, run fresh Codex login inside the VDI where Codex will patch files."
-        ],
-        "security_note": "The GUI never stores ChatGPT username/password or OpenAI API keys for Codex login."
-    }
+@app.get("/api/llm/codex/status")
+async def api_llm_codex_status() -> JSONResponse:
+    """Check the local Codex CLI version and authenticated session."""
+    codex_path = resolve_command("codex")
+    if not codex_path:
+        return JSONResponse({
+            "ok": False,
+            "available": False,
+            "authenticated": False,
+            "message": "Codex CLI is not available in the backend PATH.",
+        })
+    provider = CodexCliProvider(REPO_ROOT)
+    version = await run_in_threadpool(run_command, ["codex", "--version"], REPO_ROOT, 20)
+    status = await run_in_threadpool(provider.login_status)
+    combined = "\n".join([status.stdout or "", status.stderr or ""]).strip()
+    authenticated = bool(status.ok)
+    return JSONResponse({
+        "ok": authenticated,
+        "available": True,
+        "authenticated": authenticated,
+        "message": "Codex CLI is authenticated." if authenticated else "Codex CLI is installed but no authenticated session was confirmed.",
+        "version": (version.stdout or version.stderr or version.error or "").strip(),
+        "status_stdout": (status.stdout or "")[-2000:],
+        "status_stderr": (status.stderr or "")[-2000:],
+        "status_exit_code": status.exit_code,
+        "diagnostic": combined[-2000:],
+        "next_steps": [] if authenticated else ["Run Fresh Codex login, complete sign-in, then check again."],
+    })
 
 
 @app.post("/api/llm/codex/doctor")
-async def api_codex_doctor() -> dict:
-    log_event("ai_provider", "Codex doctor check started", status="running", progress=10)
+async def api_codex_doctor() -> JSONResponse:
+    """Check Codex version, login status, and optional CLI doctor output.
+
+    Authentication status is authoritative.  Some Codex CLI versions do not
+    expose ``doctor --json``; that optional diagnostic must not make a valid
+    authenticated session appear disconnected.
+    """
+    log_event("ai_provider", "Codex health check started", status="running", progress=10)
     codex_path = resolve_command("codex")
     if codex_path is None:
-        log_event("ai_provider", "Codex doctor failed: CLI not found", status="warning", progress=100)
-        return {"ok": False, "message": "Codex CLI not found in PATH.", "command": "codex doctor --json"}
-    result = run_command(["codex", "doctor", "--json"], cwd=REPO_ROOT, timeout=60)
-    log_event("ai_provider", "Codex doctor check completed", status="ok" if result.ok else "warning", progress=100)
-    return {
-        "ok": result.ok,
-        "message": "Codex doctor completed." if result.ok else "Codex doctor found issues.",
-        "command": "codex doctor --json",
-        "stdout": result.stdout,
-        "stderr": result.stderr or result.error,
-        "returncode": result.returncode,
-    }
+        log_event("ai_provider", "Codex health check failed: CLI not found", status="warning", progress=100)
+        return JSONResponse({
+            "ok": False,
+            "available": False,
+            "authenticated": False,
+            "message": "Codex CLI was not found in the backend PATH.",
+            "commands": {"install": "npm install -g @openai/codex", "version": "codex --version"},
+        })
+
+    provider = CodexCliProvider(REPO_ROOT)
+    version = await run_in_threadpool(run_command, ["codex", "--version"], REPO_ROOT, 20)
+    login = await run_in_threadpool(provider.login_status)
+    doctor = await run_in_threadpool(run_command, ["codex", "doctor", "--json"], REPO_ROOT, 60)
+    authenticated = bool(login.ok)
+    doctor_supported = bool(doctor.ok or doctor.returncode not in {None, 2})
+    message = (
+        "Codex CLI is installed and the backend confirmed an authenticated local session."
+        if authenticated
+        else "Codex CLI is installed, but the backend could not confirm an authenticated local session."
+    )
+    log_event("ai_provider", message, status="ok" if authenticated else "warning", progress=100)
+    return JSONResponse({
+        "ok": authenticated,
+        "available": True,
+        "authenticated": authenticated,
+        "message": message,
+        "version": (version.stdout or version.stderr or version.error or "").strip(),
+        "login_status": {
+            "ok": login.ok,
+            "stdout": (login.stdout or "")[-2000:],
+            "stderr": (login.stderr or "")[-2000:],
+            "exit_code": login.exit_code,
+        },
+        "doctor": {
+            "supported_or_executed": doctor_supported,
+            "ok": doctor.ok,
+            "stdout": (doctor.stdout or "")[-4000:],
+            "stderr": (doctor.stderr or doctor.error or "")[-4000:],
+            "returncode": doctor.returncode,
+            "note": "Codex login status is authoritative when this CLI version does not support doctor --json.",
+        },
+        "next_steps": [] if authenticated else [
+            "Click Fresh Codex login and complete the separate terminal/browser flow.",
+            "Then click Backend-confirm selected AI provider or Check Codex login status.",
+        ],
+    })
 
 
 @app.get("/api/progress/events")
@@ -1983,6 +2269,7 @@ async def execute_generated(
             execution = execute_feature_sequential(feature="active_batch", features=active_features, project=project, use_mcp=use_mcp, headed=headed, base_url=base_url)
             execution_label = "Sequential"
         log_event("playwright_execution", f"{execution_label} active-batch Playwright execution completed; report generation is finished", status="done" if execution.get("ok") else "warning", progress=100, details={"features": active_features, "ok": execution.get("ok"), "execution_mode": requested_mode, "shards": safe_shards})
+        plain_rca = ensure_plain_english_rca_report(str(GENERATED_PLAYWRIGHT_DIR))
         html_report_path = generate_enterprise_html_report()
         return JSONResponse({
             "ok": execution.get("ok", False),
@@ -1997,6 +2284,8 @@ async def execute_generated(
             "html_report": _relative(html_report_path),
             "html_report_url": "/artifacts/reports/enterprise/enterprise-report.html",
             "playwright_html_report_url": "/artifacts/reports/html/index.html",
+            "plain_english_rca": plain_rca,
+            "plain_english_rca_report_url": plain_rca.get("report_url"),
         })
 
     spec_precheck = _ensure_spec_exists_for_execution(feature, source_type, base_url)
@@ -2021,6 +2310,7 @@ async def execute_generated(
     failure_learning = None
     if not execution.get("ok"):
         failure_learning = record_failure(error=str(execution.get("stdout", "")) + "\n" + str(execution.get("stderr", "")) + "\n" + str(execution.get("error", "")), test_name=feature, category="execution_failure")
+    plain_rca = ensure_plain_english_rca_report(str(GENERATED_PLAYWRIGHT_DIR))
     html_report_path = generate_enterprise_html_report()
     payload = {
         "ok": execution.get("ok", False),
@@ -2034,6 +2324,8 @@ async def execute_generated(
         "html_report": _relative(html_report_path),
         "html_report_url": "/artifacts/reports/enterprise/enterprise-report.html",
         "playwright_html_report_url": "/artifacts/reports/html/index.html",
+        "plain_english_rca": plain_rca,
+        "plain_english_rca_report_url": plain_rca.get("report_url"),
         "failure_learning": failure_learning,
     }
     return JSONResponse(payload)
@@ -2048,7 +2340,7 @@ async def api_failure_analyze(
 ) -> JSONResponse:
     feature = _safe_feature(feature)
     base_url = _effective_base_url(base_url)
-    report = analyze_failed_scripts_one_by_one(feature=feature, provider=provider, model=model, base_url=base_url)
+    report = enforce_grounded_rca(analyze_failed_scripts_one_by_one(feature=feature, provider=provider, model=model, base_url=base_url))
     html_report_path = generate_enterprise_html_report()
     return JSONResponse({
         "ok": True,
@@ -2069,7 +2361,7 @@ async def api_self_heal_propose(
 ) -> JSONResponse:
     feature = _safe_feature(feature)
     base_url = _effective_base_url(base_url)
-    report = run_self_healing(feature=feature, provider=provider, model=model, base_url=base_url, apply_patch=False)
+    report = enforce_grounded_rca(run_self_healing(feature=feature, provider=provider, model=model, base_url=base_url, apply_patch=False))
     html_report_path = generate_enterprise_html_report()
     return JSONResponse({
         "ok": True,
@@ -2090,6 +2382,9 @@ async def api_self_heal_apply(
 ) -> JSONResponse:
     feature = _safe_feature(feature)
     base_url = _effective_base_url(base_url)
+    allowed, guarded_rca = healing_allowed(analyze_failed_scripts_one_by_one(feature=feature, provider=provider, model=model, base_url=base_url))
+    if not allowed:
+        return JSONResponse({"ok": False, "stage": "self_healing_blocked_insufficient_evidence", "root_cause": guarded_rca, "self_healing": {"applied": False, "message": guarded_rca.get("message", "No idea to fix")}, "message": guarded_rca.get("message", "No idea to fix")}, status_code=200)
     report = run_self_healing(feature=feature, provider=provider, model=model, base_url=base_url, apply_patch=True)
     review = run_review(skip_npm=True)
     failed_only_pending = _write_rca_failed_only_pending("self_healing_patch_applied")
@@ -2213,7 +2508,7 @@ async def api_api_framework_failure_analyze(
     base_url: str = Form(""),
 ) -> JSONResponse:
     base_url = _effective_base_url(base_url)
-    report = analyze_api_failure(framework_path=framework_path, flavor=flavor, provider=provider, model=model, base_url=base_url)
+    report = enforce_grounded_rca(analyze_api_failure(framework_path=framework_path, flavor=flavor, provider=provider, model=model, base_url=base_url))
     return JSONResponse({
         "ok": bool(report.get("ok")),
         "stage": "api_framework_rca_completed",
@@ -2232,7 +2527,7 @@ async def api_api_framework_self_heal_propose(
     base_url: str = Form(""),
 ) -> JSONResponse:
     base_url = _effective_base_url(base_url)
-    report = self_heal_api_framework(framework_path=framework_path, flavor=flavor, provider=provider, model=model, base_url=base_url, apply_patch=False)
+    report = enforce_grounded_rca(self_heal_api_framework(framework_path=framework_path, flavor=flavor, provider=provider, model=model, base_url=base_url, apply_patch=False))
     return JSONResponse({
         "ok": bool(report.get("ok")),
         "stage": "api_framework_self_healing_proposal_created",
@@ -2251,6 +2546,9 @@ async def api_api_framework_self_heal_apply(
     base_url: str = Form(""),
 ) -> JSONResponse:
     base_url = _effective_base_url(base_url)
+    allowed, guarded_rca = healing_allowed(analyze_api_failure(framework_path=framework_path, flavor=flavor, provider=provider, model=model, base_url=base_url))
+    if not allowed:
+        return JSONResponse({"ok": False, "stage": "api_self_healing_blocked_insufficient_evidence", "api_root_cause": guarded_rca, "api_self_healing": {"applied": False, "message": guarded_rca.get("message", "No idea to fix")}, "message": guarded_rca.get("message", "No idea to fix")}, status_code=200)
     report = self_heal_api_framework(framework_path=framework_path, flavor=flavor, provider=provider, model=model, base_url=base_url, apply_patch=True)
     return JSONResponse({
         "ok": bool(report.get("ok")),
@@ -2450,6 +2748,9 @@ async def module2_run_selected_existing_tests(
             test_command=test_command,
             use_mcp_assist=advanced_ai_mode,
         )
+        plain_rca = ensure_plain_english_rca_report(framework_path)
+        result["plain_english_rca"] = plain_rca
+        result["plain_english_rca_report_url"] = plain_rca.get("report_url")
         record_action(
             "module2_run_selected_existing_tests",
             "done" if result.get("ok") else "warning",
@@ -2985,6 +3286,7 @@ async def module2_run_all_existing_tests(
             use_mcp_assist=True,
         )
         failed_count = ((result.get("failed_test_inventory") or {}).get("failed_count") if isinstance(result, dict) else None) or 0
+        plain_rca = ensure_plain_english_rca_report(framework_path)
         status = "done" if result.get("ok") else "warning"
         log_event("module2_existing_framework", f"Step 3/4: Existing test run completed. Failed tests found: {failed_count}.", status=status, progress=92, details={"failed_count": failed_count})
         record_action("module2_run_all_existing_tests", status, result.get("message", "Existing framework run completed."), {"framework_path": framework_path, "execution": result, "framework_intelligence": intelligence})
@@ -2995,7 +3297,9 @@ async def module2_run_all_existing_tests(
             "framework_intelligence": intelligence,
             "existing_framework_execution": result,
             "playwright_html_report_url": result.get("playwright_html_report_url") or "/artifacts/reports/existing-framework/html/index.html",
-            "message": "All existing framework tests were executed. If failures exist, click 'Explain failed tests' and then 'Fix failed tests safely'.",
+            "plain_english_rca": plain_rca,
+            "plain_english_rca_report_url": plain_rca.get("report_url"),
+            "message": "All existing framework tests were executed. The Plain-English RCA summary is already prepared; click Explain failed tests for deeper analysis before creating a safe fix plan.",
         })
     except Exception as exc:
         msg = f"Run All Existing Tests failed: {type(exc).__name__}: {exc}"
@@ -3031,12 +3335,15 @@ async def api_existing_framework_execute(
             auto_install=True,
             use_mcp_assist=True,
         )
+        plain_rca = ensure_plain_english_rca_report(framework_path)
         record_action("execute_existing_framework", "done" if result.get("ok") else "warning", result.get("message", "Existing framework execution completed."), {"framework_path": framework_path, "result": result})
         return JSONResponse({
             "ok": bool(result.get("ok")),
             "stage": "existing_framework_execution_completed",
             "existing_framework_execution": result,
             "playwright_html_report_url": result.get("playwright_html_report_url") or "/artifacts/reports/existing-framework/html/index.html",
+            "plain_english_rca": plain_rca,
+            "plain_english_rca_report_url": plain_rca.get("report_url"),
             "message": result.get("message", "Existing framework execution completed."),
         })
     except Exception as exc:
@@ -3044,6 +3351,20 @@ async def api_existing_framework_execute(
         log_event("existing_framework", msg, status="error", progress=100, details={"framework_path": framework_path})
         record_action("execute_existing_framework", "error", msg, {"framework_path": framework_path})
         return JSONResponse({"ok": False, "stage": "existing_framework_execution_failed", "error": msg, "message": msg}, status_code=200)
+
+
+@app.get("/api/existing-framework/rca/plain-english")
+def api_plain_english_rca_status(framework_path: str = "") -> JSONResponse:
+    return JSONResponse(ensure_plain_english_rca_report(framework_path))
+
+
+@app.get("/api/existing-framework/rca/plain-english/report")
+def api_plain_english_rca_report(framework_path: str = "") -> FileResponse:
+    result = ensure_plain_english_rca_report(framework_path)
+    path = Path(str(result.get("report_file") or ""))
+    if not path.exists():
+        raise HTTPException(status_code=500, detail="Plain-English RCA report could not be created.")
+    return FileResponse(path, media_type="text/html", filename="plain-english-failure-report.html")
 
 
 @app.post("/api/existing-framework/failure/analyze")
@@ -3056,13 +3377,16 @@ async def api_existing_framework_failure_analyze(
     base_url = _effective_base_url(base_url)
     record_action("existing_framework_rca", "running", "Existing framework failed-only RCA analysis started.", {"framework_path": framework_path, "provider": provider})
     log_event("existing_framework_rca", "RCA is running in background thread so the GUI can keep showing progress.", progress=10, details={"provider": provider})
-    report = await run_in_threadpool(analyze_existing_failure, framework_path=framework_path, provider=provider, model=model, base_url=base_url)
+    report = enforce_grounded_rca(await run_in_threadpool(analyze_existing_failure, framework_path=framework_path, provider=provider, model=model, base_url=base_url))
+    plain_report = ensure_plain_english_rca_report(framework_path)
+    report["plain_english_failure_report_url"] = plain_report.get("report_url")
     record_action("existing_framework_rca", "done" if report.get("ok") else "warning", report.get("message", "Existing framework RCA completed."), {"framework_path": framework_path, "report": report})
     return JSONResponse({
         "ok": bool(report.get("ok")),
         "stage": "existing_framework_root_cause_completed",
         "root_cause": report,
         "root_cause_report_url": report.get("root_cause_report_url") or "/artifacts/reports/existing-framework/root-cause-report.html",
+        "plain_english_failure_report_url": plain_report.get("report_url"),
         "external_research_report_url": report.get("external_research_report_url"),
         "message": report.get("message", "Existing framework RCA completed for failed specs only."),
     })
@@ -3079,7 +3403,7 @@ async def api_existing_framework_self_heal_propose(
     base_url = _effective_base_url(base_url)
     record_action("existing_framework_self_heal_propose", "running", "Existing framework self-healing proposal started.", {"framework_path": framework_path, "provider": provider})
     log_event("existing_framework_self_healing", "Creating safe fix plan in background thread so GUI remains responsive on slow VM/VDI.", progress=10, details={"provider": provider, "policy_mode": policy_mode})
-    report = await run_in_threadpool(self_heal_existing_framework, framework_path=framework_path, provider=provider, model=model, base_url=base_url, apply_patch=False, policy_mode=policy_mode)
+    report = enforce_grounded_rca(await run_in_threadpool(self_heal_existing_framework, framework_path=framework_path, provider=provider, model=model, base_url=base_url, apply_patch=False, policy_mode=policy_mode))
     record_action("existing_framework_self_heal_propose", "done" if report.get("ok") else "warning", report.get("message", "Self-healing proposal completed."), {"framework_path": framework_path, "report": report})
     return JSONResponse({
         "ok": bool(report.get("ok")),
@@ -3121,6 +3445,11 @@ async def api_existing_framework_self_heal_apply(
     base_url = _effective_base_url(base_url)
     record_action("existing_framework_self_heal_apply", "running", "Existing framework guarded self-healing patch started.", {"framework_path": framework_path, "provider": provider})
     log_event("existing_framework_self_healing", "Applying approved AI fix in background thread. Backup/guardrails/rollback remain active.", progress=15, details={"provider": provider, "policy_mode": policy_mode})
+    raw_rca = await run_in_threadpool(analyze_existing_failure, framework_path=framework_path, provider=provider, model=model, base_url=base_url)
+    allowed, guarded_rca = healing_allowed(raw_rca)
+    if not allowed:
+        record_action("existing_framework_self_heal_apply", "blocked", guarded_rca.get("message", "No idea to fix"), {"framework_path": framework_path, "rca": guarded_rca})
+        return JSONResponse({"ok": False, "stage": "existing_framework_self_healing_blocked_insufficient_evidence", "root_cause": guarded_rca, "self_healing": {"applied": False, "changed_files": [], "message": guarded_rca.get("message", "No idea to fix")}, "changed_files": [], "applied": False, "message": guarded_rca.get("message", "No idea to fix")}, status_code=200)
     report = await run_in_threadpool(self_heal_existing_framework, framework_path=framework_path, provider=provider, model=model, base_url=base_url, apply_patch=True, policy_mode=policy_mode, human_approval_decision=human_approval_decision, human_approval_instruction=human_approval_instruction, human_approval_safe_files=human_approval_safe_files, human_approval_request_id=human_approval_request_id)
     record_action("existing_framework_self_heal_apply", "done" if report.get("ok") else "warning", report.get("message", "Self-healing apply completed."), {"framework_path": framework_path, "report": report})
     return JSONResponse({
@@ -3652,78 +3981,99 @@ async def api_app_profile(
 
 
 
-def _spawn_command_in_user_terminal(args: list[str], title: str = "Codex Login") -> dict:
-    """Launch an interactive command without blocking the FastAPI GUI.
+def _launch_fresh_codex_login_terminal(
+    *,
+    codex_path: str,
+    device_auth: bool,
+    cwd: Path,
+) -> dict:
+    """Open a non-blocking interactive Codex login terminal.
 
-    Codex login is intentionally interactive. Capturing it in the GUI backend makes the
-    button appear stuck and can prevent the browser/device-auth flow from opening. This
-    helper opens a separate terminal window and returns immediately. The GUI then polls
-    `codex login status` until the user completes authentication.
+    No subprocess pipes are created, so the FastAPI/asyncio process does not own
+    the terminal transport.  This avoids the Windows Proactor pipe-reset callback
+    noise that can occur when an interactive authentication child process closes.
     """
+    cwd = Path(cwd).resolve()
+    login_command = f'"{codex_path}" login' + (' --device-auth' if device_auth else '')
+    fresh_command = f'"{codex_path}" logout & {login_command}'
     try:
         if os.name == "nt":
-            command = subprocess.list2cmdline(args)
-            # /k keeps the window open so the user can see browser/device-auth output.
-            proc = subprocess.Popen(["cmd.exe", "/c", "start", title, "cmd.exe", "/k", command], cwd=str(REPO_ROOT))
-            return {"ok": True, "pid": proc.pid, "mode": "windows_terminal", "command": command}
+            script_name = "CODEX_FRESH_DEVICE_AUTH_WINDOWS.cmd" if device_auth else "CODEX_FRESH_LOGIN_WINDOWS.cmd"
+            script_path = REPO_ROOT / "scripts" / "ai" / script_name
+            command = str(script_path) if script_path.exists() else fresh_command
+            flags = int(getattr(subprocess, "CREATE_NEW_CONSOLE", 0)) | int(getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0))
+            proc = subprocess.Popen(
+                ["cmd.exe", "/k", command],
+                cwd=str(cwd),
+                stdin=None,
+                stdout=None,
+                stderr=None,
+                close_fds=False,
+                creationflags=flags,
+            )
+            return {
+                "ok": True,
+                "launched_terminal": True,
+                "pid": proc.pid,
+                "mode": "windows_new_console",
+                "command": fresh_command,
+                "script": str(script_path) if script_path.exists() else "",
+            }
+
         if sys.platform == "darwin":
-            command = " ".join(subprocess.list2cmdline([a]) for a in args)
-            script = f'tell application "Terminal" to do script "cd {str(REPO_ROOT).replace(chr(34), chr(92)+chr(34))}; {command}"'
-            proc = subprocess.Popen(["osascript", "-e", script])
-            return {"ok": True, "pid": proc.pid, "mode": "mac_terminal", "command": command}
-        # Linux fallback: start detached. If no terminal emulator exists, user can still
-        # run the returned command manually.
-        proc = subprocess.Popen(args, cwd=str(REPO_ROOT), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
-        return {"ok": True, "pid": proc.pid, "mode": "detached", "command": " ".join(args)}
+            escaped_cwd = str(cwd).replace('"', '\"')
+            escaped_command = fresh_command.replace('"', '\"')
+            apple_script = f'tell application "Terminal" to do script "cd \"{escaped_cwd}\"; {escaped_command}"'
+            proc = subprocess.Popen(["osascript", "-e", apple_script], stdin=None, stdout=None, stderr=None, start_new_session=True)
+            return {"ok": True, "launched_terminal": True, "pid": proc.pid, "mode": "mac_terminal", "command": fresh_command}
+
+        terminal_candidates = [
+            ("x-terminal-emulator", ["-e", "bash", "-lc", fresh_command + "; exec bash"]),
+            ("gnome-terminal", ["--", "bash", "-lc", fresh_command + "; exec bash"]),
+            ("konsole", ["-e", "bash", "-lc", fresh_command + "; exec bash"]),
+            ("xterm", ["-e", "bash", "-lc", fresh_command + "; exec bash"]),
+        ]
+        for terminal, args in terminal_candidates:
+            terminal_path = resolve_command(terminal)
+            if terminal_path:
+                proc = subprocess.Popen([terminal_path, *args], cwd=str(cwd), stdin=None, stdout=None, stderr=None, start_new_session=True)
+                return {"ok": True, "launched_terminal": True, "pid": proc.pid, "mode": terminal, "command": fresh_command}
+        return {
+            "ok": False,
+            "launched_terminal": False,
+            "error": "No supported interactive terminal emulator was found.",
+            "manual_command": fresh_command,
+        }
     except Exception as exc:
-        return {"ok": False, "error": f"Could not launch interactive terminal: {type(exc).__name__}: {exc}", "manual_command": " ".join(args)}
+        return {
+            "ok": False,
+            "launched_terminal": False,
+            "error": f"Could not launch interactive terminal: {type(exc).__name__}: {exc}",
+            "manual_command": fresh_command,
+        }
+
+
+def _spawn_command_in_user_terminal(args: list[str], title: str = "Codex Login") -> dict:
+    """Backward-compatible terminal launcher for non-fresh commands."""
+    if not args:
+        return {"ok": False, "error": "No command supplied."}
+    codex_path = args[0]
+    device_auth = "--device-auth" in args
+    return _launch_fresh_codex_login_terminal(
+        codex_path=codex_path,
+        device_auth=device_auth,
+        cwd=REPO_ROOT,
+    )
 
 
 @app.post("/api/codex/login/start")
 async def api_codex_login_start(device_auth: bool = Form(False)) -> JSONResponse:
-    """Launch Codex login interactively and return immediately.
-
-    This is the GUI-safe login path. It does not collect or store credentials. Codex
-    owns the local auth session; this app only checks `codex login status` after the
-    user finishes the browser/device-auth flow.
-    """
-    codex = resolve_command("codex")
-    if not codex:
-        return JSONResponse({"ok": False, "error": "Codex CLI not found. Install with: npm install -g @openai/codex"})
-    existing = CodexCliProvider(REPO_ROOT).login_status()
-    if existing.ok:
-        session = _provider_readiness()
-        return JSONResponse({
-            "ok": True,
-            "already_logged_in": True,
-            "login_status_ok": True,
-            "status_stdout": existing.stdout[-2000:],
-            "ai_session": session,
-            "message": "Codex is already logged in. The local session will be reused by the pipeline.",
-        })
-    args = [codex, "login"]
-    login_mode = "browser"
-    if device_auth:
-        args.append("--device-auth")
-        login_mode = "device_auth"
-    launched = _spawn_command_in_user_terminal(args, title="Codex Login")
-    return JSONResponse({
-        "ok": bool(launched.get("ok")),
-        "launched": launched,
-        "login_mode": login_mode,
-        "login_status_ok": False,
-        "next_steps": [
-            "A separate Codex login terminal/window should be open now.",
-            "Complete the browser or device-auth login shown by Codex.",
-            "Return to this GUI and click Check Codex/Ollama session or Refresh readiness gate.",
-        ],
-        "security_note": "The framework never saves your ChatGPT username/password or Codex token. Codex manages local authentication.",
-    })
+    """Backward-compatible alias for the GUI-safe Codex login endpoint."""
+    return await api_llm_codex_login(mode="device" if device_auth else "browser", cwd="")
 
 
 @app.post("/api/codex/login")
-async def api_codex_login(device_auth: bool = Form(False)) -> JSONResponse:
-    # Backward-compatible endpoint: now delegates to the non-blocking interactive launcher.
+async def api_codex_login_legacy(device_auth: bool = Form(False)) -> JSONResponse:
     return await api_codex_login_start(device_auth=device_auth)
 
 
@@ -3980,6 +4330,77 @@ async def module2_generate_new(
     from qa_pipeline.modules.playwright_ts_generator.controller import generate_new_playwright_framework
     return JSONResponse(generate_new_playwright_framework(feature, provider, model, base_url))
 
+@app.get("/api/module2/playwright/generation-report")
+def module2_generation_report(framework_path: str = "", feature: str = "module2_feature") -> JSONResponse:
+    root = Path(framework_path or GENERATED_PLAYWRIGHT_DIR).expanduser().resolve()
+    safe_feature = _safe_feature(feature)
+    path = root / ".aiqa-history" / "add-new-tests" / f"{safe_feature}-generation-report.json"
+    if not path.exists():
+        return JSONResponse({"ok": False, "message": "No Playwright generation report is available for this feature."}, status_code=404)
+    try:
+        data = read_json(path)
+    except Exception as exc:
+        return JSONResponse({"ok": False, "message": f"Generation report could not be read: {type(exc).__name__}: {exc}"}, status_code=500)
+    return JSONResponse({"ok": True, "report": data, "report_file": str(path)})
+
+
+@app.get("/api/module2/playwright/generation-report/html")
+def module2_generation_html_report(framework_path: str = "", feature: str = "module2_feature") -> HTMLResponse:
+    root = Path(framework_path or GENERATED_PLAYWRIGHT_DIR).expanduser().resolve()
+    safe_feature = _safe_feature(feature)
+    path = root / ".aiqa-history" / "add-new-tests" / f"{safe_feature}-generation-report.html"
+    if not path.exists():
+        return HTMLResponse("<h1>No Playwright generation report is available for this feature.</h1>", status_code=404)
+    return HTMLResponse(path.read_text(encoding="utf-8"))
+
+
+@app.post("/api/module2/playwright/codegen/start")
+async def module2_codegen_start(
+    framework_path: str = Form(""),
+    feature: str = Form("module2_feature"),
+    base_url: str = Form(""),
+    codegen_scenario_id: str = Form(""),
+    codegen_browser: str = Form("chromium"),
+) -> JSONResponse:
+    from qa_pipeline.modules.playwright_ts_generator.codegen_capture import start_codegen_capture
+    return JSONResponse(start_codegen_capture(
+        framework_path=framework_path,
+        feature=feature,
+        base_url=_effective_base_url(base_url),
+        scenario_id=codegen_scenario_id,
+        browser=codegen_browser,
+    ))
+
+
+@app.get("/api/module2/playwright/codegen/status")
+def module2_codegen_status(session_id: str) -> JSONResponse:
+    from qa_pipeline.modules.playwright_ts_generator.codegen_capture import session_status
+    result = session_status(session_id)
+    return JSONResponse(result, status_code=200 if result.get("ok") else 404)
+
+
+@app.post("/api/module2/playwright/codegen/stop")
+async def module2_codegen_stop(session_id: str = Form("")) -> JSONResponse:
+    from qa_pipeline.modules.playwright_ts_generator.codegen_capture import stop_and_import_codegen_capture
+    return JSONResponse(stop_and_import_codegen_capture(session_id))
+
+
+@app.get("/api/module2/playwright/codegen/latest")
+def module2_codegen_latest(framework_path: str = "", feature: str = "module2_feature") -> JSONResponse:
+    from qa_pipeline.modules.playwright_ts_generator.codegen_capture import latest_codegen_capture
+    result = latest_codegen_capture(framework_path or str(GENERATED_PLAYWRIGHT_DIR), feature)
+    return JSONResponse(result, status_code=200 if result.get("ok") else 404)
+
+
+@app.get("/api/module2/playwright/codegen/report/html")
+def module2_codegen_report_html(framework_path: str = "", feature: str = "module2_feature") -> FileResponse:
+    from qa_pipeline.modules.playwright_ts_generator.codegen_capture import latest_codegen_report_path
+    path = latest_codegen_report_path(framework_path or str(GENERATED_PLAYWRIGHT_DIR), feature)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="No imported Playwright Codegen capture is available for this feature.")
+    return FileResponse(path, media_type="text/html", filename=f"{_safe_feature(feature)}-codegen-capture.html")
+
+
 @app.post("/api/module2/playwright/generate-existing")
 async def module2_generate_existing(
     framework_path: str = Form(""),
@@ -3994,6 +4415,16 @@ async def module2_generate_existing(
     allow_new_support_files: bool = Form(True),
     validate_generated: bool = Form(True),
     bdd_output_mode: str = Form("playwright_specs"),
+    use_walkthrough_evidence: bool = Form(False),
+    require_walkthrough_evidence: bool = Form(False),
+    execute_generated_after_creation: bool = Form(False),
+    browser_grounded_generation: bool = Form(True),
+    grounding_headed: bool = Form(True),
+    grounding_browser_name: str = Form('chromium'),
+    grounding_browser_executable: str = Form(''),
+    allow_grounding_mutations: bool = Form(True),
+    grounding_max_intermediate_actions: int = Form(8),
+    use_codegen_capture: bool = Form(True),
 ) -> JSONResponse:
     from qa_pipeline.modules.playwright_ts_generator.controller import generate_existing_framework_extension_enterprise
     return JSONResponse(generate_existing_framework_extension_enterprise(
@@ -4009,4 +4440,14 @@ async def module2_generate_existing(
         allow_new_support_files=allow_new_support_files,
         validate_generated=validate_generated,
         bdd_output_mode=bdd_output_mode,
+        use_walkthrough_evidence=use_walkthrough_evidence,
+        require_walkthrough_evidence=require_walkthrough_evidence,
+        execute_generated_after_creation=execute_generated_after_creation,
+        browser_grounded_generation=browser_grounded_generation,
+        grounding_headed=grounding_headed,
+        grounding_browser_name=grounding_browser_name,
+        grounding_browser_executable=grounding_browser_executable,
+        allow_grounding_mutations=allow_grounding_mutations,
+        grounding_max_intermediate_actions=grounding_max_intermediate_actions,
+        use_codegen_capture=use_codegen_capture,
     ))

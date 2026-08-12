@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import os
-import subprocess
 import unicodedata
 
 from qa_pipeline.core.commands import resolve_command, run_command
@@ -80,20 +79,14 @@ class CodexCliProvider:
         env.setdefault("LANG", "C.UTF-8")
 
         try:
-            proc = subprocess.run(
+            result = run_command(
                 [codex, "exec", "--skip-git-repo-check", "--sandbox", "workspace-write", "-"],
-                input=_safe_prompt(prompt),
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                cwd=str(self.repo_root),
-                capture_output=True,
-                timeout=self.timeout_seconds,
-                env=env,
+                cwd=self.repo_root, timeout=self.timeout_seconds, extra_env=env,
+                input_text=_safe_prompt(prompt),
             )
-            return CodexCliResult(proc.returncode == 0, proc.stdout or "", proc.stderr or "", proc.returncode)
-        except subprocess.TimeoutExpired as exc:
-            return CodexCliResult(False, exc.stdout or "", f"Codex CLI timed out after {self.timeout_seconds}s", 124)
+            if result.timed_out:
+                return CodexCliResult(False, result.stdout or "", f"Codex CLI timed out after {self.timeout_seconds}s", 124)
+            return CodexCliResult(result.ok, result.stdout or "", result.stderr or result.error or "", result.returncode or (0 if result.ok else 1))
         except UnicodeError as exc:
             return CodexCliResult(False, "", f"Codex CLI Unicode/encoding error: {exc}", 1)
         except FileNotFoundError:

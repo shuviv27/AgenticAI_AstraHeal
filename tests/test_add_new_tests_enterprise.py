@@ -17,6 +17,11 @@ from qa_pipeline.core.paths import REPO_ROOT, feature_testcase_path
 from qa_pipeline.gui.app import app
 from qa_pipeline.integrations.atlassian_mcp import AtlassianCredentials, fetch_atlassian_source, prepare_atlassian_mcp_config
 from qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests import (
+    _validate_specs,
+    _validate_generated_pom_contract,
+    _locator_definition,
+    _locator_definition_from_walkthrough,
+    _locator_label,
     extract_and_normalize_source,
     generate_existing_framework_tests,
     parse_gherkin,
@@ -117,6 +122,287 @@ Examples:
         self.assertEqual(payload["scenario_count"], 2)
         self.assertEqual(len(payload["scenarios"][0]["steps"]), 3)
         self.assertEqual(payload["scenarios"][1]["id"], "XL-2")
+
+    def test_functional_excel_shape_preserves_summary_steps_test_data_and_redacts_credentials(self) -> None:
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Index"
+        sheet.append(["Test_Case", "Summery", "Step Number", "Step Description", "Test Data", "Expected Result"])
+        sheet.append(["TC_01", "Create a Salesforce appointment", "1", "Open Salesforce Customer Central", "https://example.test/salesforce", "Salesforce login page is displayed"])
+        sheet.append(["", "", "2", "Enter valid username", "ben.sms@example.test", "Username is accepted"])
+        sheet.append(["", "", "3", "Enter valid password", "DoNotPersist-123!", "Password is accepted"])
+        sheet.append(["", "", "4", "Enter customer mobile number", "9999999999", "Customer is found"])
+        data = io.BytesIO()
+        workbook.save(data)
+
+        payload = extract_and_normalize_source(
+            self.feature,
+            uploaded_bytes=data.getvalue(),
+            uploaded_name="functional-cases.xlsx",
+        )
+
+        self.assertEqual(payload["scenario_count"], 1)
+        scenario = payload["scenarios"][0]
+        self.assertEqual(scenario["id"], "TC_01")
+        self.assertEqual(scenario["title"], "Create a Salesforce appointment")
+        self.assertEqual(scenario["page"], "Salesforce")
+        self.assertEqual([step.get("step_number") for step in scenario["steps"][:4]], ["1", "2", "3", "4"])
+        self.assertEqual(scenario["steps"][0]["value"], "https://example.test/salesforce")
+        self.assertEqual(scenario["steps"][1]["value_env"], "SALESFORCE_TC_01_USERNAME")
+        self.assertEqual(scenario["steps"][2]["value_env"], "SALESFORCE_TC_01_PASSWORD")
+        self.assertEqual(scenario["steps"][3]["value"], "9999999999")
+        serialized = json.dumps(payload)
+        self.assertNotIn("ben.sms@example.test", serialized)
+        self.assertNotIn("DoNotPersist-123!", serialized)
+
+    def test_default_framework_uses_generated_folder_and_never_patches_base_page(self) -> None:
+        self.write("playwright.config.ts", "export default { testDir: './tests' };\n")
+        (self.root / "tests/generated").mkdir(parents=True, exist_ok=True)
+        (self.root / "tests/generated/.gitkeep").write_text("", encoding="utf-8")
+        original_base = (
+            "import type { Page } from '@playwright/test';\n"
+            "export class BasePage {\n"
+            "  constructor(protected readonly page: Page) {}\n"
+            "  protected getLocator(definition: unknown) { return this.page.locator(String(definition)); }\n"
+            "}\n\n"
+            "export function escapeRegExp(value: string): string {\n"
+            "  return value.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n"
+            "}\n"
+        )
+        self.write("pages/BasePage.ts", original_base)
+        self.write(
+            "utils/locatorFactory.ts",
+            "export type LocatorDefinition = { strategy: string; value: string; role?: string; description?: string; fallbacks?: LocatorDefinition[] };\n",
+        )
+        (self.root / "pageObjects").mkdir(parents=True, exist_ok=True)
+
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.append(["Test_Case", "Summery", "Step Number", "Step Description", "Test Data", "Expected Result"])
+        sheet.append(["TC_01", "Create Salesforce customer", "1", "Open Salesforce Customer Central", "https://example.test", "Login page is displayed"])
+        sheet.append(["", "", "2", "Enter valid username", "person@example.test", "Username is accepted"])
+        sheet.append(["", "", "3", "Click Login button", "", "Dashboard is displayed"])
+        data = io.BytesIO()
+        workbook.save(data)
+        payload = extract_and_normalize_source(self.feature, uploaded_bytes=data.getvalue(), uploaded_name="functional.xlsx")
+        self.save_payload(payload)
+
+        result = generate_existing_framework_tests(str(self.root), self.feature, validate_generated=False)
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["generated_spec_count"], 1)
+        self.assertTrue(result["generated_specs"][0].startswith("tests/generated/"))
+        self.assertIn("pages/SalesforcePage.ts", result["changed_files"])
+        self.assertIn("pageObjects/SalesforcePage.objects.ts", result["changed_files"])
+        self.assertEqual((self.root / "pages/BasePage.ts").read_text(encoding="utf-8"), original_base)
+        page_text = (self.root / "pages/SalesforcePage.ts").read_text(encoding="utf-8")
+        objects_text = (self.root / "pageObjects/SalesforcePage.objects.ts").read_text(encoding="utf-8")
+        spec_text = (self.root / result["generated_specs"][0]).read_text(encoding="utf-8")
+        self.assertIn("extends BasePage", page_text)
+        self.assertIn("SalesforcePageObjects", page_text)
+        self.assertIn("satisfies Record<string, LocatorDefinition>", objects_text)
+        self.assertNotIn("stepValue", spec_text)
+        self.assertIn("const data =", spec_text)
+        self.assertIn("data.username", spec_text)
+        data_files = list(self.root.rglob(f"{self.feature}.data.ts"))
+        self.assertEqual(len(data_files), 1)
+        self.assertIn("SALESFORCE_TC_01_USERNAME", data_files[0].read_text(encoding="utf-8"))
+        self.assertNotIn("person@example.test", spec_text)
+
+
+    def test_generated_specs_use_named_data_and_gitignored_local_runtime_credentials(self) -> None:
+        self.write("playwright.config.ts", "export default { testDir: './tests' };\n")
+        self.write(
+            "pages/LoginPage.ts",
+            "import { Page } from '@playwright/test';\nexport class LoginPage {\n  constructor(private readonly page: Page) {}\n}\n",
+        )
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.append(["Test_Case", "Summery", "Step Number", "Step Description", "Test Data", "Expected Result"])
+        sheet.append(["TC_01", "Login user", "1", "Open application in a new browser session", "https://example.test", "Login page is displayed"])
+        sheet.append(["", "", "2", "Enter valid username", "username: person@example.test", "Username is entered successfully"])
+        sheet.append(["", "", "3", "Enter valid password", "password: Secret-123!", "Password is entered successfully"])
+        sheet.append(["", "", "4", "Click Login button", "", "Dashboard is displayed"])
+        data = io.BytesIO(); workbook.save(data)
+        payload = extract_and_normalize_source(self.feature, uploaded_bytes=data.getvalue(), uploaded_name="functional.xlsx")
+        self.save_payload(payload)
+        scenario = payload["scenarios"][0]
+        env = {}
+        for step in scenario["steps"]:
+            name = str(step.get("value_env") or "")
+            if name.endswith("_USERNAME"):
+                env[name] = "person@example.test"
+            if name.endswith("_PASSWORD"):
+                env[name] = "Secret-123!"
+        result = generate_existing_framework_tests(
+            str(self.root), self.feature, validate_generated=False, runtime_environment=env, placement_mode="auto"
+        )
+        self.assertTrue(result["ok"], result)
+        spec = (self.root / result["generated_specs"][0]).read_text(encoding="utf-8")
+        data_module = (self.root / result["test_data_file"]).read_text(encoding="utf-8")
+        secrets = (self.root / ".env.astraheal.local").read_text(encoding="utf-8")
+        self.assertNotIn("stepValue", spec)
+        self.assertIn("const data =", spec)
+        self.assertIn("data.username", spec)
+        self.assertIn("data.password", spec)
+        self.assertIn("assertRequiredEnvironment", spec)
+        self.assertIn("test.beforeAll", spec)
+        self.assertLess(spec.index("test.describe"), spec.index("test.beforeAll"))
+        self.assertLess(
+            spec.index("test.beforeAll"),
+            spec.index("assertRequiredEnvironment(", spec.index("test.beforeAll")),
+        )
+        self.assertIn("get username()", data_module)
+        self.assertIn("get password()", data_module)
+        self.assertIn("person@example.test", secrets)
+        self.assertIn("Secret-123!", secrets)
+        self.assertIn(".env.astraheal.local", (self.root / ".gitignore").read_text(encoding="utf-8"))
+
+    def test_generic_non_sensitive_spreadsheet_labels_use_optional_runnable_defaults(self) -> None:
+        self.write("playwright.config.ts", "export default { testDir: './tests' };\n")
+        self.write(
+            "pages/AppointmentPage.ts",
+            "import { Page } from '@playwright/test';\nexport class AppointmentPage { constructor(private readonly page: Page) {} }\n",
+        )
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.append(["Test_Case", "Summery", "Step Number", "Step Description", "Test Data", "Expected Result"])
+        sheet.append(["TC_01", "Schedule appointment", "1", "Select Appointment Date", "Date", "Appointment date is selected"])
+        sheet.append(["", "", "2", "Select Appointment Time", "Time", "Appointment time is selected"])
+        sheet.append(["", "", "3", "Select Product", "Product", "Product is selected"])
+        data = io.BytesIO(); workbook.save(data)
+        payload = extract_and_normalize_source(self.feature, uploaded_bytes=data.getvalue(), uploaded_name="functional.xlsx")
+        self.save_payload(payload)
+
+        result = generate_existing_framework_tests(
+            str(self.root), self.feature, validate_generated=False, placement_mode="auto",
+        )
+
+        self.assertTrue(result["ok"], result)
+        module = (self.root / result["test_data_file"]).read_text(encoding="utf-8")
+        self.assertIn("optionalRuntime", module)
+        self.assertIn("futureDate(1)", module)
+        self.assertIn("10:00 AM", module)
+        self.assertNotIn('requiredSecret("APPOINTMENT_DATE")', module)
+        self.assertNotIn("APPOINTMENT_DATE", result["required_environment_variables"])
+        self.assertIn("APPOINTMENT_DATE", result["optional_environment_variables"])
+
+    def test_playwright_list_runtime_data_preflight_is_not_a_structural_rollback(self) -> None:
+        from qa_pipeline.core.commands import CommandResult
+
+        cli = self.root / "node_modules/.bin/playwright"
+        cli.parent.mkdir(parents=True, exist_ok=True)
+        cli.write_text("", encoding="utf-8")
+        cli.chmod(0o755)
+        (self.root / "package.json").write_text("{}", encoding="utf-8")
+        with patch(
+            "qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests._validate_generated_pom_contract",
+            return_value={"ok": True},
+        ), patch(
+            "qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests._validate_typescript_syntax",
+            return_value={"ok": True},
+        ), patch(
+            "qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests.run_command",
+            return_value=CommandResult(
+                ok=False,
+                command="playwright test --list",
+                returncode=1,
+                stdout="",
+                stderr="Error: Required runtime credential is missing: SALESFORCE_USERNAME",
+            ),
+        ):
+            result = _validate_specs(self.root, ["tests/generated.spec.ts"], True)
+
+        self.assertIsNone(result["ok"])
+        self.assertEqual(result["stage"], "playwright_list_runtime_data_deferred")
+        self.assertIn("retained", result["plain_english_reason"])
+
+    def test_generation_retains_specs_when_only_playwright_discovery_runtime_data_is_missing(self) -> None:
+        self.write("playwright.config.ts", "export default { testDir: './tests' };\n")
+        self.write(
+            "pages/LoginPage.ts",
+            "import { Page } from '@playwright/test';\nexport class LoginPage { constructor(private readonly page: Page) {} }\n",
+        )
+        self.save_payload({
+            "feature": self.feature,
+            "scenarios": [{
+                "id": "TC_01",
+                "title": "Login",
+                "page": "Login",
+                "steps": [
+                    {"action": "goto", "target": "Open application", "value": "https://example.test"},
+                    {"action": "fill", "target": "Enter username", "value_env": "LOGIN_USERNAME", "value_sensitive": True},
+                ],
+            }],
+        })
+        with patch(
+            "qa_pipeline.modules.playwright_ts_generator.enterprise_add_new_tests._validate_specs",
+            return_value={
+                "ok": None,
+                "stage": "playwright_list_runtime_data_deferred",
+                "plain_english_reason": "Runtime data deferred; generated files retained.",
+                "runtime_execution": {"ok": None, "skipped": True},
+            },
+        ):
+            result = generate_existing_framework_tests(
+                str(self.root), self.feature, validate_generated=True, placement_mode="auto",
+            )
+
+        self.assertTrue(result["ok"], result)
+        self.assertFalse(result["rollback"]["performed"])
+        self.assertEqual(result["generated_spec_count"], 1)
+        self.assertTrue((self.root / result["generated_specs"][0]).exists())
+
+    def test_visibility_assertions_do_not_use_prose_expected_result_as_ui_text(self) -> None:
+        self.write(
+            "src/main/pages/HomePage.ts",
+            "import { Page } from '@playwright/test';\nexport class HomePage {\n  constructor(private readonly page: Page) {}\n}\n",
+        )
+        payload = {
+            "feature": self.feature,
+            "scenarios": [{
+                "id": "TC_01", "title": "Verify dashboard", "page": "Home",
+                "steps": [
+                    {"action": "verify", "target": "Verify Dashboard page is displayed", "expected": "Dashboard page is successfully loaded"},
+                    {"action": "verify", "target": "Verify Lead Status is New", "expected": "Lead Status is New"},
+                ],
+            }],
+        }
+        self.save_payload(payload)
+        result = generate_existing_framework_tests(str(self.root), self.feature, validate_generated=False, placement_mode="auto")
+        self.assertTrue(result["ok"], result)
+        spec = (self.root / result["generated_specs"][0]).read_text(encoding="utf-8")
+        self.assertIn("verifyDashboardPage();", spec)
+        self.assertNotIn("Dashboard page is successfully loaded", spec)
+        self.assertIn("data.expectedLeadStatus", spec)
+
+    def test_exported_class_member_insertion_ignores_trailing_helper_functions(self) -> None:
+        original = (
+            "import { Page } from '@playwright/test';\n"
+            "export class LoginPage {\n"
+            "  constructor(private readonly page: Page) {}\n"
+            "}\n\n"
+            "export function helper(value: string) {\n"
+            "  return value.trim();\n"
+            "}\n"
+        )
+        self.write("src/main/pages/LoginPage.ts", original)
+        payload = extract_and_normalize_source(
+            self.feature,
+            pasted_json_or_steps="Test Case ID: INS-1\nTitle: Login user\nPage: Login\nSteps:\n1. Enter username\nExpected Result: Dashboard is displayed",
+        )
+        self.save_payload(payload)
+
+        result = generate_existing_framework_tests(str(self.root), self.feature, validate_generated=False)
+
+        self.assertTrue(result["ok"], result)
+        updated = (self.root / "src/main/pages/LoginPage.ts").read_text(encoding="utf-8")
+        class_close = updated.index("}\n\nexport function helper")
+        method_pos = updated.index("async fillUsername")
+        helper_pos = updated.index("export function helper")
+        self.assertLess(method_pos, class_close)
+        self.assertLess(class_close, helper_pos)
+        self.assertIn("return value.trim();", updated)
 
     def test_generation_creates_one_spec_per_scenario_in_configured_testdir(self) -> None:
         self.write(
@@ -271,6 +557,55 @@ Expected Result: Error is displayed
             "/api/browserstack/readiness",
         }
         self.assertTrue(required.issubset(paths), required - paths)
+
+
+    def test_ui_angle_brackets_are_not_emitted_as_locator_text(self) -> None:
+        instruction = "Click on <Log In to sandbox> button"
+        self.assertEqual(_locator_label(instruction), "Log In to Sandbox")
+        definition = _locator_definition(instruction, "click")
+        self.assertIn("value: 'Log In to Sandbox'", definition)
+        self.assertIn("#Login", definition)
+        self.assertNotIn("<Log In", definition)
+
+        verified = _locator_definition_from_walkthrough(
+            {
+                "strategy": "role",
+                "role": "button",
+                "value": "<Log In to sandbox>",
+                "fallbacks": [{"strategy": "text", "value": "<Log In to sandbox>"}],
+            },
+            instruction,
+        )
+        self.assertIn("value: 'Log In to Sandbox'", verified)
+        self.assertNotIn("<Log In", verified)
+
+    def test_default_smart_locator_normalises_documentation_wrappers_at_runtime(self) -> None:
+        smart_locator = (REPO_ROOT / "generated-playwright" / "utils" / "SmartLocator.ts").read_text(encoding="utf-8")
+        self.assertIn("normalizeLocatorText", smart_locator)
+        self.assertIn("input[name=\"Login\"]", smart_locator)
+        self.assertIn("Normalized candidates", smart_locator)
+
+
+    def test_pom_contract_rejects_angle_wrapped_locator_values(self) -> None:
+        self.write(
+            "tests/malformed.spec.ts",
+            "import { test } from '@playwright/test';\n"
+            "import { BadPage } from '../pages/BadPage';\n"
+            "test('bad', async ({ page }) => { const screen = new BadPage(page); await screen.clickBadButton(); });\n",
+        )
+        self.write(
+            "pages/BadPage.ts",
+            "import type { Page } from '@playwright/test';\n"
+            "import { BadObjects } from '../pageObjects/Bad.objects';\n"
+            "export class BadPage { constructor(private readonly page: Page) {} async clickBadButton() { void BadObjects.badButtonLocator; } }\n",
+        )
+        self.write(
+            "pageObjects/Bad.objects.ts",
+            "export const BadObjects = { badButtonLocator: { strategy: 'role', role: 'button', value: '<Bad Button>' } };\n",
+        )
+        result = _validate_generated_pom_contract(self.root, ["tests/malformed.spec.ts"])
+        self.assertFalse(result["ok"])
+        self.assertIn("malformed_locator_value", {item.get("kind") for item in result["issues"]})
 
 
 if __name__ == "__main__":

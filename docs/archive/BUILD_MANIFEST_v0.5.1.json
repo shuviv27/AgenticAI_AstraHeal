@@ -1,0 +1,108 @@
+{
+  "product": "AstraHeal AI Autonomous Multi-Agent Playwright Automation Studio",
+  "version": "0.5.1",
+  "build_date": "2026-07-26",
+  "python_requires": ">=3.11,<3.14",
+  "automated_tests": "45 passed",
+  "python_compilation": "passed",
+  "javascript_syntax_validation": "passed",
+  "fastapi_import_validation": "passed",
+  "route_count": 161,
+  "gui_button_count": 56,
+  "source_file_count": 392,
+  "root_memory_database": "astraheal_memory.sqlite3",
+  "framework_gui_location": "Existing Framework tab",
+  "fixed_error": "RuntimeError: generator didn't stop after throw()",
+  "autonomous_workflows": [
+    "deep_learn",
+    "framework_fix",
+    "mcp_prepare",
+    "distributed_execute",
+    "rca",
+    "self_heal",
+    "full_pipeline"
+  ],
+  "key_files": [
+    {
+      "path": "pyproject.toml",
+      "size_bytes": 834,
+      "sha256": "fda66354bc374f0bfafed36cab93fa533706c3d0ff6c755289dc0d46c49712f1"
+    },
+    {
+      "path": "setup.py",
+      "size_bytes": 897,
+      "sha256": "5794f7c0ba053ddc05ab1987495acbd4cda3e113748f7e1bffdb7ba42ca4e5cd"
+    },
+    {
+      "path": ".env.example",
+      "size_bytes": 2936,
+      "sha256": "8f276abe7a39a83a9c1f86b4eb7cfd633c347a81dda38b5ecc8c024c578495c0"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 2261,
+      "sha256": "f5cf0b23cee12696d08cf6ef155c49c6c2bf0c13b5ad92392c483ddc32af9025"
+    },
+    {
+      "path": "README_FIRST.md",
+      "size_bytes": 6446,
+      "sha256": "ebb77632eb472abfbc2d62dfd2771ff949ff51ff8a6b69811adb48a235c615a3"
+    },
+    {
+      "path": "BUILD_VALIDATION_REPORT.md",
+      "size_bytes": 2383,
+      "sha256": "1f9e06bfac0b2b28fe8b8902443909badd71064a339433c1bef6140914292b1c"
+    },
+    {
+      "path": "AUTONOMOUS_MULTI_AGENT_BUILD_REPORT.md",
+      "size_bytes": 2187,
+      "sha256": "6190c52fc56068f624beb35b4604fe0d39ca6c29ff32ee563f9765b4cdebeb03"
+    },
+    {
+      "path": "docs/33_AUTONOMOUS_LANGGRAPH_LANGSMITH_GRAPHIFY.md",
+      "size_bytes": 9430,
+      "sha256": "8676d024a5d4ab7e8c6fb8b2ed12bbad029edc359558cd9c1809ad1df2d1f382"
+    },
+    {
+      "path": "docs/34_FRAMEWORK_ANALYSIS_GUI_AND_LANGSMITH_CONTEXT_FIX.md",
+      "size_bytes": 3928,
+      "sha256": "c57a14d1f867aa27437a83015e96c8997fcdc2a05a752c28ae59a6df7dff967d"
+    },
+    {
+      "path": "qa_pipeline/gui/app.py",
+      "size_bytes": 224232,
+      "sha256": "9bd3fa7a10a64f90155aae628570db0f27e66a1d591dd73139b2d3fd39e02687"
+    },
+    {
+      "path": "qa_pipeline/gui/static/index.html",
+      "size_bytes": 113817,
+      "sha256": "eb0d4cc696dc3aea4da396276e4b79420e843c20f520df36be9901a8d5888118"
+    },
+    {
+      "path": "qa_pipeline/agentic/observability.py",
+      "size_bytes": 2514,
+      "sha256": "2e8c7df4931230b43a034dd0a5eded38eb6bd0252d117c9acc7e9aacaa3021d9"
+    },
+    {
+      "path": "qa_pipeline/agentic/runtime.py",
+      "size_bytes": 7629,
+      "sha256": "b6d995b85c8ff7b1bb401a0a25d6d7e7ed0963d9a23f99ca2c10cb6b51ebb797"
+    },
+    {
+      "path": "qa_pipeline/agentic/graph.py",
+      "size_bytes": 22925,
+      "sha256": "e0b3552d1d89ea2f01309394b802ad932ec40f51303d8ee96b9caaad424c9ae6"
+    },
+    {
+      "path": "tests/test_agentic_system.py",
+      "size_bytes": 3796,
+      "sha256": "4cf07701011707c650c99a06dfae630edad66015186c33c5bea426789f39b188"
+    },
+    {
+      "path": "astraheal_memory.sqlite3",
+      "size_bytes": 77824,
+      "sha256": "e582366a66f3f4f76ec403f00b14df9796c28d7a4db1caa7da342367d268b59e"
+    }
+  ],
+  "environment_note": "LangChain/LangGraph/LangSmith are declared dependencies. The local build environment validated the compatibility runner and regression tests; target VM should confirm installed dependency readiness through /api/agentic/status."
+}

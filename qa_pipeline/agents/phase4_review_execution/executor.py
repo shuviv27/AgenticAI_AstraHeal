@@ -14,6 +14,7 @@ from qa_pipeline.core.commands import resolve_command, run_command
 from qa_pipeline.core.paths import GENERATED_PLAYWRIGHT_DIR, REPO_ROOT, REPORTS_DIR
 from qa_pipeline.core.project_config import load_project_config
 from qa_pipeline.core.runtime_logger import log_event
+from qa_pipeline.core.operation_control import popen_process_group_kwargs, register_process, unregister_process
 from qa_pipeline.core.url_guard import normalize_base_url
 from qa_pipeline.mcp.playwright_mcp import run_playwright_test, mcp_status
 
@@ -261,7 +262,9 @@ def _run_playwright_streaming(
             errors='replace',
             env=env,
             bufsize=1,
+            **popen_process_group_kwargs(),
         )
+        register_process(proc)
         assert proc.stdout is not None
         last_log = 0.0
         deadline = time.time() + timeout_seconds if timeout_seconds else None
@@ -285,9 +288,11 @@ def _run_playwright_streaming(
                 break
         try:
             returncode = proc.wait(timeout=15)
+            unregister_process(proc)
         except subprocess.TimeoutExpired:
             proc.kill()
             returncode = proc.wait(timeout=10)
+            unregister_process(proc)
             stderr_text = stderr_text or f'{label} process exceeded timeout while closing and was killed.'
         duration = round(time.time() - started, 2)
         ok = returncode == 0
@@ -381,64 +386,114 @@ def _read_playwright_results_json() -> dict[str, Any]:
 
 
 def _extract_failed_from_playwright_json(data: dict[str, Any]) -> dict[str, Any]:
+    """Extract test-level Playwright evidence, including actual error messages.
+
+    Earlier inventories kept only spec/title/status. The Plain-English RCA could
+    therefore find a failed spec but had no reason to explain. Keep the final
+    result errors, line, project and attempts so RCA has observable evidence.
+    """
     failed_tests: list[dict[str, Any]] = []
+    all_test_cases: list[dict[str, Any]] = []
     all_specs: set[str] = set()
     spec_statuses: dict[str, dict[str, Any]] = {}
 
-    def final_status_for(statuses: list[str], failed: bool) -> str:
-        unique = [s for s in dict.fromkeys([str(x).lower() for x in statuses if x]) if s]
-        if failed:
+    def final_status(results: list[dict[str, Any]], test: dict[str, Any]) -> str:
+        statuses = [str(r.get('status') or '').lower() for r in results if isinstance(r, dict)]
+        statuses.append(str(test.get('status') or test.get('outcome') or '').lower())
+        statuses = [s for s in statuses if s]
+        if any(s in {'failed', 'timedout', 'timed out', 'interrupted'} for s in statuses):
             return 'failed'
-        if any(s in {'passed', 'expected'} for s in unique):
+        if any(s in {'passed', 'expected', 'flaky'} for s in statuses):
             return 'passed'
-        if any(s == 'skipped' for s in unique):
+        if any(s == 'skipped' for s in statuses):
             return 'skipped'
-        return unique[-1] if unique else 'unknown'
+        return statuses[-1] if statuses else 'unknown'
 
-    def visit_suite(suite: dict[str, Any], inherited_file: str = '') -> None:
+    def collect_errors(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        errors: list[dict[str, Any]] = []
+        for result in results:
+            if not isinstance(result, dict):
+                continue
+            raw = list(result.get('errors') or [])
+            if result.get('error'):
+                raw.append(result.get('error'))
+            for item in raw:
+                if isinstance(item, dict):
+                    message = str(item.get('message') or item.get('value') or item.get('stack') or '').strip()
+                    stack = str(item.get('stack') or '').strip()
+                    location = item.get('location') if isinstance(item.get('location'), dict) else None
+                    errors.append({'message': message or stack, 'stack': stack, 'location': location})
+                elif item:
+                    errors.append({'message': str(item)})
+        return errors
+
+    def visit_suite(suite: dict[str, Any], inherited_file: str = '', parents: list[str] | None = None) -> None:
+        parents = list(parents or [])
         suite_file = suite.get('file') or inherited_file
+        suite_title = str(suite.get('title') or '').strip()
+        if suite_title:
+            parents.append(suite_title)
         for spec in suite.get('specs') or []:
+            if not isinstance(spec, dict):
+                continue
             spec_file = _normalise_spec_path(spec.get('file') or suite_file or '')
             if spec_file:
                 all_specs.add(spec_file)
-            title = spec.get('title') or ''
-            failed = False
+            title_parts = [p for p in parents if p]
+            if spec.get('title'):
+                title_parts.append(str(spec.get('title')))
+            title = ' › '.join(title_parts) or str(spec.get('title') or '')
+            spec_failed = False
+            spec_passed = False
             statuses: list[str] = []
-            for test in spec.get('tests') or []:
-                status = str(test.get('status') or '').lower()
-                if status:
-                    statuses.append(status)
-                if status and status not in {'expected', 'passed', 'skipped'}:
-                    failed = True
-                for result in test.get('results') or []:
-                    rstatus = str(result.get('status') or '').lower()
-                    if rstatus:
-                        statuses.append(rstatus)
-                    if rstatus in {'failed', 'timedout', 'timed out', 'interrupted'}:
-                        failed = True
+            tests = [t for t in (spec.get('tests') or []) if isinstance(t, dict)]
+            if not tests:
+                tests = [{}]
+            for test in tests:
+                results = [r for r in (test.get('results') or []) if isinstance(r, dict)]
+                status = final_status(results, test)
+                statuses.append(status)
+                errors = collect_errors(results)
+                record = {
+                    'id': f"{spec_file}::{title}::{test.get('projectName') or test.get('projectId') or ''}",
+                    'spec': spec_file,
+                    'feature': _spec_to_feature(spec_file),
+                    'title': title or '(test title not captured)',
+                    'status': status,
+                    'projectName': test.get('projectName') or test.get('projectId') or '',
+                    'line': spec.get('line'),
+                    'column': spec.get('column'),
+                    'expectedStatus': test.get('expectedStatus'),
+                    'attempt_count': len(results),
+                    'errors': errors,
+                    'error': next((e.get('message') for e in errors if e.get('message')), ''),
+                }
+                all_test_cases.append(record)
+                if status == 'failed':
+                    spec_failed = True
+                    failed_tests.append(record)
+                elif status in {'passed', 'skipped'}:
+                    spec_passed = True
             if spec_file:
                 current = spec_statuses.get(spec_file, {'spec': spec_file, 'feature': _spec_to_feature(spec_file), 'titles': [], 'statuses': [], 'status': 'unknown'})
                 current['titles'].append(title)
                 current['statuses'].extend(statuses)
-                # If any spec in the file failed, keep file-level status failed.
-                current_failed = failed or current.get('status') == 'failed'
-                current['status'] = final_status_for(current['statuses'], current_failed)
+                if spec_failed or current.get('status') == 'failed':
+                    current['status'] = 'failed'
+                elif spec_passed:
+                    current['status'] = 'passed'
                 spec_statuses[spec_file] = current
-            if failed:
-                failed_tests.append({
-                    'spec': spec_file,
-                    'feature': _spec_to_feature(spec_file),
-                    'title': title,
-                    'statuses': list(dict.fromkeys(statuses)),
-                })
         for child in suite.get('suites') or []:
-            visit_suite(child, suite_file)
+            if isinstance(child, dict):
+                visit_suite(child, suite_file, parents)
 
     for suite in data.get('suites') or []:
-        visit_suite(suite)
+        if isinstance(suite, dict):
+            visit_suite(suite)
 
     failed_specs = sorted({t['spec'] for t in failed_tests if t.get('spec')})
     passed_specs = sorted([s for s, row in spec_statuses.items() if row.get('status') == 'passed' and s not in failed_specs])
+    passed_test_cases = [r for r in all_test_cases if r.get('status') in {'passed', 'skipped'}]
     return {
         'ok': True,
         'all_specs': sorted(all_specs),
@@ -447,9 +502,14 @@ def _extract_failed_from_playwright_json(data: dict[str, Any]) -> dict[str, Any]
         'failed_specs': failed_specs,
         'failed_features': [_spec_to_feature(s) for s in failed_specs],
         'failed_tests': failed_tests,
+        'failed_test_cases': failed_tests,
+        'passed_test_cases': passed_test_cases,
+        'all_test_cases': all_test_cases,
+        'test_case_count': len(all_test_cases),
+        'failed_test_case_count': len(failed_tests),
+        'passed_test_case_count': len(passed_test_cases),
         'failed_count': len(failed_tests),
     }
-
 
 def _extract_failed_specs_from_stdout(stdout: str, target_args: list[str]) -> list[str]:
     text = str(stdout or '')
@@ -493,6 +553,12 @@ def _write_failed_test_inventory(*, execution_report: dict[str, Any], target_arg
         'failed_specs': failed_specs,
         'failed_features': [_spec_to_feature(s) for s in failed_specs],
         'failed_tests': parsed.get('failed_tests') or [],
+        'failed_test_cases': parsed.get('failed_test_cases') or parsed.get('failed_tests') or [],
+        'all_test_cases': parsed.get('all_test_cases') or [],
+        'passed_test_cases': parsed.get('passed_test_cases') or [],
+        'test_case_count': int(parsed.get('test_case_count') or 0),
+        'failed_test_case_count': int(parsed.get('failed_test_case_count') or len(parsed.get('failed_tests') or [])),
+        'passed_test_case_count': int(parsed.get('passed_test_case_count') or 0),
         'failed_count': len(failed_specs),
         'results_json': {k: v for k, v in results_json.items() if k != 'data'},
         'native_html_report': 'generated-playwright/reports/html/index.html',
@@ -800,7 +866,9 @@ def _run_one_shard(target_args: list[str], idx: int, total: int, project: str, h
             errors='replace',
             env=env,
             bufsize=1,
+            **popen_process_group_kwargs(),
         )
+        register_process(proc)
         assert proc.stdout is not None
         last_log = 0.0
         for line in proc.stdout:
@@ -816,9 +884,11 @@ def _run_one_shard(target_args: list[str], idx: int, total: int, project: str, h
                 log_event('playwright_execution', f'Shard {shard_name}: {line[:500]}', progress=min(88, 34 + int((idx / max(total, 1)) * 45)), details={'shard': shard_name})
         try:
             returncode = proc.wait(timeout=10)
+            unregister_process(proc)
         except subprocess.TimeoutExpired:
             proc.kill()
             returncode = proc.wait(timeout=10)
+            unregister_process(proc)
             stderr_text = 'Shard process exceeded timeout while closing and was killed.'
         ok = returncode == 0
         duration = round(time.time() - started, 2)
